@@ -7,4 +7,4 @@
 ######################################################
 
 ######################################################
-add_library(libnumaprof PageTable.cpp)
+add_library(numaprof PageTable.cpp)

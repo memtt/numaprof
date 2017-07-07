@@ -13,10 +13,10 @@
 #include <mutex>
 #include <cstdlib>
 #include <cassert>
-#include <cstdint>
+#include <iostream>
 
 /*******************  NAMESPACE  ********************/
-namespace numprof
+namespace numaprof
 {
 	
 /********************  MACROS  **********************/
@@ -65,8 +65,8 @@ class PageGlobalDirectory : public PageTableLevel<PageUpperDirectory> {};
 class PageTable
 {
 	public:
-		Page & getPage(uint64_t addr);
-		void clear(uint64_t baseAddr,size_t size);
+		Page & getPage(void * addr);
+		void clear(void * baseAddr,size_t size);
 	private:
 		 PageGlobalDirectory pgd;
 		 std::mutex mutex;
@@ -100,7 +100,10 @@ T * PageTableLevel<T>::makeNewEntry(std::mutex & mutex,int id)
 	{
 		mutex.lock();
 		if (entries[id] == NULL)
+		{
+			//std::cout << "Allocate " << id << std::endl;
 			entries[id] = new T;
+		}
 		mutex.unlock();
 	}
 	return entries[id];

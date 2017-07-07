@@ -40,3 +40,4 @@ numaprof_enable_cxx_11()
 ######################################################
 add_subdirectory(src)
 add_subdirectory(extern-deps)
+add_subdirectory(tests)

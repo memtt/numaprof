@@ -7,20 +7,28 @@
 *****************************************************/
 
 /********************  HEADERS  *********************/
+#include <cstdint>
+#include <iostream>
 #include "PageTable.hpp"
 
 /*******************  NAMESPACE  ********************/
-namespace numprof
+namespace numaprof
 {
 
 /*******************  FUNCTION  *********************/
-Page & PageTable::getPage(uint64_t addr)
+Page & PageTable::getPage(void * addr)
 {
+	//convert
+	uint64_t ptr = (uint64_t)addr;
+
 	//get offsets
-	int pteOffset = NUMAPROF_PAGE_LEVEL_ID(addr,0);
-	int pmdOffset = NUMAPROF_PAGE_LEVEL_ID(addr,1);
-	int pudOffset = NUMAPROF_PAGE_LEVEL_ID(addr,2);
-	int pgdOffset = NUMAPROF_PAGE_LEVEL_ID(addr,3);
+	int pteOffset = NUMAPROF_PAGE_LEVEL_ID(ptr,0);
+	int pmdOffset = NUMAPROF_PAGE_LEVEL_ID(ptr,1);
+	int pudOffset = NUMAPROF_PAGE_LEVEL_ID(ptr,2);
+	int pgdOffset = NUMAPROF_PAGE_LEVEL_ID(ptr,3);
+	
+	//dbeug
+	//std::cout << pgdOffset << " " << pudOffset << " " << pmdOffset << " " << pteOffset << std::endl;
 	
 	//get pud
 	PageUpperDirectory * pud = pgd.getEntry(pgdOffset);
@@ -34,7 +42,7 @@ Page & PageTable::getPage(uint64_t addr)
 		
 	//get pmd	
 	PageTableEntry * pte = pmd->getEntry(pmdOffset);
-	if (pmd == NULL)
+	if (pte == NULL)
 		pte = pmd->makeNewEntry(mutex,pmdOffset);
 		
 	//get page
@@ -42,15 +50,15 @@ Page & PageTable::getPage(uint64_t addr)
 }
 
 /*******************  FUNCTION  *********************/
-void PageTable::clear(uint64_t baseAddr,size_t size)
+void PageTable::clear(void * baseAddr,size_t size)
 {
 	//seutp
-	uint64_t end = baseAddr + size;
-	baseAddr = baseAddr & (~NUMAPROF_PAGE_MASK);
+	uint64_t end = (uint64_t)baseAddr + size;
+	uint64_t start = ((uint64_t)baseAddr) & (~NUMAPROF_PAGE_MASK);
 	
 	//loop
-	for (uint64_t addr = baseAddr; addr < end ; addr += NUMAPROF_PAGE_SIZE)
-		getPage(addr).numaNode = NUMAPROF_DEFAULT_NUMA_NODE;
+	for (uint64_t addr = start; addr < end ; addr += NUMAPROF_PAGE_SIZE)
+		getPage((void*)addr).numaNode = NUMAPROF_DEFAULT_NUMA_NODE;
 }
 
 }
