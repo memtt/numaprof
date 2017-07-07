@@ -1,0 +1,1 @@
+This is to fix one missing cast of void pointer which prevent to built from C++ compiler.
