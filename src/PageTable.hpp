@@ -13,19 +13,27 @@
 #include <mutex>
 #include <cstdlib>
 #include <cassert>
+#include <cstdint>
 
 /*******************  NAMESPACE  ********************/
 namespace numprof
 {
 	
 /********************  MACROS  **********************/
+#define NUMAPROF_PAGE_OFFSET 12
+#define NUMAPROF_PAGE_SIZE (1lu << NUMAPROF_PAGE_OFFSET)
+#define NUMAPROF_PAGE_MASK (NUMAPROF_PAGE_SIZE - 1)
 #define NUMAPROF_PAGE_LEVEL_BITS 9
-#define NUMAPROG_PAGE_LEVEL_ENTRIES (1<<NUMAPROF_PAGE_LEVEL_BITS)
+#define NUMAPROF_PAGE_LEVEL_MASK ((1lu << NUMAPROF_PAGE_LEVEL_BITS) - 1)
+#define NUMAPROF_PAGE_LEVEL_ENTRIES (1lu <<NUMAPROF_PAGE_LEVEL_BITS)
+#define NUMAPROF_PAGE_LEVEL_SHIFT(level) (NUMAPROF_PAGE_OFFSET + NUMAPROF_PAGE_LEVEL_BITS * level)
+#define NUMAPROF_PAGE_LEVEL_ID(ptr,level) ((ptr & (NUMAPROF_PAGE_LEVEL_MASK << NUMAPROF_PAGE_LEVEL_SHIFT(level))) >> NUMAPROF_PAGE_LEVEL_SHIFT(level))
+#define NUMAPROF_DEFAULT_NUMA_NODE (-2)
 
 /********************  STRUCT  **********************/
 struct Page
 {
-	Page(void) {numaNode = -2;};
+	Page(void) {numaNode = NUMAPROF_DEFAULT_NUMA_NODE;};
 	int numaNode;
 };
 
@@ -36,24 +44,29 @@ class PageTableLevel
 	public:
 		PageTableLevel(void);
 		~PageTableLevel(void);
-		void makeNewEntry(std::mutex & mutex,int id);
+		T * makeNewEntry(std::mutex & mutex,int id);
 		T * getEntry(int id);
-		T * entries[NUMAPROG_PAGE_LEVEL_ENTRIES];
+	private:
+		T * entries[NUMAPROF_PAGE_LEVEL_ENTRIES];
 };
 
 /********************  STRUCT  **********************/
-class PageTableEntry : public PageTableLevel<Page> {};
-class PageDirectory : public PageTableLevel<PageTableEntry> {};
-class PageUpperDirectory : public PageTableLevel<PageDirectory> {};
-class PageMiddleDirectory : public PageTableLevel<PageUpperDirectory> {};
-class PageGlobalDirectory : public PageTableLevel<PageMiddleDirectory> {};
+struct PageTableEntry
+{
+	Page entries[NUMAPROF_PAGE_LEVEL_ENTRIES];
+};
+
+/********************  STRUCT  **********************/
+class PageMiddleDirectory : public PageTableLevel<PageTableEntry> {};
+class PageUpperDirectory : public PageTableLevel<PageMiddleDirectory> {};
+class PageGlobalDirectory : public PageTableLevel<PageUpperDirectory> {};
 
 /*********************  CLASS  **********************/
 class PageTable
 {
 	public:
-		Page & getPage(void * addr);
-		void clear(void * baseAddr,size_t size);
+		Page & getPage(uint64_t addr);
+		void clear(uint64_t baseAddr,size_t size);
 	private:
 		 PageGlobalDirectory pgd;
 		 std::mutex mutex;
@@ -63,7 +76,7 @@ class PageTable
 template <class T>
 PageTableLevel<T>::PageTableLevel(void)
 {
-	for (int i = 0 ; i < NUMAPROG_PAGE_LEVEL_ENTRIES ; i++)
+	for (int i = 0 ; i < NUMAPROF_PAGE_LEVEL_ENTRIES ; i++)
 		entries[i] = NULL;
 }
 
@@ -71,7 +84,7 @@ PageTableLevel<T>::PageTableLevel(void)
 template <class T>
 PageTableLevel<T>::~PageTableLevel(void)
 {
-	for (int i = 0 ; i < NUMAPROG_PAGE_LEVEL_ENTRIES ; i++)
+	for (int i = 0 ; i < NUMAPROF_PAGE_LEVEL_ENTRIES ; i++)
 	{
 		if (entries[i] != NULL)
 			delete entries[i];
@@ -80,9 +93,9 @@ PageTableLevel<T>::~PageTableLevel(void)
 
 /*******************  FUNCTION  *********************/
 template <class T>
-void PageTableLevel<T>::makeNewEntry(std::mutex & mutex,int id)
+T * PageTableLevel<T>::makeNewEntry(std::mutex & mutex,int id)
 {
-	assert(id >= 0 && id < NUMAPROG_PAGE_LEVEL_ENTRIES);
+	assert(id >= 0 && id < NUMAPROF_PAGE_LEVEL_ENTRIES);
 	if (entries[id] == NULL)
 	{
 		mutex.lock();
@@ -90,13 +103,14 @@ void PageTableLevel<T>::makeNewEntry(std::mutex & mutex,int id)
 			entries[id] = new T;
 		mutex.unlock();
 	}
+	return entries[id];
 }
 
 /*******************  FUNCTION  *********************/
 template <class T>
 T * PageTableLevel<T>::getEntry(int id)
 {
-	assert(id >= 0 && id < NUMAPROG_PAGE_LEVEL_ENTRIES);
+	assert(id >= 0 && id < NUMAPROF_PAGE_LEVEL_ENTRIES);
 	return entries[id];
 }
 
