@@ -23,8 +23,9 @@ using namespace std;
 /*******************  STRUCT  ***********************/
 struct ThreadData
 {
+    //keep track between enter/exit of malloc/calloc/... functions
     int allocSize;
-    int allocCnt;
+    void * allocCallsite;
 };
 
 /*******************  GLOBALS  **********************/
@@ -36,9 +37,9 @@ FILE * trace;
 static  TLS_KEY tls_key = INVALID_TLS_KEY;
 
 /*******************  FUNCTION  *********************/
-static ThreadData * getTls(THREADID threadid)
+static ThreadData & getTls(THREADID threadid)
 {
-    return static_cast<ThreadData*>(PIN_GetThreadData(tls_key, threadid));
+    return *(static_cast<ThreadData*>(PIN_GetThreadData(tls_key, threadid)));
 }
 
 /*******************  FUNCTION  *********************/
@@ -85,8 +86,10 @@ static VOID RecordMemWrite(VOID * ip, VOID * addr,THREADID threadid)
 /*******************  FUNCTION  *********************/
 static VOID beforeMalloc(ADDRINT size, VOID * retIp,THREADID threadid)
 {
-    getTls(threadid);
-	printf("malloc %lu (from %p)\n",size,retIp);
+    ThreadData & data = getTls(threadid);
+    data.allocSize = size;
+    data.allocCallsite = retIp;
+	//printf("malloc %lu (from %p)\n",size,retIp);
 }
 
 /*******************  FUNCTION  *********************/
@@ -98,7 +101,10 @@ static VOID afterMalloc(ADDRINT ret,THREADID threadid)
 /*******************  FUNCTION  *********************/
 static VOID beforeCalloc(ADDRINT nmemb,ADDRINT size,VOID * retIp,THREADID threadid)
 {
-	printf("calloc %lu %lu (from %p)\n",nmemb,size,retIp);
+    ThreadData & data = getTls(threadid);
+    data.allocSize = size;
+    data.allocCallsite = retIp;
+	//printf("calloc %lu %lu (from %p)\n",nmemb,size,retIp);
 }
 
 /*******************  FUNCTION  *********************/
@@ -117,6 +123,13 @@ static void beforeFunc(void * fctAddr,THREADID threadid)
 static void afterFunc(void * fctAddr,THREADID threadid)
 {
     //printf("Exit %p\n",fctAddr);
+}
+
+/*******************  FUNCTION  *********************/
+static void beforeMunmap(VOID * addr,ADDRINT size,THREADID threadid)
+{
+    //printf("Call munmap %p : %lu\n",addr,size);
+	//printf("Enter in %p\n",fctAddr);
 }
 
 /*******************  FUNCTION  *********************/
@@ -166,6 +179,27 @@ static VOID instrImageCalloc(IMG img, VOID *v)
 		RTN_InsertCall(callocRtn, IPOINT_AFTER, (AFUNPTR)afterMalloc,
 					   IARG_FUNCRET_EXITPOINT_VALUE,
 		               IARG_THREAD_ID,IARG_END);
+		RTN_Close(callocRtn);
+    }
+}
+
+/*******************  FUNCTION  *********************/
+static VOID instrImageMmap(IMG img, VOID *v)
+{
+	// Instrument the malloc() and free() functions.  Print the input argument
+	// of each malloc() or free(), and the return value of malloc().
+	//
+	//  Find the malloc() function.
+	RTN callocRtn = RTN_FindByName(img, "munmap");
+	if (RTN_Valid(callocRtn))
+    {
+		RTN_Open(callocRtn);
+		
+		// Instrument malloc() to print the input argument value and the return value.
+		RTN_InsertCall(callocRtn, IPOINT_AFTER, (AFUNPTR)beforeMunmap,
+                       IARG_FUNCARG_ENTRYPOINT_VALUE, 0,
+		               IARG_FUNCARG_ENTRYPOINT_VALUE, 1,
+                       IARG_THREAD_ID,IARG_END);
 		RTN_Close(callocRtn);
     }
 }
@@ -232,13 +266,14 @@ static VOID Instruction(INS ins, VOID *v)
 //Inspirate from code exemple of pintool doc
 static VOID instrImage(IMG img, VOID *v)
 {
+    instrImageMmap(img,v);
 	instrImageMalloc(img,v);
 	instrImageCalloc(img,v);
 	instrImageFree(img,v);
 }
 
 /*******************  FUNCTION  *********************/
-static VOID instrFunctions(RTN rtn, VOID *v)
+VOID instrFunctions(RTN rtn, VOID *v)
 {
 	RTN_Open(rtn);
 
@@ -292,7 +327,7 @@ int main(int argc, char *argv[])
 
     IMG_AddInstrumentFunction(instrImage, 0);
     INS_AddInstrumentFunction(Instruction, 0);
-    RTN_AddInstrumentFunction(instrFunctions, 0);
+    //RTN_AddInstrumentFunction(instrFunctions, 0);
     PIN_AddFiniFunction(Fini, 0);
 
     // Register ThreadStart to be called when a thread starts and stop.
