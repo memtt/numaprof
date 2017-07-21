@@ -7,5 +7,5 @@
 ######################################################
 
 ######################################################
-add_library(numaprof PageTable.cpp TopoHwloc.cpp Debug.cpp)
+add_library(numaprof SHARED PageTable.cpp TopoHwloc.cpp Debug.cpp)
 target_link_libraries(numaprof ${HWLOC_LIBRARY})

@@ -1,0 +1,25 @@
+TOOL_ROOTS := numaprof
+
+HWLOC_PREFIX=$(HOME)/usr
+
+CST_SRC=../..
+CST_BUILD=$(CST_SRC)/build
+CST_CFLAGS=-I$(CST_SRC)/src -I$(CST_BUILD)/src -DNDEBUG -DUSE_PIN_LOCKS -I$(HWLOC_PREFIX)/include
+CST_LSFLAGS=-Wl,-rpath=$(CST_BUILD)/src $(CST_BUILD)/src/libnumaprof.so 
+
+# Build the intermediate object file.
+$(OBJDIR)numaprof$(OBJ_SUFFIX): numaprof.cpp 
+	$(CXX) $(TOOL_CXXFLAGS_NOOPT) $(COMP_OBJ)$@ $< $(CST_CFLAGS)
+
+$(OBJDIR)numaprof-debug$(OBJ_SUFFIX): ../../src/Debug.cpp 
+	$(CXX) $(TOOL_CXXFLAGS_NOOPT) $(COMP_OBJ)$@ $< $(CST_CFLAGS)
+
+$(OBJDIR)numaprof-page-table$(OBJ_SUFFIX): ../../src/PageTable.cpp 
+	$(CXX) $(TOOL_CXXFLAGS_NOOPT) $(COMP_OBJ)$@ $< $(CST_CFLAGS)
+
+$(OBJDIR)numaprof-move-pages$(OBJ_SUFFIX): ../../src/MovePages.cpp 
+	$(CXX) $(TOOL_CXXFLAGS_NOOPT) $(COMP_OBJ)$@ $< $(CST_CFLAGS)
+
+# Build the tool as a dll (shared object).
+$(OBJDIR)numaprof$(PINTOOL_SUFFIX): $(OBJDIR)numaprof$(OBJ_SUFFIX) $(OBJDIR)numaprof-debug$(OBJ_SUFFIX) $(OBJDIR)numaprof-page-table$(OBJ_SUFFIX) $(OBJDIR)numaprof-move-pages$(OBJ_SUFFIX)
+	$(LINKER) $(TOOL_LDFLAGS_NOOPT) $(LINK_EXE)$@ $^ $(TOOL_LPATHS) $(TOOL_LIBS) $(CST_LSFLAGS) 

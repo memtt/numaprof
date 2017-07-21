@@ -69,9 +69,11 @@ void DebugMessage::print ( const char* format, ... )
 	
 	//print mode
 	if (level == MESSAGE_PERROR || level == MESSAGE_FATAL_PERROR)
+	{
 		perror(glob);
-	else
-		int res = write(cstMessageLevelFD[level],glob,size);
+	} else {
+		write(cstMessageLevelFD[level],glob,size);
+	}
 	
 	//special
 	if (level >= MESSAGE_FATAL)// && level != MESSAGE_ASSERT)

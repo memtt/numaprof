@@ -10,7 +10,7 @@
 #define PAGE_TABLE_HPP
 
 /********************  HEADERS  *********************/
-#include <mutex>
+#include "Mutex.hpp"
 #include <cstdlib>
 #include <cassert>
 #include <iostream>
@@ -44,7 +44,7 @@ class PageTableLevel
 	public:
 		PageTableLevel(void);
 		~PageTableLevel(void);
-		T * makeNewEntry(std::mutex & mutex,int id);
+		T * makeNewEntry(Mutex & mutex,int id);
 		T * getEntry(int id);
 	private:
 		T * entries[NUMAPROF_PAGE_LEVEL_ENTRIES];
@@ -69,7 +69,7 @@ class PageTable
 		void clear(void * baseAddr,size_t size);
 	private:
 		 PageGlobalDirectory pgd;
-		 std::mutex mutex;
+		 Mutex mutex;
 };
 
 /*******************  FUNCTION  *********************/
@@ -93,7 +93,7 @@ PageTableLevel<T>::~PageTableLevel(void)
 
 /*******************  FUNCTION  *********************/
 template <class T>
-T * PageTableLevel<T>::makeNewEntry(std::mutex & mutex,int id)
+T * PageTableLevel<T>::makeNewEntry(Mutex & mutex,int id)
 {
 	assert(id >= 0 && id < NUMAPROF_PAGE_LEVEL_ENTRIES);
 	if (entries[id] == NULL)
