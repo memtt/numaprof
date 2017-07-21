@@ -1,5 +1,5 @@
 /*****************************************************
-             PROJECT  : numlaprof
+             PROJECT  : numaprof
              VERSION  : 2.3.0
              DATE     : 05/2017
              AUTHOR   : Valat Sébastien - CERN

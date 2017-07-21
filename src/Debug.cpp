@@ -1,9 +1,9 @@
 /*****************************************************
-*            PROJECT  : MPC_Allocator_CPP            *
-*            VERSION  : 0.0.0                        *
-*            DATE     : 07/2013                      *
-*            AUTHOR   : Valat Sébastien              *
-*            LICENSE  : CeCILL-C                     *
+             PROJECT  : numaprof
+             VERSION  : 2.3.0
+             DATE     : 05/2017
+             AUTHOR   : Valat Sébastien - CERN
+             LICENSE  : CeCILL-C
 *****************************************************/
 
 /********************  HEADERS  *********************/

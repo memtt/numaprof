@@ -1,6 +1,10 @@
-/*
- *  This file contains an ISA-portable PIN tool for tracing memory accesses.
- */
+/*****************************************************
+             PROJECT  : numaprof
+             VERSION  : 2.3.0
+             DATE     : 05/2017
+             AUTHOR   : Valat Sébastien - CERN
+             LICENSE  : CeCILL-C
+*****************************************************/
 
 #include "pin.H"
 #include <cstdio>
