@@ -1,5 +1,6 @@
 //Imported from libnuma to not have to link to libnuma inside pintool
 
+/********************  HEADERS  *********************/
 #include "MovePages.hpp"
 
 #include <unistd.h>
@@ -11,7 +12,7 @@
 //#include "numaif.h"
 //#include "numaint.h"
 
-extern "C"
+namespace numaprof
 {
 
 #define WEAK __attribute__((weak))
@@ -177,11 +178,13 @@ long syscall6(long call, long a, long b, long c, long d, long e, long f)
 #define syscall6 syscall
 #endif
 
+/*******************  FUNCTION  *********************/
 long WEAK move_pages(int pid, unsigned long count,void **pages, const int *nodes, int *status, int flags)
 {
 	return syscall6(__NR_move_pages, pid, count,(long) pages,(long) nodes, (long)status, flags);
 }
 
+/*******************  FUNCTION  *********************/
 int getNumaOfPage(void * addr)
 {
 	//4k align
