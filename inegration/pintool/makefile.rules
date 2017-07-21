@@ -5,7 +5,7 @@ HWLOC_PREFIX=$(HOME)/usr
 CST_SRC=../..
 CST_BUILD=$(CST_SRC)/build
 CST_CFLAGS=-I$(CST_SRC)/src -I$(CST_BUILD)/src -DNDEBUG -DUSE_PIN_LOCKS -I$(HWLOC_PREFIX)/include
-CST_LSFLAGS=-Wl,-rpath=$(CST_BUILD)/src $(CST_BUILD)/src/libnumaprof.so 
+#CST_LSFLAGS=-Wl,-rpath=$(CST_BUILD)/src $(CST_BUILD)/src/libnumaprof.so 
 
 # Build the intermediate object file.
 $(OBJDIR)numaprof$(OBJ_SUFFIX): numaprof.cpp 

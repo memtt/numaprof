@@ -76,7 +76,7 @@ class PageTable
 template <class T>
 PageTableLevel<T>::PageTableLevel(void)
 {
-	for (int i = 0 ; i < NUMAPROF_PAGE_LEVEL_ENTRIES ; i++)
+	for (size_t i = 0 ; i < NUMAPROF_PAGE_LEVEL_ENTRIES ; i++)
 		entries[i] = NULL;
 }
 
@@ -84,7 +84,7 @@ PageTableLevel<T>::PageTableLevel(void)
 template <class T>
 PageTableLevel<T>::~PageTableLevel(void)
 {
-	for (int i = 0 ; i < NUMAPROF_PAGE_LEVEL_ENTRIES ; i++)
+	for (size_t i = 0 ; i < NUMAPROF_PAGE_LEVEL_ENTRIES ; i++)
 	{
 		if (entries[i] != NULL)
 			delete entries[i];
