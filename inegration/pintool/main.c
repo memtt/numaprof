@@ -1,5 +1,3 @@
-#include <thread>
-#include <functional>
 #include <cstdio>
 #include <cstdlib>
 #include <unistd.h>
@@ -15,9 +13,6 @@ int func()
 int main()
 {
 	printf("ok\n");
-	std::thread a(func);
-	sleep(1);
-	std::thread b(func);
-	a.join();
-	b.join();
+	func();
+	func();
 }
