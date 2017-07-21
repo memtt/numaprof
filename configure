@@ -33,6 +33,7 @@ ENABLE_JUNIT_OUT=''
 ENABLE_VALGRIND=''
 LIB_SUFFIX=''
 #prefix
+HLWOC_PREFIX=''
 #select transport
 TRANSPORT=''
 
@@ -76,6 +77,7 @@ Optional Features:
 To find libs and commands :
    --with-cmake={command}    Define the cmake command to use [cmake].
    --with-mpicxx={cmd}       Define the MPI compiler to use [mpicxx].
+   --with-hwloc={prefix}     Define prefix to find hwloc [/usr].
 
 To get the generated cmake command :
    --show                  Display the cmake command and didn't execute it.
@@ -142,6 +144,9 @@ do
 			;;
 		--with-mpicxx=*)
 			MPI_CXX_COMPILER="-DMPI_CXX_COMPILER=`get_arg_value \"$arg\" --with-mpicxx`"
+			;;
+		--with-hwloc=*)
+			HWLOC_PREFIX="-DHWLOC_PREFIX=`get_arg_value \"$arg\" --with-hwloc`"
 			;;
 		--enable-debug)
 			BUILD_TYPE='Debug'
@@ -233,7 +238,7 @@ gen_clean_command()
 COMMAND="`gen_clean_command "${CMAKE}" "-DCMAKE_BUILD_TYPE=${BUILD_TYPE}" "${PREFIX}" "${EXTRA_CXX}" \
 	"${EXTRA_CXXFLAGS}" "${EXTRA_LDFLAGS}" "${EXTRA_CC}" "${EXTRA_CFLAGS}" \
 	"${ENABLE_SELF_TEST}" "${ENABLE_JUNIT_OUT}" "${ENABLE_VALGRIND}" "${ENABLE_GCC_COVERAGE}" "${DISABLE_TESTS}" \
-	"${LIB_SUFFIX}" "${SOURCE_DIR}" "${MPI_CXX_COMPILER}"`" 
+	"${LIB_SUFFIX}" "${HWLOC_PREFIX}" "${SOURCE_DIR}" "${MPI_CXX_COMPILER}"`" 
 
 ######################################################
 #execute or display
