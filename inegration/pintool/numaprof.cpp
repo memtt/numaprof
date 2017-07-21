@@ -2,9 +2,9 @@
  *  This file contains an ISA-portable PIN tool for tracing memory accesses.
  */
 
-#include <stdio.h>
-#include <MovePages.hpp>
 #include "pin.H"
+#include <cstdio>
+#include <MovePages.hpp>
 
 /********************  GLOBALS  **********************/
 #if defined(TARGET_MAC222)
@@ -83,12 +83,13 @@ void afterFunc(void * fctAddr)
 }
 
 /*******************  FUNCTION  *********************/
-static VOID instrImageMalloc(IMG img)
+VOID instrImageMalloc(IMG img, VOID *v)
 {
 	// Instrument the malloc() and free() functions.  Print the input argument
 	// of each malloc() or free(), and the return value of malloc().
 	//
 	//  Find the malloc() function.
+    printf("search %s\n",MALLOC);
 	RTN mallocRtn = RTN_FindByName(img, MALLOC);
 	if (RTN_Valid(mallocRtn))
     {
@@ -109,7 +110,7 @@ static VOID instrImageMalloc(IMG img)
 }
 
 /*******************  FUNCTION  *********************/
-static VOID instrImageCalloc(IMG img)
+VOID instrImageCalloc(IMG img, VOID *v)
 {
 	// Instrument the malloc() and free() functions.  Print the input argument
 	// of each malloc() or free(), and the return value of malloc().
@@ -135,7 +136,7 @@ static VOID instrImageCalloc(IMG img)
 }
 
 /*******************  FUNCTION  *********************/
-static VOID instrImageFree(IMG img)
+VOID instrImageFree(IMG img, VOID *v)
 {
 	// Instrument the malloc() and free() functions.  Print the input argument
 	// of each malloc() or free(), and the return value of malloc().
@@ -193,11 +194,11 @@ VOID Instruction(INS ins, VOID *v)
 
 /*******************  FUNCTION  *********************/
 //Inspirate from code exemple of pintool doc
-static VOID instrImage(IMG img, VOID *v)
+VOID instrImage(IMG img, VOID *v)
 {
-	instrImageMalloc(img);
-	instrImageCalloc(img);
-	instrImageFree(img);
+	instrImageMalloc(img,v);
+	instrImageCalloc(img,v);
+	instrImageFree(img,v);
 }
 
 /*******************  FUNCTION  *********************/
@@ -242,11 +243,13 @@ INT32 Usage()
 
 int main(int argc, char *argv[])
 {
+    PIN_InitSymbols();
     if (PIN_Init(argc, argv)) return Usage();
 
     trace = fopen("pinatrace.out", "w");
 
-    IMG_AddInstrumentFunction(instrImage, 0);
+    //IMG_AddInstrumentFunction(instrImage, 0);
+    IMG_AddInstrumentFunction(instrImageMalloc, 0);
     INS_AddInstrumentFunction(Instruction, 0);
     RTN_AddInstrumentFunction(instrFunctions, 0);
     PIN_AddFiniFunction(Fini, 0);
