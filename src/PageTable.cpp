@@ -58,7 +58,11 @@ void PageTable::clear(size_t baseAddr,size_t size)
 	
 	//loop
 	for (uint64_t addr = start; addr < end ; addr += NUMAPROF_PAGE_SIZE)
-		getPage(addr).numaNode = NUMAPROF_DEFAULT_NUMA_NODE;
+	{
+		Page & page = getPage(addr);
+		page.numaNode = NUMAPROF_DEFAULT_NUMA_NODE;
+		page.fromPinnedThread = true;
+	}
 }
 
 }

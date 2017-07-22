@@ -104,7 +104,6 @@ void NumaTopo::loadNumaMap(void)
 		//scan all ranges
 		char tmp[64];
 		int i = 0;
-		this->cpus = 0;
 		while (Helper::extractNth(tmp,list,',',i++))
 		{
 			Range range(tmp);
@@ -115,6 +114,9 @@ void NumaTopo::loadNumaMap(void)
 
 		//clear
 		delete [] list;
+
+		//inc
+		node++;
 	}
 
 	//check and warn
