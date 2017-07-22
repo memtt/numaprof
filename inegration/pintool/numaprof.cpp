@@ -9,6 +9,7 @@
 #include "pin.H"
 #include <cstdio>
 #include <MovePages.hpp>
+#include <NumaTopo.hpp>
 #include <iostream>
 
 using namespace std;
@@ -320,6 +321,8 @@ int main(int argc, char *argv[])
     if (PIN_Init(argc, argv)) return Usage();
 
     trace = fopen("pinatrace.out", "w");
+
+    numaprof::NumaTopo topo;
 
     // Obtain  a key for TLS storage.
     tls_key = PIN_CreateThreadDataKey(NULL);
