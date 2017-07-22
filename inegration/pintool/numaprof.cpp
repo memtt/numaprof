@@ -122,6 +122,15 @@ static VOID beforeFree(ADDRINT ptr,THREADID threadid)
 }
 
 /*******************  FUNCTION  *********************/
+static VOID beforeSchedGetAffinity(ADDRINT mask,THREADID threadid)
+{
+    printf("--> Intercept thread affinity (%p)!\n",(void*)mask);
+
+    numaprof::NumaTopo topo;
+    topo.getCurrentNumaAffinity(*(cpu_set_t*)mask);
+}
+
+/*******************  FUNCTION  *********************/
 static void beforeFunc(void * fctAddr,THREADID threadid)
 {
 	//printf("Enter in %p\n",fctAddr);
@@ -235,6 +244,27 @@ static VOID instrImageFree(IMG img, VOID *v)
 }
 
 /*******************  FUNCTION  *********************/
+static VOID instrImageSetSchedAffinity(IMG img, VOID *v)
+{
+	// Instrument the sched_setaffinity function to intercept thread pinning.  
+
+    //search by name
+	RTN schedRtn = RTN_FindByName(img, "sched_setaffinity");
+	
+	//printf(FREE " out\n");
+	if (RTN_Valid(schedRtn))
+    {
+		RTN_Open(schedRtn);
+
+		// Instrument malloc() to print the input argument value and the return value.
+		RTN_InsertCall(schedRtn, IPOINT_BEFORE, (AFUNPTR)beforeSchedGetAffinity,
+                       IARG_FUNCARG_ENTRYPOINT_VALUE, 2,
+		               IARG_THREAD_ID,IARG_END);
+		RTN_Close(schedRtn);
+    }
+}
+
+/*******************  FUNCTION  *********************/
 // Is called for every instruction and instruments reads and writes
 static VOID Instruction(INS ins, VOID *v)
 {
@@ -278,6 +308,7 @@ static VOID instrImage(IMG img, VOID *v)
 	instrImageMalloc(img,v);
 	instrImageCalloc(img,v);
 	instrImageFree(img,v);
+    instrImageSetSchedAffinity(img,v);
 }
 
 /*******************  FUNCTION  *********************/
