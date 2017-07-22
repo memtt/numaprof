@@ -11,6 +11,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <cassert>
+#include <cstdio>
 #include "Debug.hpp"
 #include "Helper.hpp"
 #include "NumaTopo.hpp"
@@ -145,17 +146,17 @@ int NumaTopo::getCurrentNumaAffinity(void)
 	}
 
 	//map to numa
-	return getCurrentNumaAffinity(mask);
+	return getCurrentNumaAffinity(&mask);
 }
 
 /*******************  FUNCTION  *********************/
-int NumaTopo::getCurrentNumaAffinity(cpu_set_t & mask)
+int NumaTopo::getCurrentNumaAffinity(cpu_set_t * mask)
 {
 	int numa = -1;
 
 	for (int i = 0 ; i < cpus ; i++)
 	{
-		if (CPU_ISSET(i,&mask))
+		if (CPU_ISSET(i,mask))
 		{
 			printf("Thread can be on %d, numa = %d\n",i,numaMap[i]);
 			if (numa == -1)

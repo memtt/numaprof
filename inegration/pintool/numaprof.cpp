@@ -8,8 +8,8 @@
 
 #include "pin.H"
 #include <cstdio>
-#include <MovePages.hpp>
-#include <NumaTopo.hpp>
+#include <ProcessTracker.hpp>
+#include <ThreadTracker.hpp>
 #include <iostream>
 
 using namespace std;
@@ -25,18 +25,20 @@ using namespace std;
 #define FREE "free"
 #endif
 
+using namespace numaprof;
+
 /*******************  STRUCT  ***********************/
 struct ThreadData
 {
 	//keep track between enter/exit of malloc/calloc/... functions
 	int allocSize;
 	void * allocCallsite;
+	//pointer to thread tracker
+	ThreadTracker * tracker;
 };
 
 /*******************  GLOBALS  **********************/
-int id = 0;
-int cnt = 1;
-FILE * trace;
+ProcessTracker * gblProcessTracker = NULL;
 
 // key for accessing TLS storage in the threads. initialized once in main()
 static  TLS_KEY tls_key = INVALID_TLS_KEY;
@@ -57,14 +59,14 @@ static VOID ThreadStart(THREADID threadid, CONTEXT *ctxt, INT32 flags, VOID *v)
 		PIN_ExitProcess(1);
 	}
 
-	numaprof::NumaTopo topo;
-	printf("Numa mapping : %d\n",topo.getCurrentNumaAffinity());
+	data->tracker = gblProcessTracker->createThreadTracker(threadid);
 }
 
 /*******************  FUNCTION  *********************/
 static VOID ThreadFini(THREADID threadid, const CONTEXT *ctxt, INT32 code, VOID *v)
 {
 	//printf("thread exit : %d\n",threadid);
+	getTls(threadid).tracker->onStop();
 }
 
 /*******************  FUNCTION  *********************/
@@ -77,6 +79,7 @@ static VOID RecordMemRead(VOID * ip, VOID * addr,THREADID threadid)
 		cnt++;
 	}
 	fprintf(trace,"%p: R %p, thread %d NUMA %d thread ID %d\n", ip, addr,id,numaprof::getNumaOfPage(addr),threadid);*/
+	getTls(threadid).tracker->onAccess((size_t)ip,(size_t)addr,false);
 }
 
 /*******************  FUNCTION  *********************/
@@ -89,6 +92,7 @@ static VOID RecordMemWrite(VOID * ip, VOID * addr,THREADID threadid)
 		cnt++;
 	}
 	fprintf(trace,"%p: W %p, thread %d NUMA %d\n", ip, addr,id,numaprof::getNumaOfPage(addr));*/
+	getTls(threadid).tracker->onAccess((size_t)ip,(size_t)addr,true);
 }
 
 /*******************  FUNCTION  *********************/
@@ -126,8 +130,10 @@ static VOID beforeSchedGetAffinity(ADDRINT mask,THREADID threadid)
 {
 	printf("--> Intercept thread affinity (%p)!\n",(void*)mask);
 
-	numaprof::NumaTopo topo;
-	topo.getCurrentNumaAffinity(*(cpu_set_t*)mask);
+	//numaprof::NumaTopo topo;
+	//topo.getCurrentNumaAffinity(*(cpu_set_t*)mask);
+
+	getTls(threadid).tracker->onSetAffinity((cpu_set_t*)mask);
 }
 
 /*******************  FUNCTION  *********************/
@@ -147,6 +153,7 @@ static void beforeMunmap(VOID * addr,ADDRINT size,THREADID threadid)
 {
 	//printf("Call munmap %p : %lu\n",addr,size);
 	//printf("Enter in %p\n",fctAddr);
+	getTls(threadid).tracker->onMunmap((size_t)addr,size);
 }
 
 /*******************  FUNCTION  *********************/
@@ -334,8 +341,6 @@ VOID instrFunctions(RTN rtn, VOID *v)
 /*******************  FUNCTION  *********************/
 static VOID Fini(INT32 code, VOID *v)
 {
-	fprintf(trace, "#eof\n");
-	fclose(trace);
 }
 
 /*******************  FUNCTION  *********************/
@@ -355,7 +360,8 @@ int main(int argc, char *argv[])
 
 	if (PIN_Init(argc, argv)) return Usage();
 
-	trace = fopen("pinatrace.out", "w");
+	//setup
+	gblProcessTracker = new ProcessTracker();
 
 	// Obtain  a key for TLS storage.
 	tls_key = PIN_CreateThreadDataKey(NULL);

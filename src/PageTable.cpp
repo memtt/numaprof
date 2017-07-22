@@ -16,7 +16,7 @@ namespace numaprof
 {
 
 /*******************  FUNCTION  *********************/
-Page & PageTable::getPage(void * addr)
+Page & PageTable::getPage(size_t addr)
 {
 	//convert
 	uint64_t ptr = (uint64_t)addr;
@@ -50,7 +50,7 @@ Page & PageTable::getPage(void * addr)
 }
 
 /*******************  FUNCTION  *********************/
-void PageTable::clear(void * baseAddr,size_t size)
+void PageTable::clear(size_t baseAddr,size_t size)
 {
 	//seutp
 	uint64_t end = (uint64_t)baseAddr + size;
@@ -58,7 +58,7 @@ void PageTable::clear(void * baseAddr,size_t size)
 	
 	//loop
 	for (uint64_t addr = start; addr < end ; addr += NUMAPROF_PAGE_SIZE)
-		getPage((void*)addr).numaNode = NUMAPROF_DEFAULT_NUMA_NODE;
+		getPage(addr).numaNode = NUMAPROF_DEFAULT_NUMA_NODE;
 }
 
 }

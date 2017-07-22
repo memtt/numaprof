@@ -23,7 +23,7 @@ class NumaTopo
 		NumaTopo(void);
 		~NumaTopo(void);
 		int getCurrentNumaAffinity(void);
-		int getCurrentNumaAffinity(cpu_set_t & mask);
+		int getCurrentNumaAffinity(cpu_set_t * mask);
 	private:
 		void loadCpuNb(void);
 		void loadNumaMap(void);

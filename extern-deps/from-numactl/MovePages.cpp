@@ -185,7 +185,7 @@ long WEAK move_pages(int pid, unsigned long count,void **pages, const int *nodes
 }
 
 /*******************  FUNCTION  *********************/
-int getNumaOfPage(void * addr)
+int getNumaOfPage(size_t addr)
 {
 	//4k align
 	unsigned long page = (unsigned long)addr;

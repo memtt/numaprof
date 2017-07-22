@@ -11,6 +11,8 @@ OBJS=$(OBJDIR)numaprof-debug$(OBJ_SUFFIX)\
      $(OBJDIR)numaprof-page-table$(OBJ_SUFFIX)\
      $(OBJDIR)numaprof-move-pages$(OBJ_SUFFIX)\
      $(OBJDIR)numaprof-helper$(OBJ_SUFFIX)\
+	 $(OBJDIR)numaprof-process-tracker$(OBJ_SUFFIX)\
+	 $(OBJDIR)numaprof-thread-tracker$(OBJ_SUFFIX)\
      $(OBJDIR)numaprof-numa-topo$(OBJ_SUFFIX)
 
 # Build the intermediate object file.
@@ -26,6 +28,11 @@ $(OBJDIR)numaprof-page-table$(OBJ_SUFFIX): ../../src/PageTable.cpp
 $(OBJDIR)numaprof-helper$(OBJ_SUFFIX): ../../src/Helper.cpp 
 	$(CXX) $(TOOL_CXXFLAGS_NOOPT) $(COMP_OBJ)$@ $< $(CST_CFLAGS)
 
+$(OBJDIR)numaprof-process-tracker$(OBJ_SUFFIX): ../../src/ProcessTracker.cpp 
+	$(CXX) $(TOOL_CXXFLAGS_NOOPT) $(COMP_OBJ)$@ $< $(CST_CFLAGS)
+
+$(OBJDIR)numaprof-thread-tracker$(OBJ_SUFFIX): ../../src/ThreadTracker.cpp 
+	$(CXX) $(TOOL_CXXFLAGS_NOOPT) $(COMP_OBJ)$@ $< $(CST_CFLAGS)
 
 $(OBJDIR)numaprof-numa-topo$(OBJ_SUFFIX): ../../src/NumaTopo.cpp 
 	$(CXX) $(TOOL_CXXFLAGS_NOOPT) $(COMP_OBJ)$@ $< $(CST_CFLAGS)

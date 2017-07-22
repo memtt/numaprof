@@ -24,17 +24,17 @@ TEST(PageTable,setup)
 {
 	PageTable table;
 	
-	char * ptr = (char*)malloc(16);
-	Page & page = table.getPage(ptr);
+	void * ptr = malloc(16);
+	Page & page = table.getPage((size_t)ptr);
 	EXPECT_EQ(NUMAPROF_DEFAULT_NUMA_NODE,page.numaNode);
 	
 	//set
-	table.getPage(ptr).numaNode = 1;
-	table.getPage(ptr+4096).numaNode = 2;
+	table.getPage((size_t)ptr).numaNode = 1;
+	table.getPage((size_t)ptr+4096).numaNode = 2;
 	
 	//check
-	EXPECT_EQ(1,table.getPage(ptr).numaNode);
-	EXPECT_EQ(2,table.getPage(ptr+4096).numaNode);
+	EXPECT_EQ(1,table.getPage((size_t)ptr).numaNode);
+	EXPECT_EQ(2,table.getPage((size_t)ptr+4096).numaNode);
 	
 	free(ptr);
 }

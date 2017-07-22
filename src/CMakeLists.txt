@@ -7,5 +7,12 @@
 ######################################################
 
 ######################################################
-add_library(numaprof SHARED PageTable.cpp TopoHwloc.cpp Debug.cpp Helper.cpp NumaTopo.cpp)
+add_library(numaprof SHARED PageTable.cpp
+							TopoHwloc.cpp
+							Debug.cpp
+							Helper.cpp
+							NumaTopo.cpp
+							../extern-deps/from-numactl/MovePages.cpp
+							ThreadTracker.cpp
+							ProcessTracker.cpp)
 target_link_libraries(numaprof ${HWLOC_LIBRARY})

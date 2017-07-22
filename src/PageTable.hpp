@@ -33,8 +33,9 @@ namespace numaprof
 /********************  STRUCT  **********************/
 struct Page
 {
-	Page(void) {numaNode = NUMAPROF_DEFAULT_NUMA_NODE;};
+	Page(void) {numaNode = NUMAPROF_DEFAULT_NUMA_NODE; fromPinnedThread = false;};
 	int numaNode;
+	bool fromPinnedThread;
 };
 
 /*********************  CLASS  **********************/
@@ -65,8 +66,8 @@ class PageGlobalDirectory : public PageTableLevel<PageUpperDirectory> {};
 class PageTable
 {
 	public:
-		Page & getPage(void * addr);
-		void clear(void * baseAddr,size_t size);
+		Page & getPage(size_t addr);
+		void clear(size_t baseAddr,size_t size);
 	private:
 		 PageGlobalDirectory pgd;
 		 Mutex mutex;
