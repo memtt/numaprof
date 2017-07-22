@@ -15,11 +15,11 @@ int func()
 
 int func2()
 {
-    cpu_set_t set;
-    CPU_ZERO(&set);
-    CPU_SET(0,&set);
-    long status = sched_setaffinity(0,CPU_SETSIZE,&set);
-    printf("status : %ld\n",status);
+	cpu_set_t set;
+	CPU_ZERO(&set);
+	CPU_SET(0,&set);
+	long status = sched_setaffinity(0,CPU_SETSIZE,&set);
+	printf("status : %ld\n",status);
 
 	char * buffer = (char*)malloc(128);
 	sprintf(buffer,"Hellow world!");

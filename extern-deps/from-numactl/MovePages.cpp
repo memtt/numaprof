@@ -18,8 +18,8 @@ namespace numaprof
 #define WEAK __attribute__((weak))
 
 #if !defined(__NR_mbind) || !defined(__NR_set_mempolicy) || \
-    !defined(__NR_get_mempolicy) || !defined(__NR_migrate_pages) || \
-    !defined(__NR_move_pages)
+	!defined(__NR_get_mempolicy) || !defined(__NR_migrate_pages) || \
+	!defined(__NR_move_pages)
 
 #if defined(__x86_64__)
 
@@ -125,17 +125,17 @@ namespace numaprof
    asm/unistd.h. Add a working version here. */
 long syscall6(long call, long a, long b, long c, long d, long e, long f)
 {
-       long res;
-       asm volatile ("movq %[d],%%r10 ; movq %[e],%%r8 ; movq %[f],%%r9 ; syscall"
-		     : "=a" (res)
-		     : "0" (call),"D" (a),"S" (b), "d" (c),
-		       [d] "g" (d), [e] "g" (e), [f] "g" (f) :
-		     "r11","rcx","r8","r10","r9","memory" );
-       if (res < 0) {
-	       errno = -res;
-	       res = -1;
-       }
-       return res;
+	   long res;
+	   asm volatile ("movq %[d],%%r10 ; movq %[e],%%r8 ; movq %[f],%%r9 ; syscall"
+			 : "=a" (res)
+			 : "0" (call),"D" (a),"S" (b), "d" (c),
+			   [d] "g" (d), [e] "g" (e), [f] "g" (f) :
+			 "r11","rcx","r8","r10","r9","memory" );
+	   if (res < 0) {
+		   errno = -res;
+		   res = -1;
+	   }
+	   return res;
 }
 #elif defined(__i386__)
 
@@ -166,12 +166,12 @@ extern long __syscall6(long n, long a, long b, long c, long d, long e, long f);
 
 long syscall6(long call, long a, long b, long c, long d, long e, long f)
 {
-       long res = __syscall6(call,a,b,c,d,e,f);
-       if (res < 0) {
-	       errno = -res;
-	       res = -1;
-       }
-       return res;
+	   long res = __syscall6(call,a,b,c,d,e,f);
+	   if (res < 0) {
+		   errno = -res;
+		   res = -1;
+	   }
+	   return res;
 }
 
 #else
