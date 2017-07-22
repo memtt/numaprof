@@ -11,6 +11,11 @@ int func()
 	sprintf(buffer,"Hellow world!");
 	printf("%s\n",buffer);
 	free(buffer);
+
+	buffer = new char[20*1024*1024];
+	for (int i = 0 ; i < 20*1024*1024 ; i++)
+		buffer[i] = 0;
+	delete [] buffer;
 }
 
 int func2()
@@ -25,6 +30,11 @@ int func2()
 	sprintf(buffer,"Hellow world!");
 	printf("%s\n",buffer);
 	free(buffer);
+
+	buffer = new char[20*1024*1024];
+	for (int i = 0 ; i < 20*1024*1024 ; i++)
+		buffer[i] = 0;
+	delete [] buffer;
 }
 
 int main()
