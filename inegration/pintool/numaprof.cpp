@@ -56,6 +56,9 @@ static VOID ThreadStart(THREADID threadid, CONTEXT *ctxt, INT32 flags, VOID *v)
         cerr << "PIN_SetThreadData failed" << endl;
         PIN_ExitProcess(1);
     }
+
+    numaprof::NumaTopo topo;
+    printf("Numa mapping : %d\n",topo.getCurrentNumaAffinity());
 }
 
 /*******************  FUNCTION  *********************/
@@ -296,6 +299,7 @@ VOID instrFunctions(RTN rtn, VOID *v)
 	RTN_Close(rtn);
 }
 
+
 /*******************  FUNCTION  *********************/
 static VOID Fini(INT32 code, VOID *v)
 {
@@ -321,8 +325,6 @@ int main(int argc, char *argv[])
     if (PIN_Init(argc, argv)) return Usage();
 
     trace = fopen("pinatrace.out", "w");
-
-    numaprof::NumaTopo topo;
 
     // Obtain  a key for TLS storage.
     tls_key = PIN_CreateThreadDataKey(NULL);

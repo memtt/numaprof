@@ -7,9 +7,28 @@
 *****************************************************/
 
 /*******************  HEADERS  **********************/
+#include <sched.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <cassert>
 #include "Debug.hpp"
 #include "Helper.hpp"
 #include "NumaTopo.hpp"
+
+//we cannot use the standard sched_get_affinity function in pin :(
+#ifdef USE_PIN_LOCKS
+    #include <sys/syscall.h> 
+    #if !defined(__NR_sched_getaffinity)
+        #if defined(__x86_64__)
+            #define __NR_sched_getaffinity 204
+        #else
+            #error "Unsupported arch !"
+        #endif
+    #endif
+    #define numactl_sched_getaffinity(pid,nb,mask) syscall(__NR_sched_getaffinity,(pid),(nb),(mask))
+#else
+    #define numactl_sched_getaffinity sched_getaffinity
+#endif
 
 /*******************  NAMESPACE  ********************/
 namespace numaprof
@@ -106,6 +125,47 @@ void NumaTopo::loadNumaMap(void)
             numaMap[i] = 0;
         }
     }
+}
+
+/*******************  FUNCTION  *********************/
+int NumaTopo::getCurrentNumaAffinity(void)
+{
+    //check
+    assert(cpus <= CPU_SETSIZE);
+    //printf("%d <= %d\n",cpus,CPU_SETSIZE);
+
+    //get from system
+    cpu_set_t mask;
+    long status = numactl_sched_getaffinity(0,cpus,&mask);
+    if (status < 0)
+    {
+        printf("status = %ld\n",status);
+        perror("Invalid syscall to sched_getaffinity");
+        return -1;
+    }
+
+    //map to numa
+    return getCurrentNumaAffinity(mask);
+}
+
+/*******************  FUNCTION  *********************/
+int NumaTopo::getCurrentNumaAffinity(cpu_set_t & mask)
+{
+    int numa = -1;
+
+    for (int i = 0 ; i < cpus ; i++)
+    {
+        if (CPU_ISSET(i,&mask))
+        {
+            printf("Thread can be on %d, numa = %d\n",i,numaMap[i]);
+            if (numa == -1)
+                numa = numaMap[i];
+            if (numa != numaMap[i])
+                return -1;
+        }
+    }
+
+    return numa;
 }
 
 }
