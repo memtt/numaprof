@@ -14,5 +14,6 @@ add_library(numaprof SHARED PageTable.cpp
 							NumaTopo.cpp
 							../extern-deps/from-numactl/MovePages.cpp
 							ThreadTracker.cpp
-							ProcessTracker.cpp)
+							ProcessTracker.cpp
+							$<TARGET_OBJECTS:htopml-json>)
 target_link_libraries(numaprof ${HWLOC_LIBRARY})

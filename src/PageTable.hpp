@@ -33,7 +33,7 @@ namespace numaprof
 /********************  STRUCT  **********************/
 struct Page
 {
-	Page(void) {numaNode = NUMAPROF_DEFAULT_NUMA_NODE; fromPinnedThread = false;};
+	Page(void) {numaNode = NUMAPROF_DEFAULT_NUMA_NODE; fromPinnedThread = true;};
 	int numaNode;
 	bool fromPinnedThread;
 };

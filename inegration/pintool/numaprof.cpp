@@ -341,6 +341,7 @@ VOID instrFunctions(RTN rtn, VOID *v)
 /*******************  FUNCTION  *********************/
 static VOID Fini(INT32 code, VOID *v)
 {
+	gblProcessTracker->onExit();
 }
 
 /*******************  FUNCTION  *********************/

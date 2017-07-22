@@ -11,6 +11,7 @@
 
 /********************  HEADERS  *********************/
 #include <map>
+#include "../extern-deps/from-htopml/json/ConvertToJson.h"
 #include "ProcessTracker.hpp"
 
 /*******************  NAMESPACE  ********************/
@@ -27,6 +28,7 @@ class ThreadTracker
 		void onSetAffinity(cpu_set_t * mask);
 		void onStop(void);
 		void onMunmap(size_t addr,size_t size);
+		friend void convertToJson(htopml::JsonState& json, const ThreadTracker& value);
 	private:
 		ProcessTracker * process;
 		InstrInfoMap instructions;

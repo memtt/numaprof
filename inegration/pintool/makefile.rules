@@ -13,6 +13,8 @@ OBJS=$(OBJDIR)numaprof-debug$(OBJ_SUFFIX)\
      $(OBJDIR)numaprof-helper$(OBJ_SUFFIX)\
 	 $(OBJDIR)numaprof-process-tracker$(OBJ_SUFFIX)\
 	 $(OBJDIR)numaprof-thread-tracker$(OBJ_SUFFIX)\
+	 $(OBJDIR)numaprof-json-state$(OBJ_SUFFIX)\
+	 $(OBJDIR)numaprof-json-convert$(OBJ_SUFFIX)\
      $(OBJDIR)numaprof-numa-topo$(OBJ_SUFFIX)
 
 # Build the intermediate object file.
@@ -38,6 +40,12 @@ $(OBJDIR)numaprof-numa-topo$(OBJ_SUFFIX): ../../src/NumaTopo.cpp
 	$(CXX) $(TOOL_CXXFLAGS_NOOPT) $(COMP_OBJ)$@ $< $(CST_CFLAGS)
 
 $(OBJDIR)numaprof-move-pages$(OBJ_SUFFIX): ../../extern-deps/from-numactl/MovePages.cpp 
+	$(CXX) $(TOOL_CXXFLAGS_NOOPT) $(COMP_OBJ)$@ $< $(CST_CFLAGS)
+
+$(OBJDIR)numaprof-json-state$(OBJ_SUFFIX): ../../extern-deps/from-htopml/json/JsonState.cpp 
+	$(CXX) $(TOOL_CXXFLAGS_NOOPT) $(COMP_OBJ)$@ $< $(CST_CFLAGS)
+
+$(OBJDIR)numaprof-json-convert$(OBJ_SUFFIX): ../../extern-deps/from-htopml/json/ConvertToJson.cpp 
 	$(CXX) $(TOOL_CXXFLAGS_NOOPT) $(COMP_OBJ)$@ $< $(CST_CFLAGS)
 
 # Build the tool as a dll (shared object).

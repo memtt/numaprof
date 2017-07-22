@@ -48,7 +48,12 @@ void ThreadTracker::onAccess(size_t ip,size_t addr,bool write)
 
 	//if not defined use move pages
 	if (pageNode == NUMAPROF_DEFAULT_NUMA_NODE)
+	{
 		pageNode = getNumaOfPage(addr);
+		//printf("Page on %d, write = %d\n",pageNode,write);
+		if (write && pageNode != NUMAPROF_DEFAULT_NUMA_NODE)
+			page.numaNode = pageNode;
+	}
 
 	//cases
 	InstrInfo & instr = instructions[ip];
@@ -117,6 +122,15 @@ void ThreadTracker::onStop(void)
 void ThreadTracker::onMunmap(size_t addr,size_t size)
 {
 	table->clear(addr,size);
+}
+
+/*******************  FUNCTION  *********************/
+void convertToJson(htopml::JsonState& json, const ThreadTracker& value)
+{
+	json.openStruct();
+		json.printField("stats",value.stats);
+		json.printField("numa",value.numa);
+	json.closeStruct();
 }
 
 }

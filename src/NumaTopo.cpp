@@ -166,6 +166,7 @@ int NumaTopo::getCurrentNumaAffinity(cpu_set_t * mask)
 		}
 	}
 
+	printf("Therad is binded on NUMA %d\n",numa);
 	return numa;
 }
 

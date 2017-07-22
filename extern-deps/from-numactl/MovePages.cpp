@@ -7,6 +7,8 @@
 #include <sys/types.h>
 #include <asm/unistd.h>
 #include <errno.h>
+#include <cstdio>
+#include <sys/syscall.h> 
 #include "MovePages.hpp"
 //#include "numa.h"
 //#include "numaif.h"
@@ -17,9 +19,7 @@ namespace numaprof
 
 #define WEAK __attribute__((weak))
 
-#if !defined(__NR_mbind) || !defined(__NR_set_mempolicy) || \
-	!defined(__NR_get_mempolicy) || !defined(__NR_migrate_pages) || \
-	!defined(__NR_move_pages)
+#if !defined(__NR_move_pages)
 
 #if defined(__x86_64__)
 
@@ -113,7 +113,8 @@ namespace numaprof
 # define __GLIBC_PREREQ(x,y) 0
 #endif
 
-#if defined(__GLIBC__) && __GLIBC_PREREQ(2, 11)
+//#if defined(__GLIBC__) && __GLIBC_PREREQ(2, 11)
+#if 1
 
 /* glibc 2.11 seems to have working 6 argument sycall. Use the
    glibc supplied syscall in this case.
@@ -181,21 +182,35 @@ long syscall6(long call, long a, long b, long c, long d, long e, long f)
 /*******************  FUNCTION  *********************/
 long WEAK move_pages(int pid, unsigned long count,void **pages, const int *nodes, int *status, int flags)
 {
-	return syscall6(__NR_move_pages, pid, count,(long) pages,(long) nodes, (long)status, flags);
+	return syscall6(__NR_move_pages, (long)pid, (long)count,(long) pages,(long) nodes, (long)status, flags);
 }
 
 /*******************  FUNCTION  *********************/
 int getNumaOfPage(size_t addr)
 {
+	static bool hasMovePages = true;
+
+	//go fast
+	if (hasMovePages == false)
+		return 0;
+
 	//4k align
 	unsigned long page = (unsigned long)addr;
-	page = page & (~4096);
+	page = page & (~4095);
 	void * pages[1] = {(void*)page};
 	int status;
-	if (move_pages(0,1,pages,NULL,&status,0) == 0)
+	long ret = move_pages(0,1,pages,NULL,&status,0);
+	if (ret == 0)
+	{
 		return status;
-	else
+	} else {
+		if (errno == ENOSYS)
+		{
+			printf("\033[31mCAUTION, move_pages not implemented, you might be running on a non NUMA system !\nAll accesses will be considered local !\n\033[0m");
+			hasMovePages = false;
+		}
 		return -2;
+	}
 }
 
 }

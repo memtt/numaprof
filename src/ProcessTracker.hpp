@@ -14,6 +14,7 @@
 #include "PageTable.hpp"
 #include "Mutex.hpp"
 #include "NumaTopo.hpp"
+#include "../extern-deps/from-htopml/json/ConvertToJson.h"
 
 /*******************  NAMESPACE  ********************/
 namespace numaprof
@@ -41,6 +42,11 @@ typedef std::map<size_t,InstrInfo> InstrInfoMap;
 class ThreadTracker;
 typedef std::map<int,ThreadTracker *> ThreadTrackerMap;
 
+/*******************  FUNCTION  *********************/
+void convertToJson(htopml::JsonState& json, const InstrInfo& value);
+void convertToJson(htopml::JsonState& json, const InstrInfoMap& value);
+void convertToJson(htopml::JsonState& json, const ThreadTrackerMap& value);
+
 /*********************  CLASS  **********************/
 class ProcessTracker
 {
@@ -51,6 +57,8 @@ class ProcessTracker
 		int getNumaAffinity(void);
 		int getNumaAffinity(cpu_set_t * mask);
 		PageTable * getPageTable(void);
+		friend void convertToJson(htopml::JsonState& json, const ProcessTracker& value);
+		void onExit(void);
 	private:
 		PageTable pageTable;
 		InstrInfoMap instructions;
