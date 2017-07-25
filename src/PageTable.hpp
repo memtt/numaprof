@@ -14,6 +14,7 @@
 #include <cstdlib>
 #include <cassert>
 #include <iostream>
+#include <cstring>
 
 /*******************  NAMESPACE  ********************/
 namespace numaprof
@@ -42,6 +43,7 @@ enum PageAllocStatus
 /********************  STRUCT  **********************/
 struct AllocPointerPageMap
 {
+	AllocPointerPageMap(void) {memset(entries,0,sizeof(entries));};
 	void * entries[NUMAPROF_PAGE_SIZE/NUMAPROF_ALLOC_GRAIN];
 };
 
@@ -49,6 +51,7 @@ struct AllocPointerPageMap
 struct Page
 {
 	Page(void) {numaNode = NUMAPROF_DEFAULT_NUMA_NODE; fromPinnedThread = false;allocStatus = PAGE_ALLOC_NONE;allocPtr = NULL;};
+	~Page(void);
 	void * getAllocPointer(size_t addr);
 	int numaNode;
 	bool fromPinnedThread;
@@ -65,9 +68,6 @@ class PageTableLevel
 		~PageTableLevel(void);
 		T * makeNewEntry(Mutex & mutex,int id);
 		T * getEntry(int id);
-		void regAllocPointerSmall(size_t baseAddr,size_t size,void * value);
-		void regAllocPointer(size_t baseAddr,size_t size,void * value);
-		void freeAllocPointer(size_t baseAddr,size_t size,void * value);
 	private:
 		T * entries[NUMAPROF_PAGE_LEVEL_ENTRIES];
 };
@@ -89,6 +89,10 @@ class PageTable
 	public:
 		Page & getPage(size_t addr);
 		void clear(size_t baseAddr,size_t size);
+		void regAllocPointer(size_t baseAddr,size_t size,void * value);
+		void freeAllocPointer(size_t baseAddr,size_t size,void * value);
+	private:
+		void regAllocPointerSmall(size_t baseAddr,size_t size,void * value);
 	private:
 		 PageGlobalDirectory pgd;
 		 Mutex mutex;
@@ -148,9 +152,9 @@ inline void * Page::getAllocPointer(size_t addr)
 	} else if (allocStatus == PAGE_ALLOC_FULL) {
 		return allocPtr;
 	} else {
-		size_t offset = addr & (~(NUMAPROF_PAGE_SIZE-1));
-		AllocPointerPageMap * map = (AllocPointerPageMap*)allocPtr;
+		size_t offset = addr & NUMAPROF_PAGE_MASK;
 		size_t index = offset / NUMAPROF_ALLOC_GRAIN;
+		AllocPointerPageMap * map = (AllocPointerPageMap*)allocPtr;
 		return map->entries[index];
 	}
 }

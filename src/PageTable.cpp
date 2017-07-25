@@ -67,29 +67,35 @@ void PageTable::clear(size_t baseAddr,size_t size)
 }
 
 /*******************  FUNCTION  *********************/
-void regAllocPointerSmall(size_t baseAddr,size_t size,void * value)
+void PageTable::regAllocPointerSmall(size_t baseAddr,size_t size,void * value)
 {
+	//trivial
+	if (size == 0)
+		return;
+
 	//check
-	assert (baseAddr & NUMAPROF_PAGE_MASK == endAddr & NUMAPROF_PAGE_MASK);
+	assert ((baseAddr & ~NUMAPROF_PAGE_MASK) == ((baseAddr + size - 1) & ~NUMAPROF_PAGE_MASK));
+	assert(size <= NUMAPROF_PAGE_SIZE);
 
 	//get page
 	Page & page = getPage(baseAddr);
 	
 	//allocate if need
 	AllocPointerPageMap * map;
-	if (page->allocStatus == PAGE_ALLOC_FRAG)
-		map = page->allocPtr;
-	else if (page->allocStatus == PAGE_ALLOC_NONE)
-		map = (void*)new AllocPointerPageMap;
-	else
+	if (page.allocStatus == PAGE_ALLOC_FRAG)
+	{
+		map = (AllocPointerPageMap*)page.allocPtr;
+	} else if (page.allocStatus == PAGE_ALLOC_NONE) {
+		map = new AllocPointerPageMap;
+		page.allocStatus = PAGE_ALLOC_FRAG;
+		page.allocPtr = map;
+	} else {
 		printf("Invalid status of page, should be NONE\n");
-		
-	//store
-	page->allocPtr = map;
+	}
 	
 	//start
-	size_t start = (baseAddr & NUMAPROF_PAGE_LEVEL_MASK) / NUMAPROF_ALLOC_GRAIN;
-	size_t end = ((baseAddr+size) & NUMAPROF_PAGE_LEVEL_MASK) / NUMAPROF_ALLOC_GRAIN;
+	size_t start = (baseAddr & NUMAPROF_PAGE_MASK) / NUMAPROF_ALLOC_GRAIN;
+	size_t end = start + (size/ NUMAPROF_ALLOC_GRAIN);
 	
 	//mark
 	for (size_t i = start ; i < end ;  i++)
@@ -101,43 +107,44 @@ void PageTable::regAllocPointer(size_t baseAddr,size_t size,void * value)
 {
 	//check
 	if (baseAddr % NUMAPROF_ALLOC_GRAIN != 0)
-		printf("WARNING : allocated bloc not aligned on grain size : %d (get %d)\n",NUMAPROF_ALLOC_GRAIN,baseAddr % NUMAPROF_ALLOC_GRAIN);
+		printf("WARNING : allocated bloc not aligned on grain size : %d (get %lu)\n",NUMAPROF_ALLOC_GRAIN,baseAddr % NUMAPROF_ALLOC_GRAIN);
 	
 	//compute end
 	size_t endAddr = baseAddr + size;
 	
 	//fit in one page
-	if (baseAddr & NUMAPROF_PAGE_MASK == endAddr & NUMAPROF_PAGE_MASK && size != NUMAPROF_PAGE_SIZE)
+	if (((baseAddr & ~NUMAPROF_PAGE_MASK) == ((endAddr - 1) & ~NUMAPROF_PAGE_MASK)) && size < NUMAPROF_PAGE_SIZE)
 	{
-		regAllocPointerSmall(baseAddr,size,value)
+		regAllocPointerSmall(baseAddr,size,value);
 	} else {
 		//first page end
-		size_t firstPageEnd = baseAddr & NUMAPROF_PAGE_MASK + NUMAPROF_PAGE_SIZE;
+		size_t firstPageEnd = (baseAddr & (~NUMAPROF_PAGE_MASK)) + NUMAPROF_PAGE_SIZE;
 		
 		//last page start
-		size_t endPageStart = endAddr & NUMAPROF_PAGE_MASK;
+		size_t endPageStart = endAddr & ~NUMAPROF_PAGE_MASK;
 		
 		//setup for first page
 		regAllocPointerSmall(baseAddr,firstPageEnd - baseAddr,value);
 		
 		//middle full pages
-		for (size_t addr = firstPageEnd ; addr < endPageStart ; addr == NUMAPROF_PAGE_SIZE)
+		for (size_t addr = firstPageEnd ; addr < endPageStart ; addr += NUMAPROF_PAGE_SIZE)
 		{
 			//get page
-			Page & page = getPage(baseAddr);
+			Page & page = getPage(addr);
 			
 			//check status
-			if (page->allocStatus == PAGE_ALLOC_NONE && value != NULL)
+			if (page.allocStatus == PAGE_ALLOC_NONE && value != NULL)
 			{
-				page->allocStatus = PAGE_ALLOC_FULL;
-			} else if (page->allocStatus == PAGE_ALLOC_FULL && value == NULL) {
-				page->allocStatus = PAGE_ALLOC_NONE;
+				page.allocStatus = PAGE_ALLOC_FULL;
+			} else if (page.allocStatus == PAGE_ALLOC_FULL && value == NULL) {
+				page.allocStatus = PAGE_ALLOC_NONE;
 			} else {
 				printf("WARNING : Invalid page status !\n");
+				assert(false);
 			}
 			
 			//setup 
-			page->allocPtr = value;
+			page.allocPtr = value;
 		}
 		
 		//setup for last page
@@ -149,6 +156,15 @@ void PageTable::regAllocPointer(size_t baseAddr,size_t size,void * value)
 void PageTable::freeAllocPointer(size_t baseAddr,size_t size,void * value)
 {
 	regAllocPointer(baseAddr,size,NULL);
+}
+
+/*******************  FUNCTION  *********************/
+Page::~Page(void)
+{
+	if (allocStatus == PAGE_ALLOC_FRAG)
+	{
+		delete (AllocPointerPageMap*)allocPtr;
+	}
 }
 
 }
