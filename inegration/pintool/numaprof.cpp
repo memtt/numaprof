@@ -285,7 +285,7 @@ static VOID Instruction(INS ins, VOID *v)
 	// Iterate over each memory operand of the instruction.
 	for (UINT32 memOp = 0; memOp < memOperands; memOp++)
 	{
-		if (INS_MemoryOperandIsRead(ins, memOp))
+		if (INS_MemoryOperandIsRead(ins, memOp) && !INS_IsStackRead(ins))
 		{
 			INS_InsertPredicatedCall(
 				ins, IPOINT_BEFORE, (AFUNPTR)RecordMemRead,
@@ -296,7 +296,7 @@ static VOID Instruction(INS ins, VOID *v)
 		// Note that in some architectures a single memory operand can be 
 		// both read and written (for instance incl (%eax) on IA-32)
 		// In that case we instrument it once for read and once for write.
-		if (INS_MemoryOperandIsWritten(ins, memOp))
+		if (INS_MemoryOperandIsWritten(ins, memOp) && !INS_IsStackWrite(ins))
 		{
 			INS_InsertPredicatedCall(
 				ins, IPOINT_BEFORE, (AFUNPTR)RecordMemWrite,

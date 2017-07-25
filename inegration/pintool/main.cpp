@@ -41,7 +41,6 @@ int main()
 {
 	printf("ok\n");
 	std::thread a(func);
-	sleep(1);
 	std::thread b(func2);
 	a.join();
 	b.join();
