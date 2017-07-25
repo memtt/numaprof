@@ -17,6 +17,7 @@ namespace numaprof
 
 /*******************  FUNCTION  *********************/
 ThreadTracker::ThreadTracker(ProcessTracker * process)
+              :allocTracker(process->getPageTable())
 {
 	assert(process != NULL);
 	this->process = process;
@@ -29,6 +30,7 @@ ThreadTracker::ThreadTracker(ProcessTracker * process)
 void ThreadTracker::flush(void)
 {
 	this->process->mergeInstruction(instructions);
+	this->allocTracker.flush(process);
 }
 
 /*******************  FUNCTION  *********************/
@@ -55,8 +57,18 @@ void ThreadTracker::onAccess(size_t ip,size_t addr,bool write)
 			page.numaNode = pageNode;
 	}
 
-	//cases
+	//get instr
 	Stats & instr = instructions[ip];
+
+	//get malloc relation
+	MallocInfos * allocInfos = (MallocInfos *)page.getAllocPointer(addr);
+	Stats * allocStats;
+	if (allocInfos == NULL)
+		allocStats = &dummyAlloc;
+	else
+		allocStats = allocInfos->stats;
+
+	//cases
 	if (pageNode == NUMAPROF_DEFAULT_NUMA_NODE)
 	{
 		//check unpinned first access
@@ -64,9 +76,11 @@ void ThreadTracker::onAccess(size_t ip,size_t addr,bool write)
 		{
 			stats.unpinnedFirstTouch++;
 			instr.unpinnedFirstTouch++;
+			allocStats->unpinnedFirstTouch++;
 		} else {
 			stats.firstTouch++;
 			instr.firstTouch++;
+			allocStats->firstTouch++;
 		}
 
 		//if write, consider that we create the page so
@@ -82,9 +96,11 @@ void ThreadTracker::onAccess(size_t ip,size_t addr,bool write)
 			{
 				stats.unpinnedThreadAccess++;
 				instr.unpinnedThreadAccess++;
+				allocStats->unpinnedThreadAccess++;
 			} else {
 				stats.unpinnedBothAccess++;
 				instr.unpinnedBothAccess++;
+				allocStats->unpinnedBothAccess++;
 			}
 		} else {
 			//check if page came from pin thread or not
@@ -92,14 +108,17 @@ void ThreadTracker::onAccess(size_t ip,size_t addr,bool write)
 			{
 				stats.unpinnedPageAccess++;
 				instr.unpinnedPageAccess++;
+				allocStats->unpinnedPageAccess++;
 			} else if (numa == pageNode) {
 				//if local
 				stats.localAccess++;
 				instr.localAccess++;
+				allocStats->localAccess++;
 			} else {
 				//if remote
 				stats.remoteAccess++;
 				instr.remoteAccess++;
+				allocStats->remoteAccess++;
 			}
 		}
 	}
@@ -122,6 +141,18 @@ void ThreadTracker::onStop(void)
 void ThreadTracker::onMunmap(size_t addr,size_t size)
 {
 	table->clear(addr,size);
+}
+
+/*******************  FUNCTION  *********************/
+void ThreadTracker::onAlloc(size_t ip,size_t ptr,size_t size)
+{
+	allocTracker.onAlloc(ip,ptr,size);
+}
+
+/*******************  FUNCTION  *********************/
+void ThreadTracker::onFree(size_t ptr)
+{
+	allocTracker.onFree(ptr);
 }
 
 /*******************  FUNCTION  *********************/

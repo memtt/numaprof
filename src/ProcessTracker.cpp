@@ -54,6 +54,15 @@ void ProcessTracker::mergeInstruction(InstrInfoMap & stats)
 }
 
 /*******************  FUNCTION  *********************/
+void ProcessTracker::mergeAllocInstruction(InstrInfoMap & stats)
+{
+	mutex.lock();
+	for (InstrInfoMap::iterator it = stats.begin() ; it != stats.end() ; ++it)
+		allocStats[it->first].merge(it->second);
+	mutex.unlock();
+}
+
+/*******************  FUNCTION  *********************/
 int ProcessTracker::getNumaAffinity(void)
 {
 	return topo.getCurrentNumaAffinity();
@@ -74,9 +83,15 @@ PageTable * ProcessTracker::getPageTable(void)
 /*******************  FUNCTION  *********************/
 void ProcessTracker::onExit(void)
 {
+	//flush local data
+	for (ThreadTrackerMap::iterator it = threads.begin() ; it != threads.end() ; ++it)
+		it->second->flush();
+
+	//prep filename
 	char buffer[64];
 	sprintf(buffer,"numaprof-%d.json",getpid());
 
+	//open & dump
 	std::ofstream out;
 	out.open(buffer);
 	htopml::convertToJson(out,*this,true);
@@ -89,19 +104,6 @@ void convertToJson(htopml::JsonState& json, const ProcessTracker& value)
 	json.openStruct();
 		json.printField("threads",value.threads);
 		json.printField("instructions",value.instructions);
-	json.closeStruct();
-}
-
-/*******************  FUNCTION  *********************/
-void convertToJson(htopml::JsonState& json, const InstrInfoMap& value)
-{
-	json.openStruct();
-		for (InstrInfoMap::const_iterator it = value.begin() ; it != value.end() ; ++it)
-		{
-			char buffer[32];
-			sprintf(buffer,"0x%lx",it->first);
-				json.printField(buffer,it->second);
-		}
 	json.closeStruct();
 }
 

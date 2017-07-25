@@ -22,12 +22,10 @@ namespace numaprof
 {
 
 /*********************  TYPES  **********************/
-typedef std::map<size_t,Stats> InstrInfoMap;
 class ThreadTracker;
 typedef std::map<int,ThreadTracker *> ThreadTrackerMap;
 
 /*******************  FUNCTION  *********************/
-void convertToJson(htopml::JsonState& json, const InstrInfoMap& value);
 void convertToJson(htopml::JsonState& json, const ThreadTrackerMap& value);
 
 /*********************  CLASS  **********************/
@@ -37,6 +35,7 @@ class ProcessTracker
 		ProcessTracker(void);
 		ThreadTracker * createThreadTracker(int threadId);
 		void mergeInstruction(InstrInfoMap & stats);
+		void mergeAllocInstruction(InstrInfoMap & stats);
 		int getNumaAffinity(void);
 		int getNumaAffinity(cpu_set_t * mask);
 		PageTable * getPageTable(void);
@@ -45,6 +44,7 @@ class ProcessTracker
 	private:
 		PageTable pageTable;
 		InstrInfoMap instructions;
+		InstrInfoMap allocStats;
 		ThreadTrackerMap threads;
 		Mutex mutex;
 		NumaTopo topo;

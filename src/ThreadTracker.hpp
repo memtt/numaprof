@@ -13,6 +13,7 @@
 #include <map>
 #include "../extern-deps/from-htopml/json/ConvertToJson.h"
 #include "ProcessTracker.hpp"
+#include "MallocTracker.hpp"
 
 /*******************  NAMESPACE  ********************/
 namespace numaprof
@@ -28,6 +29,8 @@ class ThreadTracker
 		void onSetAffinity(cpu_set_t * mask);
 		void onStop(void);
 		void onMunmap(size_t addr,size_t size);
+		void onAlloc(size_t ip,size_t ptr,size_t size);
+		void onFree(size_t ptr);
 		friend void convertToJson(htopml::JsonState& json, const ThreadTracker& value);
 	private:
 		ProcessTracker * process;
@@ -35,6 +38,8 @@ class ThreadTracker
 		Stats stats;
 		int numa;
 		PageTable * table;
+		MallocTracker allocTracker;
+		Stats dummyAlloc;
 };
 
 }

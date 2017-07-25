@@ -108,6 +108,8 @@ static VOID beforeMalloc(ADDRINT size, VOID * retIp,THREADID threadid)
 static VOID afterMalloc(ADDRINT ret,THREADID threadid)
 {
 	//printf("    => %p\n",(void*)ret);
+	ThreadData & data = getTls(threadid);
+	data.tracker->onAlloc((size_t)data.allocCallsite,ret,data.allocSize);
 }
 
 /*******************  FUNCTION  *********************/
@@ -123,6 +125,8 @@ static VOID beforeCalloc(ADDRINT nmemb,ADDRINT size,VOID * retIp,THREADID thread
 static VOID beforeFree(ADDRINT ptr,THREADID threadid)
 {
 	//printf("free %p\n",(void*)ptr);
+	ThreadData & data = getTls(threadid);
+	data.tracker->onFree(ptr);
 }
 
 /*******************  FUNCTION  *********************/

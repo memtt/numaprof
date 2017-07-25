@@ -58,4 +58,17 @@ void convertToJson(htopml::JsonState& json, const Stats& value)
 	json.closeStruct();
 }
 
+/*******************  FUNCTION  *********************/
+void convertToJson(htopml::JsonState& json, const InstrInfoMap& value)
+{
+	json.openStruct();
+		for (InstrInfoMap::const_iterator it = value.begin() ; it != value.end() ; ++it)
+		{
+			char buffer[32];
+			sprintf(buffer,"0x%lx",it->first);
+				json.printField(buffer,it->second);
+		}
+	json.closeStruct();
+}
+
 }

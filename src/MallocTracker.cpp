@@ -6,23 +6,55 @@
 			 LICENSE  : CeCILL-C
 *****************************************************/
 
-#ifndef NUMAPROF_MALLOC_TRACKER_HPP
-#define NUMAPROF_MALLOC_TRACKER_HPP
-
 /*******************  HEADERS  **********************/
-#include <cstdlib>
+#include "MallocTracker.hpp"
+#include "ProcessTracker.hpp"
 
 /*******************  NAMESPACE  ********************/
 namespace numaprof
 {
 
-/********************  CLASS  ***********************/
-class MallocTracker
+/*******************  FUNCTION  *********************/
+MallocTracker::MallocTracker(PageTable * pageTable)
 {
-	public:
-	private:
-};
-
+	this->pageTable = pageTable;
 }
 
-#endif //NUMAPROF_MALLOC_TRACKER_HPP
+/*******************  FUNCTION  *********************/
+void MallocTracker::onAlloc(size_t ip,size_t ptr, size_t size)
+{
+	//allocate info
+	MallocInfos * infos = new MallocInfos;
+	infos->ptr = ptr;
+	infos->size = size;
+	infos->stats = &instructions[ip];
+
+	//reg to page table
+	pageTable->regAllocPointer(ptr,size,&infos);
+}
+
+/*******************  FUNCTION  *********************/
+void MallocTracker::onFree(size_t ptr)
+{
+	//get infos
+	Page & page = pageTable->getPage(ptr);
+	MallocInfos * infos = (MallocInfos *)page.getAllocPointer(ptr);
+
+	//not ok
+	if (infos != NULL && infos->ptr == ptr)
+		return;
+
+	//free into page table
+	pageTable->freeAllocPointer(ptr,infos->size,infos);
+
+	//free mem
+	delete infos;
+}
+
+/*******************  FUNCTION  *********************/
+void MallocTracker::flush(class ProcessTracker * process)
+{
+	process->mergeAllocInstruction(instructions);
+}
+
+}

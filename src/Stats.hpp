@@ -11,6 +11,7 @@
 
 /*******************  HEADERS  **********************/
 #include <cstdlib>
+#include <map>
 #include "../extern-deps/from-htopml/json/ConvertToJson.h"
 
 /*******************  NAMESPACE  ********************/
@@ -34,8 +35,12 @@ struct Stats
 	size_t remoteAccess;
 };
 
+/*********************  TYPES  **********************/
+typedef std::map<size_t,Stats> InstrInfoMap;
+
 /*******************  FUNCTION  *********************/
 void convertToJson(htopml::JsonState& json, const Stats& value);
+void convertToJson(htopml::JsonState& json, const InstrInfoMap& value);
 
 }
 
