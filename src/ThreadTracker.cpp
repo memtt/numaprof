@@ -56,7 +56,7 @@ void ThreadTracker::onAccess(size_t ip,size_t addr,bool write)
 	}
 
 	//cases
-	InstrInfo & instr = instructions[ip];
+	Stats & instr = instructions[ip];
 	if (pageNode == NUMAPROF_DEFAULT_NUMA_NODE)
 	{
 		//check unpinned first access

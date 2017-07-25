@@ -84,30 +84,6 @@ void ProcessTracker::onExit(void)
 }
 
 /*******************  FUNCTION  *********************/
-InstrInfo::InstrInfo(void)
-{
-	firstTouch = 0;
-	unpinnedFirstTouch = 0;
-	unpinnedPageAccess = 0;
-	unpinnedThreadAccess = 0;
-	unpinnedBothAccess = 0;
-	localAccess = 0;
-	remoteAccess = 0;
-}
-
-/*******************  FUNCTION  *********************/
-void InstrInfo::merge(InstrInfo & info)
-{
-	this->firstTouch += info.firstTouch;
-	this->unpinnedFirstTouch += info.unpinnedFirstTouch;
-	this->unpinnedPageAccess += info.unpinnedPageAccess;
-	this->unpinnedThreadAccess += info.unpinnedThreadAccess;
-	this->unpinnedBothAccess += info.unpinnedBothAccess;
-	this->localAccess += info.localAccess;
-	this->remoteAccess += info.remoteAccess;
-}
-
-/*******************  FUNCTION  *********************/
 void convertToJson(htopml::JsonState& json, const ProcessTracker& value)
 {
 	json.openStruct();
@@ -136,27 +112,6 @@ void convertToJson(htopml::JsonState& json, const ThreadTrackerMap& value)
 		for (ThreadTrackerMap::const_iterator it = value.begin() ; it != value.end() ; ++it)
 			json.printValue(*(it->second));
 	json.closeArray();
-}
-
-/*******************  FUNCTION  *********************/
-void convertToJson(htopml::JsonState& json, const InstrInfo& value)
-{
-	json.openStruct();
-		if (value.firstTouch > 0)
-			json.printField("firstTouch",value.firstTouch);
-		if (value.unpinnedFirstTouch > 0)
-			json.printField("unpinnedFirstTouch",value.unpinnedFirstTouch);
-		if (value.unpinnedPageAccess > 0)
-			json.printField("unpinnedPageAccess",value.unpinnedPageAccess);
-		if (value.unpinnedThreadAccess > 0)
-			json.printField("unpinnedThreadAccess",value.unpinnedThreadAccess);
-		if (value.unpinnedBothAccess > 0)
-			json.printField("unpinnedBothAccess",value.unpinnedBothAccess);
-		if (value.localAccess > 0)
-			json.printField("localAccess",value.localAccess);
-		if (value.remoteAccess > 0)
-			json.printField("remoteAccess",value.remoteAccess);
-	json.closeStruct();
 }
 
 }

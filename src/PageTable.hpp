@@ -29,13 +29,31 @@ namespace numaprof
 #define NUMAPROF_PAGE_LEVEL_SHIFT(level) (NUMAPROF_PAGE_OFFSET + NUMAPROF_PAGE_LEVEL_BITS * level)
 #define NUMAPROF_PAGE_LEVEL_ID(ptr,level) ((ptr & (NUMAPROF_PAGE_LEVEL_MASK << NUMAPROF_PAGE_LEVEL_SHIFT(level))) >> NUMAPROF_PAGE_LEVEL_SHIFT(level))
 #define NUMAPROF_DEFAULT_NUMA_NODE (-2)
+#define NUMAPROF_ALLOC_GRAIN 16
+
+/********************  ENUM  ************************/
+enum PageAllocStatus
+{
+	PAGE_ALLOC_NONE,
+	PAGE_ALLOC_FULL,
+	PAGE_ALLOC_FRAG
+};
+
+/********************  STRUCT  **********************/
+struct AllocPointerPageMap
+{
+	void * entries[NUMAPROF_PAGE_SIZE/NUMAPROF_ALLOC_GRAIN];
+};
 
 /********************  STRUCT  **********************/
 struct Page
 {
-	Page(void) {numaNode = NUMAPROF_DEFAULT_NUMA_NODE; fromPinnedThread = false;};
+	Page(void) {numaNode = NUMAPROF_DEFAULT_NUMA_NODE; fromPinnedThread = false;allocStatus = PAGE_ALLOC_NONE;allocPtr = NULL;};
+	void * getAllocPointer(size_t addr);
 	int numaNode;
 	bool fromPinnedThread;
+	PageAllocStatus allocStatus;
+	void * allocPtr;
 };
 
 /*********************  CLASS  **********************/
@@ -47,6 +65,9 @@ class PageTableLevel
 		~PageTableLevel(void);
 		T * makeNewEntry(Mutex & mutex,int id);
 		T * getEntry(int id);
+		void regAllocPointerSmall(size_t baseAddr,size_t size,void * value);
+		void regAllocPointer(size_t baseAddr,size_t size,void * value);
+		void freeAllocPointer(size_t baseAddr,size_t size,void * value);
 	private:
 		T * entries[NUMAPROF_PAGE_LEVEL_ENTRIES];
 };
@@ -116,6 +137,22 @@ T * PageTableLevel<T>::getEntry(int id)
 {
 	assert(id >= 0 && id < NUMAPROF_PAGE_LEVEL_ENTRIES);
 	return entries[id];
+}
+
+/*******************  FUNCTION  *********************/
+inline void * Page::getAllocPointer(size_t addr)
+{
+	if (allocStatus == PAGE_ALLOC_NONE)
+	{
+		return NULL;
+	} else if (allocStatus == PAGE_ALLOC_FULL) {
+		return allocPtr;
+	} else {
+		size_t offset = addr & (~(NUMAPROF_PAGE_SIZE-1));
+		AllocPointerPageMap * map = (AllocPointerPageMap*)allocPtr;
+		size_t index = offset / NUMAPROF_ALLOC_GRAIN;
+		return map->entries[index];
+	}
 }
 
 }

@@ -32,7 +32,7 @@ class ThreadTracker
 	private:
 		ProcessTracker * process;
 		InstrInfoMap instructions;
-		InstrInfo stats;
+		Stats stats;
 		int numa;
 		PageTable * table;
 };
