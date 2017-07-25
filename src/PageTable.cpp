@@ -63,6 +63,13 @@ void PageTable::clear(size_t baseAddr,size_t size)
 		Page & page = getPage(addr);
 		page.numaNode = NUMAPROF_DEFAULT_NUMA_NODE;
 		page.fromPinnedThread = false;
+
+		//free mem
+		if (page.allocStatus == PAGE_ALLOC_FRAG)
+			delete (AllocPointerPageMap*)page.allocPtr;
+		
+		page.allocPtr = NULL;
+		page.allocStatus = PAGE_ALLOC_NONE;
 	}
 }
 

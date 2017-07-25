@@ -227,3 +227,35 @@ TEST(PageTable,freePointer_3)
 		EXPECT_EQ(NULL,page.getAllocPointer(addr + i));
 	}
 }
+
+/*******************  FUNCTION  *********************/
+TEST(PageTable,clear)
+{
+	PageTable table;
+
+	size_t addr = 2*1024*1024;
+	table.regAllocPointer(addr-32,32,(void*)0x1);
+	table.regAllocPointer(addr,2ul*1024ul*1024ul,(void*)0x2);
+	table.regAllocPointer(addr+2*1024*1024,32,(void*)0x3);
+
+	//free middle one
+	table.clear(addr,2*1024*1024);
+
+	//page before
+	Page & page1 = table.getPage(addr-1);
+	EXPECT_EQ(PAGE_ALLOC_FRAG,page1.allocStatus);
+	EXPECT_EQ((void*)0x1,page1.getAllocPointer(4095));
+
+	//page after
+	Page & page2 = table.getPage(addr+2*1024*1024);
+	EXPECT_EQ(PAGE_ALLOC_FRAG,page2.allocStatus);
+	EXPECT_EQ((void*)0x3,page2.getAllocPointer(0));
+
+	//inside
+	for (size_t i = 0 ; i < 2*1024*1024 ; i++)
+	{
+		Page & page = table.getPage(addr+i);
+		ASSERT_EQ(PAGE_ALLOC_NONE,page.allocStatus);
+		ASSERT_EQ(NULL,page.getAllocPointer(addr + i));
+	}
+}
