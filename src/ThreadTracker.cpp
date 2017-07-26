@@ -77,7 +77,7 @@ void ThreadTracker::onAccess(size_t ip,size_t addr,bool write)
 	}
 
 	//cases
-	if (pageNode == NUMAPROF_DEFAULT_NUMA_NODE)
+	if (pageNode <= NUMAPROF_DEFAULT_NUMA_NODE)
 	{
 		//check unpinned first access
 		if (numa == -1)
