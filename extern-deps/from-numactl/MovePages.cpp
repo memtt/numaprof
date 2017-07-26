@@ -209,7 +209,7 @@ int getNumaOfPage(size_t addr)
 			printf("\033[31mCAUTION, move_pages not implemented, you might be running on a non NUMA system !\nAll accesses will be considered local !\n\033[0m");
 			hasMovePages = false;
 		}
-		return -2;
+		return 0;
 	}
 }
 

@@ -50,7 +50,7 @@ struct AllocPointerPageMap
 /********************  STRUCT  **********************/
 struct Page
 {
-	Page(void) {numaNode = NUMAPROF_DEFAULT_NUMA_NODE; fromPinnedThread = false;allocStatus = PAGE_ALLOC_NONE;allocPtr = NULL;};
+	Page(void) {numaNode = NUMAPROF_DEFAULT_NUMA_NODE; fromPinnedThread = true;allocStatus = PAGE_ALLOC_NONE;allocPtr = NULL;};
 	~Page(void);
 	void * getAllocPointer(size_t addr);
 	int numaNode;
@@ -121,7 +121,7 @@ PageTableLevel<T>::~PageTableLevel(void)
 template <class T>
 T * PageTableLevel<T>::makeNewEntry(Mutex & mutex,int id)
 {
-	assert(id >= 0 && id < NUMAPROF_PAGE_LEVEL_ENTRIES);
+	assert(id >= 0 && (size_t)id < NUMAPROF_PAGE_LEVEL_ENTRIES);
 	if (entries[id] == NULL)
 	{
 		mutex.lock();
@@ -139,7 +139,7 @@ T * PageTableLevel<T>::makeNewEntry(Mutex & mutex,int id)
 template <class T>
 T * PageTableLevel<T>::getEntry(int id)
 {
-	assert(id >= 0 && id < NUMAPROF_PAGE_LEVEL_ENTRIES);
+	assert(id >= 0 && (size_t)id < NUMAPROF_PAGE_LEVEL_ENTRIES);
 	return entries[id];
 }
 
@@ -151,11 +151,14 @@ inline void * Page::getAllocPointer(size_t addr)
 		return NULL;
 	} else if (allocStatus == PAGE_ALLOC_FULL) {
 		return allocPtr;
-	} else {
+	} else if (allocStatus == PAGE_ALLOC_FRAG) {
 		size_t offset = addr & NUMAPROF_PAGE_MASK;
 		size_t index = offset / NUMAPROF_ALLOC_GRAIN;
 		AllocPointerPageMap * map = (AllocPointerPageMap*)allocPtr;
 		return map->entries[index];
+	} else {
+		assert(false);
+		return NULL;
 	}
 }
 

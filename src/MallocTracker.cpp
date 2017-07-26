@@ -23,25 +23,31 @@ MallocTracker::MallocTracker(PageTable * pageTable)
 /*******************  FUNCTION  *********************/
 void MallocTracker::onAlloc(size_t ip,size_t ptr, size_t size)
 {
+	//printf("On alloc : (%p) %p => %lu\n",(void*)ip,(void*)ptr,size);
+
 	//allocate info
 	MallocInfos * infos = new MallocInfos;
 	infos->ptr = ptr;
 	infos->size = size;
-	infos->stats = &instructions[ip];
+	infos->stats = &(instructions[ip]);
 
 	//reg to page table
-	pageTable->regAllocPointer(ptr,size,&infos);
+	pageTable->regAllocPointer(ptr,size,infos);
 }
 
 /*******************  FUNCTION  *********************/
 void MallocTracker::onFree(size_t ptr)
 {
+	//trivial
+	if (ptr == 0)
+		return;
+
 	//get infos
 	Page & page = pageTable->getPage(ptr);
 	MallocInfos * infos = (MallocInfos *)page.getAllocPointer(ptr);
 
 	//not ok
-	if (infos != NULL && infos->ptr == ptr)
+	if (infos == NULL || infos->ptr != ptr)
 		return;
 
 	//free into page table

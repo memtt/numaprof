@@ -42,6 +42,7 @@ void ThreadTracker::onSetAffinity(cpu_set_t * mask)
 /*******************  FUNCTION  *********************/
 void ThreadTracker::onAccess(size_t ip,size_t addr,bool write)
 {
+	//printf("Access %p => %p\n",(void*)ip,(void*)addr);
 	//get numa location of page form page table
 	Page & page = table->getPage(addr);
 
@@ -146,12 +147,14 @@ void ThreadTracker::onMunmap(size_t addr,size_t size)
 /*******************  FUNCTION  *********************/
 void ThreadTracker::onAlloc(size_t ip,size_t ptr,size_t size)
 {
+	//printf("%lu => %p => %lu\n",ip,(void*)ptr,size);
 	allocTracker.onAlloc(ip,ptr,size);
 }
 
 /*******************  FUNCTION  *********************/
 void ThreadTracker::onFree(size_t ptr)
 {
+	//printf("free %p\n",(void*)ptr);
 	allocTracker.onFree(ptr);
 }
 

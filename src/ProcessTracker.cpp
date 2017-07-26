@@ -104,6 +104,7 @@ void convertToJson(htopml::JsonState& json, const ProcessTracker& value)
 	json.openStruct();
 		json.printField("threads",value.threads);
 		json.printField("instructions",value.instructions);
+		json.printField("allocs",value.allocStats);
 	json.closeStruct();
 }
 

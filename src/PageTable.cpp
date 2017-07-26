@@ -62,7 +62,7 @@ void PageTable::clear(size_t baseAddr,size_t size)
 	{
 		Page & page = getPage(addr);
 		page.numaNode = NUMAPROF_DEFAULT_NUMA_NODE;
-		page.fromPinnedThread = false;
+		page.fromPinnedThread = true;
 
 		//free mem
 		if (page.allocStatus == PAGE_ALLOC_FRAG)
@@ -98,6 +98,7 @@ void PageTable::regAllocPointerSmall(size_t baseAddr,size_t size,void * value)
 		page.allocPtr = map;
 	} else {
 		printf("Invalid status of page, should be NONE\n");
+		return;
 	}
 	
 	//start
