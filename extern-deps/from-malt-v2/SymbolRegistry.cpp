@@ -471,6 +471,17 @@ char * SymbolRegistry::extractSymbolName(char* value)
 	//Vars
 	char * ret = NULL;
 	std::string old = value;
+
+	//case
+	if (strncmp(value,"???",3) == 0)
+	{
+		ret = new char[3];
+		ret[0] = '?';
+		ret[1] = '?';
+		ret[2] = 0;
+		printf("%s => %s\n",value,ret);
+		return ret;
+	}
 	
 	//errors
 	assert(value != NULL);
