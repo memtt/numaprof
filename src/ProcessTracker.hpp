@@ -16,6 +16,7 @@
 #include "NumaTopo.hpp"
 #include "Stats.hpp"
 #include "../extern-deps/from-htopml/json/ConvertToJson.h"
+#include "../extern-deps/from-malt-v2/SymbolRegistry.hpp"
 
 /*******************  NAMESPACE  ********************/
 namespace numaprof
@@ -49,6 +50,7 @@ class ProcessTracker
 		ThreadTrackerMap threads;
 		Mutex mutex;
 		NumaTopo topo;
+		MATT::SymbolRegistry registry;
 };
 
 }

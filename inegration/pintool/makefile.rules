@@ -17,6 +17,10 @@ OBJS=$(OBJDIR)numaprof-debug$(OBJ_SUFFIX)\
 	 $(OBJDIR)numaprof-json-convert$(OBJ_SUFFIX)\
 	 $(OBJDIR)numaprof-stats$(OBJ_SUFFIX)\
 	 $(OBJDIR)numaprof-malloc-tracker$(OBJ_SUFFIX)\
+	 $(OBJDIR)numaprof-malt-debug$(OBJ_SUFFIX)\
+	 $(OBJDIR)numaprof-malt-formatted-message$(OBJ_SUFFIX)\
+	 $(OBJDIR)numaprof-malt-linux-proc-map$(OBJ_SUFFIX)\
+	 $(OBJDIR)numaprof-malt-symbol-registry$(OBJ_SUFFIX)\
      $(OBJDIR)numaprof-numa-topo$(OBJ_SUFFIX)
 
 # Build the intermediate object file.
@@ -54,6 +58,18 @@ $(OBJDIR)numaprof-json-state$(OBJ_SUFFIX): ../../extern-deps/from-htopml/json/Js
 	$(CXX) $(TOOL_CXXFLAGS_NOOPT) $(COMP_OBJ)$@ $< $(CST_CFLAGS)
 
 $(OBJDIR)numaprof-json-convert$(OBJ_SUFFIX): ../../extern-deps/from-htopml/json/ConvertToJson.cpp 
+	$(CXX) $(TOOL_CXXFLAGS_NOOPT) $(COMP_OBJ)$@ $< $(CST_CFLAGS)
+
+$(OBJDIR)numaprof-malt-debug$(OBJ_SUFFIX): ../../extern-deps/from-malt-v2/Debug.cpp 
+	$(CXX) $(TOOL_CXXFLAGS_NOOPT) $(COMP_OBJ)$@ $< $(CST_CFLAGS)
+
+$(OBJDIR)numaprof-malt-formatted-message$(OBJ_SUFFIX): ../../extern-deps/from-malt-v2/FormattedMessage.cpp 
+	$(CXX) $(TOOL_CXXFLAGS_NOOPT) $(COMP_OBJ)$@ $< $(CST_CFLAGS)
+
+$(OBJDIR)numaprof-malt-linux-proc-map$(OBJ_SUFFIX): ../../extern-deps/from-malt-v2/LinuxProcMapReader.cpp 
+	$(CXX) $(TOOL_CXXFLAGS_NOOPT) $(COMP_OBJ)$@ $< $(CST_CFLAGS)
+
+$(OBJDIR)numaprof-malt-symbol-registry$(OBJ_SUFFIX): ../../extern-deps/from-malt-v2/SymbolRegistry.cpp 
 	$(CXX) $(TOOL_CXXFLAGS_NOOPT) $(COMP_OBJ)$@ $< $(CST_CFLAGS)
 
 # Build the tool as a dll (shared object).

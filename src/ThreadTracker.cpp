@@ -31,6 +31,12 @@ ThreadTracker::ThreadTracker(ProcessTracker * process)
 void ThreadTracker::flush(void)
 {
 	this->process->mergeInstruction(instructions);
+
+	//flush to keep smell
+	for (AllocCacheMap::iterator it = allocCache.begin() ; it != allocCache.end() ; ++it)
+		*(it->first) = it->second;
+	allocCache.clear();
+
 	this->allocTracker.flush(process);
 }
 

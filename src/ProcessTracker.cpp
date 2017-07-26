@@ -92,6 +92,14 @@ void ProcessTracker::onExit(void)
 	//flush local data
 	for (ThreadTrackerMap::iterator it = threads.begin() ; it != threads.end() ; ++it)
 		it->second->flush();
+	
+	//extract symbols
+	registry.loadProcMap();
+	for (InstrInfoMap::iterator it = instructions.begin() ; it != instructions.end() ; ++it)
+		registry.registerAddress((void*)(it->first));
+	for (InstrInfoMap::iterator it = allocStats.begin() ; it != allocStats.end() ; ++it)
+		registry.registerAddress((void*)(it->first));
+	registry.solveNames();
 
 	//prep filename
 	char buffer[64];
@@ -109,6 +117,7 @@ void convertToJson(htopml::JsonState& json, const ProcessTracker& value)
 {
 	json.openStruct();
 		json.printField("threads",value.threads);
+		json.printField("symbols",value.registry);
 		json.printField("instructions",value.instructions);
 		json.printField("allocs",value.allocStats);
 	json.closeStruct();
