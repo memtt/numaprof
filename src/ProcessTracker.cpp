@@ -75,6 +75,12 @@ int ProcessTracker::getNumaAffinity(cpu_set_t * mask)
 }
 
 /*******************  FUNCTION  *********************/
+NumaTopo & ProcessTracker::getNumaTopo(void)
+{
+	return topo;
+}
+
+/*******************  FUNCTION  *********************/
 PageTable * ProcessTracker::getPageTable(void)
 {
 	return &pageTable;

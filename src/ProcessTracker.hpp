@@ -41,6 +41,7 @@ class ProcessTracker
 		PageTable * getPageTable(void);
 		friend void convertToJson(htopml::JsonState& json, const ProcessTracker& value);
 		void onExit(void);
+		NumaTopo & getNumaTopo(void);
 	private:
 		PageTable pageTable;
 		InstrInfoMap instructions;

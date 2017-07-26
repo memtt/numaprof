@@ -23,6 +23,7 @@ ThreadTracker::ThreadTracker(ProcessTracker * process)
 	this->process = process;
 	this->numa = process->getNumaAffinity();
 	this->table = process->getPageTable();
+	this->topo = &process->getNumaTopo();
 	printf("Numa initial mapping : %d\n",numa);
 }
 
@@ -89,9 +90,13 @@ void ThreadTracker::onAccess(size_t ip,size_t addr,bool write)
 		if (write)
 			page.fromPinnedThread = (numa != -1);
 	} else {
-		//if thread is not pinned
-		if (numa == -1)
+		assert(pageNode >= 0);
+		if (topo->getIsMcdram(pageNode)) 
 		{
+			stats.mcdramAccess++;
+			instr.mcdramAccess++;
+			allocStats->mcdramAccess++;
+		} else if (numa == -1) {
 			//check if page came from pin thread or not
 			if (page.fromPinnedThread)
 			{

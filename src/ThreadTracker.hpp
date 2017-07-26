@@ -40,6 +40,7 @@ class ThreadTracker
 		PageTable * table;
 		MallocTracker allocTracker;
 		Stats dummyAlloc;
+		NumaTopo * topo;
 };
 
 }

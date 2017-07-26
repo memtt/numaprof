@@ -87,6 +87,11 @@ void NumaTopo::loadNumaMap(void)
 	numaMap = new int[cpus];
 	for (int i = 0 ; i < cpus ; i++)
 		numaMap[i] = -1;
+	
+	//allocate
+	isMcdram = new bool[cpus];
+	for (int i = 0 ; i < cpus ; i++)	
+		isMcdram[i] = false;
 
 	//loop on all numa nodes (until we do not found one)
 	int node = 0;
@@ -104,13 +109,23 @@ void NumaTopo::loadNumaMap(void)
 		//scan all ranges
 		char tmp[64];
 		int i = 0;
+		bool hasCpu = false;
 		while (Helper::extractNth(tmp,list,',',i++))
 		{
 			Range range(tmp);
 			for (int j = 0 ; j < cpus ; j++)
+			{
 				if (range.contain(j))
+				{
 					numaMap[j] = node;
+					hasCpu = true;
+				}
+			}
 		}
+
+		//is mcdram
+		if (hasCpu == false)
+			isMcdram[node] = true;
 
 		//clear
 		delete [] list;

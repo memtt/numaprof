@@ -55,6 +55,8 @@ void convertToJson(htopml::JsonState& json, const Stats& value)
 			json.printField("localAccess",value.localAccess);
 		if (value.remoteAccess > 0)
 			json.printField("remoteAccess",value.remoteAccess);
+		if (value.mcdramAccess > 0)
+			json.printField("mcdramAccess",value.mcdramAccess);
 	json.closeStruct();
 }
 

@@ -9,6 +9,7 @@
 #ifndef NUMA_TOPO_HPP
 #define NUMA_TOPO_HPP
 
+#include <cassert>
 #include <sched.h>
 #include <sys/types.h>
 
@@ -24,6 +25,7 @@ class NumaTopo
 		~NumaTopo(void);
 		int getCurrentNumaAffinity(void);
 		int getCurrentNumaAffinity(cpu_set_t * mask);
+		bool getIsMcdram(int cpuid) {assert(cpuid < cpus);return isMcdram[cpuid];};
 	private:
 		void loadCpuNb(void);
 		void loadNumaMap(void);
@@ -31,6 +33,7 @@ class NumaTopo
 		int cpus;
 		int numaNodes;
 		int * numaMap;
+		bool * isMcdram;
 
 };
 
