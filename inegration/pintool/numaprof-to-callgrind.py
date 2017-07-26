@@ -56,8 +56,10 @@ class Converter:
 		print "creator: numaprof"
 		print "pid: 10719"
 		print "cmd: ./a.out"
+		print "part: 1"
 		print ""
-		print "events"," ".join(self.counters)
+		print "position: line"
+		print "events:"," ".join(self.counters)
 		print "summary:",self.computeSummary()
 		print ""
 
@@ -70,6 +72,12 @@ class Converter:
 			"function": strings[tmp["function"]],
 			"binary": strings[tmp["binary"]],
 		}
+		if ret["file"] == "??":
+			ret["file"] = "unknwon"
+		if ret["function"] == "??":
+			ret["function"] = "unknwon"
+		if ret["binary"] == "??":
+			ret["binary"] = "unknwon"
 		if "line" in tmp:
 			ret["line"] = tmp["line"]
 		else:
@@ -79,6 +87,7 @@ class Converter:
 	def buildContent(self):
 		for instr in self.data["instructions"]:
 			location = self.getLocation(instr)
+			print "ob=%s"%(location["binary"])
 			print "fl=%s"%(location["file"])
 			print "fn=%s"%(location["function"])
 			print "%d %s"%(location["line"],self.statToString(self.data["instructions"][instr]))
