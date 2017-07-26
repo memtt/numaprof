@@ -31,6 +31,7 @@ class ThreadTracker
 		void onMunmap(size_t addr,size_t size);
 		void onAlloc(size_t ip,size_t ptr,size_t size);
 		void onFree(size_t ptr);
+		void onRealloc(size_t ip, size_t oldPtr, size_t newPtr, size_t newSize);
 		friend void convertToJson(htopml::JsonState& json, const ThreadTracker& value);
 	private:
 		ProcessTracker * process;

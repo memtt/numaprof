@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <unistd.h>
 #include <sched.h>
+#include <cstring>
 
 int func()
 {
@@ -40,6 +41,12 @@ int func2(int id)
 			buffer[i] = global[i];
 		delete [] buffer;
 	}
+
+	char * r = (char*)malloc(2*1024*1024);
+	memset(r,0,2*1024*1024);
+	r = (char*)realloc(r,4*1024*1024);
+	memset(r,0,4*1024*1024);
+	free(r);
 }
 
 int main(int argc, char ** argv)

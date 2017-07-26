@@ -30,7 +30,7 @@ namespace numaprof
 #define NUMAPROF_PAGE_LEVEL_SHIFT(level) (NUMAPROF_PAGE_OFFSET + NUMAPROF_PAGE_LEVEL_BITS * level)
 #define NUMAPROF_PAGE_LEVEL_ID(ptr,level) ((ptr & (NUMAPROF_PAGE_LEVEL_MASK << NUMAPROF_PAGE_LEVEL_SHIFT(level))) >> NUMAPROF_PAGE_LEVEL_SHIFT(level))
 #define NUMAPROF_DEFAULT_NUMA_NODE (-2)
-#define NUMAPROF_ALLOC_GRAIN 16
+#define NUMAPROF_ALLOC_GRAIN 8
 
 /********************  ENUM  ************************/
 enum PageAllocStatus

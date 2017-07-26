@@ -146,6 +146,9 @@ void PageTable::regAllocPointer(size_t baseAddr,size_t size,void * value)
 				page.allocStatus = PAGE_ALLOC_FULL;
 			} else if (page.allocStatus == PAGE_ALLOC_FULL && value == NULL) {
 				page.allocStatus = PAGE_ALLOC_NONE;
+			} else if (page.allocStatus == PAGE_ALLOC_FRAG && value != NULL) {
+				delete (AllocPointerPageMap*)page.allocPtr;
+				page.allocStatus = PAGE_ALLOC_FULL;
 			} else {
 				printf("WARNING : Invalid page status !\n");
 				assert(false);

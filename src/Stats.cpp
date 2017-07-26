@@ -23,18 +23,20 @@ Stats::Stats(void)
 	unpinnedBothAccess = 0;
 	localAccess = 0;
 	remoteAccess = 0;
+	mcdramAccess = 0;
 }
 
 /*******************  FUNCTION  *********************/
 void Stats::merge(Stats & info)
 {
-	this->firstTouch += info.firstTouch;
-	this->unpinnedFirstTouch += info.unpinnedFirstTouch;
-	this->unpinnedPageAccess += info.unpinnedPageAccess;
-	this->unpinnedThreadAccess += info.unpinnedThreadAccess;
-	this->unpinnedBothAccess += info.unpinnedBothAccess;
-	this->localAccess += info.localAccess;
-	this->remoteAccess += info.remoteAccess;
+	__sync_fetch_and_add(&this->firstTouch,info.firstTouch,__ATOMIC_RELAXED);
+	__sync_fetch_and_add(&this->unpinnedFirstTouch,info.unpinnedFirstTouch,__ATOMIC_RELAXED);
+	__sync_fetch_and_add(&this->unpinnedPageAccess,info.unpinnedPageAccess,__ATOMIC_RELAXED);
+	__sync_fetch_and_add(&this->unpinnedThreadAccess,info.unpinnedThreadAccess,__ATOMIC_RELAXED);
+	__sync_fetch_and_add(&this->unpinnedBothAccess,info.unpinnedBothAccess,__ATOMIC_RELAXED);
+	__sync_fetch_and_add(&this->localAccess,info.localAccess,__ATOMIC_RELAXED);
+	__sync_fetch_and_add(&this->remoteAccess,info.remoteAccess,__ATOMIC_RELAXED);
+	__sync_fetch_and_add(&this->mcdramAccess,info.mcdramAccess,__ATOMIC_RELAXED);
 }
 
 /*******************  FUNCTION  *********************/

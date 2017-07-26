@@ -19,10 +19,12 @@ using namespace std;
 #define MALLOC "_malloc"
 #define CALLOC "_calloc"
 #define FREE "_free"
+#define REALLOC "_realloc"
 #else
 #define MALLOC "malloc"
 #define CALLOC "calloc"
 #define FREE "free"
+#define REALLOC "realloc"
 #endif
 
 using namespace numaprof;
@@ -33,6 +35,7 @@ struct ThreadData
 	//keep track between enter/exit of malloc/calloc/... functions
 	int allocSize;
 	void * allocCallsite;
+	void * reallocPtr;
 	//pointer to thread tracker
 	ThreadTracker * tracker;
 };
@@ -94,6 +97,25 @@ static VOID RecordMemWrite(VOID * ip, VOID * addr,THREADID threadid)
 	fprintf(trace,"%p: W %p, thread %d NUMA %d\n", ip, addr,id,numaprof::getNumaOfPage(addr));*/
 	getTls(threadid).tracker->onAccess((size_t)ip,(size_t)addr,true);
 }
+
+/*******************  FUNCTION  *********************/
+static VOID beforeRealloc(VOID* ptr,ADDRINT size, VOID * retIp,THREADID threadid)
+{
+	ThreadData & data = getTls(threadid);
+	data.allocSize = size;
+	data.allocCallsite = retIp;
+	data.reallocPtr = ptr;
+	//printf("malloc %lu (from %p)\n",size,retIp);
+}
+
+/*******************  FUNCTION  *********************/
+static VOID afterRealloc(ADDRINT ret,THREADID threadid)
+{
+	//printf("    => %p\n",(void*)ret);
+	ThreadData & data = getTls(threadid);
+	data.tracker->onRealloc((size_t)data.allocCallsite,(size_t)data.reallocPtr,ret,data.allocSize);
+}
+
 
 /*******************  FUNCTION  *********************/
 static VOID beforeMalloc(ADDRINT size, VOID * retIp,THREADID threadid)
@@ -182,6 +204,32 @@ static VOID instrImageMalloc(IMG img, VOID *v)
 					   IARG_FUNCRET_EXITPOINT_VALUE,
 					   IARG_THREAD_ID,IARG_END);
 		RTN_Close(mallocRtn);
+	}
+}
+
+/*******************  FUNCTION  *********************/
+static VOID instrImageRealloc(IMG img, VOID *v)
+{
+	// Instrument the malloc() and free() functions.  Print the input argument
+	// of each malloc() or free(), and the return value of malloc().
+	//
+	//  Find the malloc() function.
+	RTN reallocRtn = RTN_FindByName(img, REALLOC);
+	if (RTN_Valid(reallocRtn))
+	{
+		RTN_Open(reallocRtn);
+		
+		// Instrument malloc() to print the input argument value and the return value.
+		RTN_InsertCall(reallocRtn, IPOINT_BEFORE, (AFUNPTR)beforeRealloc,
+					   IARG_FUNCARG_ENTRYPOINT_VALUE, 0,
+					   IARG_FUNCARG_ENTRYPOINT_VALUE, 1,
+					   IARG_RETURN_IP, IARG_THREAD_ID,IARG_END);
+		
+		// Instrument malloc() to print the input argument value and the return value.
+		RTN_InsertCall(reallocRtn, IPOINT_AFTER, (AFUNPTR)afterRealloc,
+					   IARG_FUNCRET_EXITPOINT_VALUE,
+					   IARG_THREAD_ID,IARG_END);
+		RTN_Close(reallocRtn);
 	}
 }
 
@@ -317,6 +365,7 @@ static VOID instrImage(IMG img, VOID *v)
 {
 	instrImageMmap(img,v);
 	instrImageMalloc(img,v);
+	instrImageRealloc(img,v);
 	instrImageCalloc(img,v);
 	instrImageFree(img,v);
 	instrImageSetSchedAffinity(img,v);

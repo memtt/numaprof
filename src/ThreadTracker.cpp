@@ -157,6 +157,13 @@ void ThreadTracker::onAlloc(size_t ip,size_t ptr,size_t size)
 }
 
 /*******************  FUNCTION  *********************/
+void ThreadTracker::onRealloc(size_t ip, size_t oldPtr, size_t newPtr, size_t newSize)
+{
+	allocTracker.onFree(oldPtr);
+	allocTracker.onAlloc(ip,newPtr,newSize);
+}
+
+/*******************  FUNCTION  *********************/
 void ThreadTracker::onFree(size_t ptr)
 {
 	//printf("free %p\n",(void*)ptr);
