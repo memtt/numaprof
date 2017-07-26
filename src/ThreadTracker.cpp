@@ -66,9 +66,15 @@ void ThreadTracker::onAccess(size_t ip,size_t addr,bool write)
 	MallocInfos * allocInfos = (MallocInfos *)page.getAllocPointer(addr);
 	Stats * allocStats;
 	if (allocInfos == NULL)
+	{
 		allocStats = &dummyAlloc;
-	else
+	} else {
 		allocStats = allocInfos->stats;
+		//pick from alloc cache, this is a track to keep data local to thread
+		//and not use atomics/locks everywhere. Hence it make good scalability
+		//on large number of cores and NUMA nodes.
+		allocStats = &(allocCache[allocStats]);
+	}
 
 	//cases
 	if (pageNode == NUMAPROF_DEFAULT_NUMA_NODE)
@@ -129,10 +135,19 @@ void ThreadTracker::onAccess(size_t ip,size_t addr,bool write)
 		}
 	}
 
-	if (instructions.size() >= 1000)
+	//flush to keep small
+	if (instructions.size() >= 200)
 	{
 		this->process->mergeInstruction(instructions);
 		instructions.clear();
+	}
+
+	//flush to keep smell
+	if (allocCache.size() >= 200)
+	{
+		for (AllocCacheMap::iterator it = allocCache.begin() ; it != allocCache.end() ; ++it)
+			*(it->first) = it->second;
+		allocCache.clear();
 	}
 }
 

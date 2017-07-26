@@ -19,6 +19,9 @@
 namespace numaprof
 {
 
+/*********************  TYPES  **********************/
+typedef std::map<Stats *,Stats> AllocCacheMap;
+
 /*********************  CLASS  **********************/
 class ThreadTracker
 {
@@ -36,6 +39,7 @@ class ThreadTracker
 	private:
 		ProcessTracker * process;
 		InstrInfoMap instructions;
+		AllocCacheMap allocCache;
 		Stats stats;
 		int numa;
 		PageTable * table;
