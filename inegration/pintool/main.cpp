@@ -25,7 +25,7 @@ int func2(int id)
 {
 	cpu_set_t set;
 	CPU_ZERO(&set);
-	CPU_SET(id,&set);
+	CPU_SET(id%256,&set);
 	long status = sched_setaffinity(0,CPU_SETSIZE,&set);
 	printf("status : %ld\n",status);
 

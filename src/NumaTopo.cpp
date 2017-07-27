@@ -105,6 +105,16 @@ void NumaTopo::loadNumaMap(void)
 		char * list = Helper::loadTxtFile(fname,256);
 		if (list == NULL)
 			break;
+
+		//replace \n
+		char * it = list;
+		while (*it != '\0')
+		{
+			if (*it == '\n')
+				*it = '\0';
+			else
+				++it;
+		}
 		
 		//scan all ranges
 		char tmp[64];
@@ -175,7 +185,7 @@ int NumaTopo::getCurrentNumaAffinity(cpu_set_t * mask)
 	{
 		if (CPU_ISSET(i,mask))
 		{
-			printf("Thread can be on %d, numa = %d\n",i,numaMap[i]);
+			//printf("Thread can be on %d, numa = %d\n",i,numaMap[i]);
 			if (numa == -1)
 				numa = numaMap[i];
 			if (numa != numaMap[i])
@@ -183,7 +193,7 @@ int NumaTopo::getCurrentNumaAffinity(cpu_set_t * mask)
 		}
 	}
 
-	printf("Therad is binded on NUMA %d\n",numa);
+	printf("Thread is binded on NUMA %d\n",numa);
 	return numa;
 }
 
