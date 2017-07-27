@@ -25,7 +25,6 @@ do
 	if [ $threads -le $THREADS ]
 	then
 		echo $threads
-		continue
 		/usr/bin/time -f "$cores\t%e" -o orig.txt --append ./a.out $cores
 		/usr/bin/time -f "$cores\t%e" -o instr.txt --append ~/pin-3.2-81205-gcc-linux/pin -t obj-intel64/numaprof.so -- ./a.out $cores
 	fi
