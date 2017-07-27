@@ -51,6 +51,12 @@ class Converter:
 				lst.append(0)
 		return " ".join(str(x) for x in lst)
 
+	def getZeros(self):
+		lst = []
+		for counter in self.counters:
+			lst.append(0)
+		return " ".join(str(x) for x in lst)
+
 	def buildHeader(self):
 		print "version: 1"
 		print "creator: numaprof"
@@ -59,7 +65,7 @@ class Converter:
 		print "part: 1"
 		print ""
 		print "position: line"
-		print "events:"," ".join(self.counters)
+		print "events:"," ".join(self.counters)," ".join("alloc"+x for x in self.counters)
 		print "summary:",self.computeSummary()
 		print ""
 
@@ -90,7 +96,14 @@ class Converter:
 			print "ob=%s"%(location["binary"])
 			print "fl=%s"%(location["file"])
 			print "fn=%s"%(location["function"])
-			print "%d %s"%(location["line"],self.statToString(self.data["instructions"][instr]))
+			print "%d %s %s"%(location["line"],self.statToString(self.data["instructions"][instr]),self.getZeros())
+			print ""
+		for instr in self.data["allocs"]:
+			location = self.getLocation(instr)
+			print "ob=%s"%(location["binary"])
+			print "fl=%s"%(location["file"])
+			print "fn=%s"%(location["function"])
+			print "%d %s %s"%(location["line"],self.getZeros(),self.statToString(self.data["allocs"][instr]))
 			print ""
 
 	def convert(self):
