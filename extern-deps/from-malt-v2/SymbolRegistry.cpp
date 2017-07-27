@@ -479,7 +479,7 @@ char * SymbolRegistry::extractSymbolName(char* value)
 		ret[0] = '?';
 		ret[1] = '?';
 		ret[2] = 0;
-		printf("%s => %s\n",value,ret);
+		//printf("%s => %s\n",value,ret);
 		return ret;
 	}
 	
