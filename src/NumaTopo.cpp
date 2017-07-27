@@ -149,12 +149,12 @@ void NumaTopo::loadNumaMap(void)
 int NumaTopo::getCurrentNumaAffinity(void)
 {
 	//check
-	assert(cpus <= CPU_SETSIZE);
+	numaprofAssume(cpus <= CPU_SETSIZE,"To many CPU to be handled by cpu_set_t !");
 	//printf("%d <= %d\n",cpus,CPU_SETSIZE);
 
 	//get from system
 	cpu_set_t mask;
-	long status = numactl_sched_getaffinity(0,cpus,&mask);
+	long status = numactl_sched_getaffinity(0,sizeof(cpu_set_t),&mask);
 	if (status < 0)
 	{
 		printf("status = %ld\n",status);
