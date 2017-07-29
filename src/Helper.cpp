@@ -97,4 +97,20 @@ bool Range::contain(int value)
 	return value >= start && value <= end;
 }
 
+/********************  STRUCT  **********************/
+/**
+ * Check if a given string end by a reference.
+ * @param value String to check
+ * @param what Need to end by this.
+**/
+bool Helper::endBy(const std::string & value,const std::string & what)
+{
+	//if too large
+	if (what.size() > value.size())
+		return false;
+	
+	//check
+	return (strncmp(value.c_str()+value.size()-what.size(),what.c_str(),what.size()) == 0);
+}
+
 }

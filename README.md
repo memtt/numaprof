@@ -27,3 +27,5 @@ Biblio:
  * http://graal.ens-lyon.fr/~sdelamar/data/jcalc_lmorel.pdf
  * http://queue.acm.org/detail.cfm?id=2852078
  * https://tel.archives-ouvertes.fr/tel-01253537
+ * https://www.researchgate.net/publication/261322796_Call_Paths_for_Pin_Tools
+ * https://github.com/chabbimilind/cctlib

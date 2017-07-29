@@ -11,6 +11,7 @@
 
 /*******************  HEADERS  **********************/
 #include <cstdlib>
+#include <string>
 
 /*******************  NAMESPACE  ********************/
 namespace numaprof
@@ -30,6 +31,7 @@ struct Helper
 {
 	static char * loadTxtFile(const char * path,size_t maxSize = 4096);
 	static bool extractNth(char * out,const char * value,char sep,int index);
+	static bool endBy(const std::string & value,const std::string & what);
 };
 
 }

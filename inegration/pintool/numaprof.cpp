@@ -163,15 +163,51 @@ static VOID beforeSchedGetAffinity(ADDRINT mask,THREADID threadid)
 }
 
 /*******************  FUNCTION  *********************/
-static void beforeFunc(void * fctAddr,THREADID threadid)
+const string& Target2RtnName(ADDRINT target)
 {
-	//printf("Enter in %p\n",fctAddr);
+	const string & name = RTN_FindNameByAddress(target);
+
+	if (name == "")
+		return *new string("[Unknown routine]");
+	else
+		return *new string(name);
 }
 
 /*******************  FUNCTION  *********************/
-static void afterFunc(void * fctAddr,THREADID threadid)
+const string & Target2String(ADDRINT target)
 {
-	//printf("Exit %p\n",fctAddr);
+	static string invalid = "invalid_rtn";
+    string name = RTN_FindNameByAddress(target);
+    if (name == "")
+        return invalid;
+    else
+        return *(new string(name));
+}
+
+/*******************  FUNCTION  *********************/
+static BOOL IsPLT(TRACE trace)
+{
+    RTN rtn = TRACE_Rtn(trace);
+
+    // All .plt thunks have a valid RTN
+    if (!RTN_Valid(rtn))
+        return FALSE;
+
+    if (".plt" == SEC_Name(RTN_Sec(rtn)))
+        return TRUE;
+    return FALSE;
+}
+
+/*******************  FUNCTION  *********************/
+static void beforeFunc(void * fctAddr,void * name,THREADID threadid)
+{
+	printf("Enter in %s (%p)\n",(char*)name,fctAddr);
+}
+
+/*******************  FUNCTION  *********************/
+static void afterFunc(void * fctAddr,void * name,THREADID threadid)
+{
+	printf("Exit %s (%p)\n",(char*)name,fctAddr);
 }
 
 /*******************  FUNCTION  *********************/
@@ -180,6 +216,35 @@ static void beforeMunmap(VOID * addr,ADDRINT size,THREADID threadid)
 	//printf("Call munmap %p : %lu\n",addr,size);
 	//printf("Enter in %p\n",fctAddr);
 	getTls(threadid).tracker->onMunmap((size_t)addr,size);
+}
+
+/*******************  FUNCTION  *********************/
+void A_ProcessDirectCall(ADDRINT ip, ADDRINT target, ADDRINT sp)
+{
+	cout << "Direct call: " << Target2String(ip) << " => " << Target2String(target) << endl;
+	//callStack.ProcessCall(sp, target);
+}
+
+/*******************  FUNCTION  *********************/
+void A_ProcessIndirectCall(ADDRINT ip, ADDRINT target, ADDRINT sp)
+{
+	cout << "Indirect call: " << Target2String(ip) << " => " << Target2String(target) << endl;
+	//callStack.ProcessCall(sp, target);
+}
+
+/*******************  FUNCTION  *********************/
+static void A_ProcessStub(ADDRINT ip, ADDRINT target, ADDRINT sp) 
+{
+	cout << "Instrumenting stub: " << Target2String(ip) << " => " << Target2String(target) << endl;
+	cout << "STUB: ";
+	cout << Target2RtnName(target) << endl;
+	//callStack.ProcessCall(sp, target);
+}
+
+/*******************  FUNCTION  *********************/
+static void A_ProcessReturn(ADDRINT ip, ADDRINT sp) {
+	cout << "return" << endl;
+	//callStack.ProcessReturn(sp, prevIpDoesPush);
 }
 
 /*******************  FUNCTION  *********************/
@@ -357,6 +422,98 @@ static VOID Instruction(INS ins, VOID *v)
 				IARG_THREAD_ID,IARG_END);
 		}
 	}
+
+	/*if( INS_IsCall(ins) ) {
+		if( INS_IsDirectBranchOrCall(ins) ) {
+			ADDRINT target = INS_DirectBranchOrCallTargetAddress(ins);
+			INS_InsertPredicatedCall(ins, IPOINT_BEFORE,
+										(AFUNPTR)A_ProcessDirectCall,
+										IARG_INST_PTR,
+										IARG_ADDRINT, target,
+										IARG_REG_VALUE, REG_STACK_PTR,
+										IARG_END);
+		} else if( !INS_IsPlt(ins) ) {
+			INS_InsertPredicatedCall(ins, IPOINT_BEFORE,
+										(AFUNPTR)A_ProcessIndirectCall,
+										IARG_INST_PTR,
+										IARG_BRANCH_TARGET_ADDR,
+										IARG_REG_VALUE, REG_STACK_PTR,
+										IARG_END);
+		}
+	}*/
+	/*if( INS_IsPlt(ins) ) {
+		INS_InsertCall(ins, IPOINT_BEFORE, 
+						(AFUNPTR)A_ProcessStub,
+						IARG_INST_PTR,
+						IARG_BRANCH_TARGET_ADDR,
+						IARG_REG_VALUE, REG_STACK_PTR,
+						IARG_END);
+	}*/
+	/*if( INS_IsRet(ins) ) {
+		INS_InsertPredicatedCall(ins, IPOINT_BEFORE,
+									(AFUNPTR)A_ProcessReturn,
+									IARG_INST_PTR,
+									IARG_REG_VALUE, REG_STACK_PTR,
+									IARG_END);
+
+	}*/
+}
+
+/*******************  FUNCTION  *********************/
+static void I_Trace(TRACE trace, void *v)
+{
+    //FIXME if (PIN_IsSignalHandler()) {Sequence_ProcessSignalHandler(head)};
+
+    for(BBL bbl = TRACE_BblHead(trace); BBL_Valid(bbl); bbl = BBL_Next(bbl)) {
+
+        INS tail = BBL_InsTail(bbl);
+        
+        // All calls and returns
+        if( INS_IsSyscall(tail) ) {
+            /*INS_InsertPredicatedCall(tail, IPOINT_BEFORE,
+                                     (AFUNPTR)A_ProcessSyscall,
+                                     IARG_INST_PTR,
+                                     IARG_SYSCALL_NUMBER,
+                                     IARG_REG_VALUE, REG_STACK_PTR,
+                                     IARG_SYSCALL_ARG0,
+                                     IARG_END);*/
+        } else {
+            if( INS_IsCall(tail) ) {
+                if( INS_IsDirectBranchOrCall(tail) ) {
+                    ADDRINT target = INS_DirectBranchOrCallTargetAddress(tail);
+                    INS_InsertPredicatedCall(tail, IPOINT_BEFORE,
+                                             (AFUNPTR)A_ProcessDirectCall,
+                                             IARG_INST_PTR,
+                                             IARG_ADDRINT, target,
+                                             IARG_REG_VALUE, REG_STACK_PTR,
+                                             IARG_END);
+                } else if( !IsPLT(trace) ) {
+                    INS_InsertPredicatedCall(tail, IPOINT_BEFORE,
+                                             (AFUNPTR)A_ProcessIndirectCall,
+                                             IARG_INST_PTR,
+                                             IARG_BRANCH_TARGET_ADDR,
+                                             IARG_REG_VALUE, REG_STACK_PTR,
+                                             IARG_END);
+                }
+            }
+            if( IsPLT(trace) ) {
+                INS_InsertCall(tail, IPOINT_BEFORE, 
+                               (AFUNPTR)A_ProcessStub,
+                               IARG_INST_PTR,
+                               IARG_BRANCH_TARGET_ADDR,
+                               IARG_REG_VALUE, REG_STACK_PTR,
+                               IARG_END);
+            }
+            if( INS_IsRet(tail) ) {
+                INS_InsertPredicatedCall(tail, IPOINT_BEFORE,
+                                         (AFUNPTR)A_ProcessReturn,
+                                         IARG_INST_PTR,
+                                         IARG_REG_VALUE, REG_STACK_PTR,
+                                         IARG_END);
+	
+            }
+        }
+    }
 }
 
 /*******************  FUNCTION  *********************/
@@ -378,12 +535,13 @@ VOID instrFunctions(RTN rtn, VOID *v)
 
 	void * addr =  (void*)RTN_Address(rtn);
 	string name = RTN_Name(rtn);
+	char * strName = strdup(name.c_str());
 	
  	if (name != ".text" && name != ".plt" && name != "__cxa_atexit" && name != "__cxa_finalize")
  	{
  		// Insert a call at the entry point of a routine to increment the call count
- 		RTN_InsertCall(rtn, IPOINT_BEFORE, (AFUNPTR)beforeFunc, IARG_PTR, addr, IARG_THREAD_ID,IARG_END);
- 		RTN_InsertCall(rtn, IPOINT_AFTER, (AFUNPTR)afterFunc, IARG_PTR, addr, IARG_THREAD_ID,IARG_END);
+ 		RTN_InsertCall(rtn, IPOINT_BEFORE, (AFUNPTR)beforeFunc, IARG_PTR, addr,IARG_PTR, strName, IARG_THREAD_ID,IARG_END);
+ 		RTN_InsertCall(rtn, IPOINT_AFTER, (AFUNPTR)afterFunc, IARG_PTR, addr,IARG_PTR, strName, IARG_THREAD_ID,IARG_END);
 		//gblState.names.setupNewEntry(addr,RTN_Name(rtn));
  	}
 
@@ -427,7 +585,11 @@ int main(int argc, char *argv[])
 
 	IMG_AddInstrumentFunction(instrImage, 0);
 	INS_AddInstrumentFunction(Instruction, 0);
-	//RTN_AddInstrumentFunction(instrFunctions, 0);
+	if (false)
+	{
+		TRACE_AddInstrumentFunction(I_Trace, 0);
+		RTN_AddInstrumentFunction(instrFunctions, 0);
+	}
 	PIN_AddFiniFunction(Fini, 0);
 
 	// Register ThreadStart to be called when a thread starts and stop.
