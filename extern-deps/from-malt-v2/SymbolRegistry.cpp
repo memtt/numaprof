@@ -200,7 +200,7 @@ CallSite::CallSite(LinuxProcMapEntry* mapEntry)
 	this->line = 0;
 	this->function = -1;
 	this->file = -1;
-	this->binary = -1;
+	this->binaryStringId = -1;
 }
 
 /*******************  FUNCTION  *********************/
