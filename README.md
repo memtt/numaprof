@@ -28,24 +28,39 @@ Numaprof extract the given metrics per call site and per malloc call site :
  * unpinnedBothAccess : Accès depuis un thread non bindé à une page mise en place par un thread non bindé
  * mcdram : Accès à la mcdram sur KNL
 
-Usage
------
-
-Numaprof is currently a prototype so the usage is not yet simplified by using some wrapper script.
+Install
+-------
 
 First download the last version of pintoo (tested : 3.2-81205 on x86_64 arch) and extract it somewhere.
 
-The go into the `integration/pintool` directory to build the tool :
+The go use the configure script :
 
 ```
-cd integration/pintool
-make PIN_ROOT={ROOT_PATH_TO_PINTOOL}
+mkdir build
+../configure --prefix=PREFIX --with-pintool=PINTOOL_PATH
+make
+make install
 ```
 
-Then you can run by calling the `pin` command to wrap your executable :
+Usage
+-----
+
+Setup your paths (you can also use absolute paths if you don't want to change your env): 
 
 ```
-{ROOT_PATH_TO_PINTOOL}/pin -t obj-intel64/numaprof.so -- {YOUR_PRGRAM} {YOUR_PRGRAM_OPTIONS}
+export PATH=PREFIX/bin:$PATH
+```
+
+Run you program using the wrapper:
+
+```
+numaprof-pintool ./benchmark --my-option
+```
+
+If you want to generate the callgrind compatible output, use:
+
+```
+numaprof-pintool --callgrind ./benchmark --my-option
 ```
 
 Biblio
