@@ -258,6 +258,12 @@ if [ -z "${PINTOOL_PREFIX}" ]; then
 fi
 
 ######################################################
+if [ ! -f ${PINTOOL_PREFIX}/pin ]; then
+	echo "Invalid path for pintool : $PINTOOL_PREFIX, please set with --with-pintool=PATH"
+# 	exit 1
+fi
+
+######################################################
 #setup makefile
 cat > Makefile <<EOF
 all:

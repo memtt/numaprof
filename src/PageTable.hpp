@@ -34,7 +34,7 @@ namespace numaprof
 #define NUMAPROF_DEFAULT_NUMA_NODE (-2)
 #define NUMAPROF_ALLOC_GRAIN 8
 #define NUMAPROF_DEFAULT_THREAD_PIN true
-#define NUMAPROF_PAGE_UNMAPPED_FD -2
+#define NUMAPROF_PAGE_UNMAPPED_FD -200
 #define NUMAPROF_PAGE_ANON_FD -1
 
 /********************  ENUM  ************************/

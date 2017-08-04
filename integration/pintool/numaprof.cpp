@@ -7,6 +7,7 @@
 *****************************************************/
 
 #include "pin.H"
+#include <sys/mman.h>
 #include <cstdio>
 #include <ProcessTracker.hpp>
 #include <ThreadTracker.hpp>
@@ -36,6 +37,10 @@ struct ThreadData
 	int allocSize;
 	void * allocCallsite;
 	void * reallocPtr;
+	//keep track between enter/exit of mmap
+	size_t mmapSize;
+	size_t mmapFlags;
+	size_t mmapFd;
 	//pointer to thread tracker
 	ThreadTracker * tracker;
 };
@@ -219,11 +224,27 @@ static void beforeMunmap(VOID * addr,ADDRINT size,THREADID threadid)
 }
 
 /*******************  FUNCTION  *********************/
-static void beforeMmap(VOID * addr,ADDRINT size, ADDRINT flags,ADDRINT fd,THREADID threadid)
+static void beforeMmap(ADDRINT size, ADDRINT flags,ADDRINT fd,THREADID threadid)
 {
 	//printf("Call munmap %p : %lu\n",addr,size);
 	//printf("Enter in %p\n",fctAddr);
-	getTls(threadid).tracker->onMmap((size_t)addr,size,flags,fd);
+	//getTls(threadid).tracker->onMmap((size_t)addr,size,flags,fd);
+	ThreadData & data = getTls(threadid);
+	printf("MMAP size %lu\n",size);
+	data.mmapSize = size;
+	data.mmapFlags = flags;
+	data.mmapFd = fd;
+}
+
+/*******************  FUNCTION  *********************/
+static void afterMmap(VOID * addr,THREADID threadid)
+{
+	//printf("Call munmap %p : %lu\n",addr,size);
+	//printf("Enter in %p\n",fctAddr);
+	
+	ThreadData & data = getTls(threadid);
+	if (addr != MAP_FAILED)
+		data.tracker->onMmap((size_t)addr,data.mmapSize,data.mmapFlags,data.mmapFd);
 }
 
 /*******************  FUNCTION  *********************/
@@ -362,17 +383,20 @@ static VOID instrImageMmap(IMG img, VOID *v)
 	// of each malloc() or free(), and the return value of malloc().
 	//
 	//  Find the malloc() function.
-	RTN mmapRtn = RTN_FindByName(img, "munmap");
+	RTN mmapRtn = RTN_FindByName(img, "mmap");
 	if (RTN_Valid(mmapRtn))
 	{
 		RTN_Open(mmapRtn);
 		
 		// Instrument malloc() to print the input argument value and the return value.
 		RTN_InsertCall(mmapRtn, IPOINT_AFTER, (AFUNPTR)beforeMmap,
-					   IARG_FUNCARG_ENTRYPOINT_VALUE, 0,
 					   IARG_FUNCARG_ENTRYPOINT_VALUE, 1,
 					   IARG_FUNCARG_ENTRYPOINT_VALUE, 3,
 					   IARG_FUNCARG_ENTRYPOINT_VALUE, 4,
+					   IARG_THREAD_ID,IARG_END);
+		// Instrument malloc() to print the input argument value and the return value.
+		RTN_InsertCall(mmapRtn, IPOINT_AFTER, (AFUNPTR)afterMmap,
+					   IARG_FUNCRET_EXITPOINT_VALUE,
 					   IARG_THREAD_ID,IARG_END);
 		RTN_Close(mmapRtn);
 	}
