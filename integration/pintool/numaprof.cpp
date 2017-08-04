@@ -230,7 +230,6 @@ static void beforeMmap(ADDRINT size, ADDRINT flags,ADDRINT fd,THREADID threadid)
 	//printf("Enter in %p\n",fctAddr);
 	//getTls(threadid).tracker->onMmap((size_t)addr,size,flags,fd);
 	ThreadData & data = getTls(threadid);
-	printf("MMAP size %lu\n",size);
 	data.mmapSize = size;
 	data.mmapFlags = flags;
 	data.mmapFd = fd;
