@@ -68,15 +68,21 @@ class Converter:
 		print "events:"," ".join(self.counters)," ".join("alloc"+x for x in self.counters)
 		print "summary:",self.computeSummary()
 		print ""
+		
+	def getObjString(self,strings,obj,key):
+		if key in obj:
+			return strings[obj[key]]
+		else:
+			return "??"
 
 	def getLocation(self,instr):
 		strings = self.data["symbols"]["strings"]
 		instructions = self.data["symbols"]["instr"]
 		tmp = instructions[instr]
 		ret = {
-			"file": strings[tmp["file"]],
-			"function": strings[tmp["function"]],
-			"binary": strings[tmp["binary"]],
+			"file": self.getObjString(strings,tmp,"file"),
+			"function": self.getObjString(strings,tmp,"function"),
+			"binary": self.getObjString(strings,tmp,"binary"),
 		}
 		if ret["file"] == "??":
 			ret["file"] = "unknwon"
