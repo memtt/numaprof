@@ -31,9 +31,9 @@ Numaprof extract the given metrics per call site and per malloc call site :
 Install
 -------
 
-First download the last version of pintoo (tested : 3.2-81205 on x86_64 arch) and extract it somewhere.
+First download the last version of pintool (tested : 3.2-81205 on x86_64 arch) and extract it somewhere.
 
-The go use the configure script :
+The use the configure script (for pintool mode do not use directly the cmake script, the configure script does extra things with pin):
 
 ```
 mkdir build
@@ -62,6 +62,11 @@ If you want to generate the callgrind compatible output, use:
 ```
 numaprof-pintool --callgrind ./benchmark --my-option
 ```
+
+Licence
+-------
+
+Numaprof is distributed under CeCILL-C licence which is LGPL compatible.
 
 Biblio
 ------
