@@ -63,6 +63,12 @@ If you want to generate the callgrind compatible output, use:
 numaprof-pintool --callgrind ./benchmark --my-option
 ```
 
+Then you can open the callgrind file with kcachegrind (http://kcachegrind.sourceforge.net/html/Home.html):
+
+```
+kcachegrind numaprof-12345.callgrind
+```
+
 Licence
 -------
 

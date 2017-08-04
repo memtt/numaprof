@@ -62,7 +62,7 @@ void PageTable::clear(size_t baseAddr,size_t size)
 	{
 		Page & page = getPage(addr);
 		page.numaNode = NUMAPROF_DEFAULT_NUMA_NODE;
-		page.fromPinnedThread = true;
+		page.fromPinnedThread = NUMAPROG_DEFUALT_THREAD_PIN;
 
 		//free mem
 		if (page.allocStatus == PAGE_ALLOC_FRAG)

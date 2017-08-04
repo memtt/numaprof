@@ -31,6 +31,7 @@ namespace numaprof
 #define NUMAPROF_PAGE_LEVEL_ID(ptr,level) ((ptr & (NUMAPROF_PAGE_LEVEL_MASK << NUMAPROF_PAGE_LEVEL_SHIFT(level))) >> NUMAPROF_PAGE_LEVEL_SHIFT(level))
 #define NUMAPROF_DEFAULT_NUMA_NODE (-2)
 #define NUMAPROF_ALLOC_GRAIN 8
+#define NUMAPROG_DEFUALT_THREAD_PIN true
 
 /********************  ENUM  ************************/
 enum PageAllocStatus
@@ -50,7 +51,7 @@ struct AllocPointerPageMap
 /********************  STRUCT  **********************/
 struct Page
 {
-	Page(void) {numaNode = NUMAPROF_DEFAULT_NUMA_NODE; fromPinnedThread = true;allocStatus = PAGE_ALLOC_NONE;allocPtr = NULL;};
+	Page(void) {numaNode = NUMAPROF_DEFAULT_NUMA_NODE; fromPinnedThread = NUMAPROG_DEFUALT_THREAD_PIN;allocStatus = PAGE_ALLOC_NONE;allocPtr = NULL;};
 	~Page(void);
 	void * getAllocPointer(size_t addr);
 	int numaNode;
