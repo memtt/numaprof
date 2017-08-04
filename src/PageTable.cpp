@@ -51,6 +51,52 @@ Page & PageTable::getPage(size_t addr)
 }
 
 /*******************  FUNCTION  *********************/
+void PageTable::setHugePageFromPinnedThread(size_t addr,bool value)
+{
+	//check
+	assert(NUMAPROF_PAGE_LEVEL_ENTRIES * NUMAPROF_PAGE_SIZE == NUMAPROG_HUGE_PAGE_SIZE);
+	
+	//align on huge pahes
+	addr &= ~NUMAPROG_HUGE_PAGE_MASK;
+	Page * page = &getPage(addr);
+	for (size_t i = 0 ; i < NUMAPROF_PAGE_LEVEL_ENTRIES ; i++)
+		page[i].fromPinnedThread = value;
+}
+
+/*******************  FUNCTION  *********************/
+bool PageTable::canBeHugePage(size_t addr)
+{
+	//check
+	assert(NUMAPROF_PAGE_LEVEL_ENTRIES * NUMAPROF_PAGE_SIZE == NUMAPROG_HUGE_PAGE_SIZE);
+	
+	//align on huge pahes
+	addr &= ~NUMAPROG_HUGE_PAGE_MASK;
+	assert(addr % NUMAPROF_PAGE_SIZE == 0);
+	
+	//get first page
+	Page * page = &getPage(addr);
+	int fd = page->fd;
+	
+	//trivial
+	if (fd == NUMAPROF_PAGE_UNMAPPED_FD)
+	{
+		printf("First is unmapped, so k4 page\n");
+		return false;
+	}
+	
+	//check if all page have same fd
+	for (size_t i = 1 ; i < NUMAPROF_PAGE_LEVEL_ENTRIES ; i++)
+		if (page[i].fd != fd)
+		{
+			printf("fd %d != %d, so k4 page\n",page[i].fd,fd);
+			return false;
+		}
+	
+	printf("is huge page\n");
+	return true;
+}
+
+/*******************  FUNCTION  *********************/
 void PageTable::clear(size_t baseAddr,size_t size)
 {
 	//seutp
@@ -62,7 +108,7 @@ void PageTable::clear(size_t baseAddr,size_t size)
 	{
 		Page & page = getPage(addr);
 		page.numaNode = NUMAPROF_DEFAULT_NUMA_NODE;
-		page.fromPinnedThread = NUMAPROG_DEFUALT_THREAD_PIN;
+		page.fromPinnedThread = NUMAPROF_DEFAULT_THREAD_PIN;
 
 		//free mem
 		if (page.allocStatus == PAGE_ALLOC_FRAG)
@@ -70,6 +116,28 @@ void PageTable::clear(size_t baseAddr,size_t size)
 		
 		page.allocPtr = NULL;
 		page.allocStatus = PAGE_ALLOC_NONE;
+		page.fd = NUMAPROF_PAGE_UNMAPPED_FD;
+	}
+}
+
+/*******************  FUNCTION  *********************/
+void PageTable::trackMMap(size_t base,size_t size,int fd)
+{
+	//check
+	assert(base % NUMAPROF_PAGE_SIZE == 0);
+	assert(size % NUMAPROF_PAGE_SIZE == 0);
+	
+	printf("MMAP %lx [%lu] => %d\n",base,size,fd);
+	
+	//seutp
+	uint64_t end = (uint64_t)base + size;
+	uint64_t start = ((uint64_t)base) & (~NUMAPROF_PAGE_MASK);
+	
+	//loop
+	for (uint64_t addr = start; addr < end ; addr += NUMAPROF_PAGE_SIZE)
+	{
+		Page & page = getPage(addr);
+		page.fd = fd;
 	}
 }
 

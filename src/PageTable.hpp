@@ -29,9 +29,13 @@ namespace numaprof
 #define NUMAPROF_PAGE_LEVEL_ENTRIES (1lu <<NUMAPROF_PAGE_LEVEL_BITS)
 #define NUMAPROF_PAGE_LEVEL_SHIFT(level) (NUMAPROF_PAGE_OFFSET + NUMAPROF_PAGE_LEVEL_BITS * level)
 #define NUMAPROF_PAGE_LEVEL_ID(ptr,level) ((ptr & (NUMAPROF_PAGE_LEVEL_MASK << NUMAPROF_PAGE_LEVEL_SHIFT(level))) >> NUMAPROF_PAGE_LEVEL_SHIFT(level))
+#define NUMAPROG_HUGE_PAGE_SIZE (2*1024*1024)
+#define NUMAPROG_HUGE_PAGE_MASK ((2*1024*1024)-1)
 #define NUMAPROF_DEFAULT_NUMA_NODE (-2)
 #define NUMAPROF_ALLOC_GRAIN 8
-#define NUMAPROG_DEFUALT_THREAD_PIN true
+#define NUMAPROF_DEFAULT_THREAD_PIN true
+#define NUMAPROF_PAGE_UNMAPPED_FD -2
+#define NUMAPROF_PAGE_ANON_FD -1
 
 /********************  ENUM  ************************/
 enum PageAllocStatus
@@ -51,10 +55,12 @@ struct AllocPointerPageMap
 /********************  STRUCT  **********************/
 struct Page
 {
-	Page(void) {numaNode = NUMAPROF_DEFAULT_NUMA_NODE; fromPinnedThread = NUMAPROG_DEFUALT_THREAD_PIN;allocStatus = PAGE_ALLOC_NONE;allocPtr = NULL;};
+	Page(void) {numaNode = NUMAPROF_DEFAULT_NUMA_NODE; fromPinnedThread = NUMAPROF_DEFAULT_THREAD_PIN;allocStatus = PAGE_ALLOC_NONE;allocPtr = NULL;fd = NUMAPROF_PAGE_UNMAPPED_FD;};
 	~Page(void);
 	void * getAllocPointer(size_t addr);
 	int numaNode;
+	//@todo optimized by merging with fromPinnedThread using bitfields
+	int fd;
 	bool fromPinnedThread;
 	PageAllocStatus allocStatus;
 	void * allocPtr;
@@ -89,9 +95,12 @@ class PageTable
 {
 	public:
 		Page & getPage(size_t addr);
+		bool canBeHugePage(size_t addr);
+		void trackMMap(size_t base,size_t size,int fd);
 		void clear(size_t baseAddr,size_t size);
 		void regAllocPointer(size_t baseAddr,size_t size,void * value);
 		void freeAllocPointer(size_t baseAddr,size_t size,void * value);
+		void setHugePageFromPinnedThread(size_t addr,bool value);
 	private:
 		void regAllocPointerSmall(size_t baseAddr,size_t size,void * value);
 	private:

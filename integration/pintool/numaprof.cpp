@@ -219,6 +219,14 @@ static void beforeMunmap(VOID * addr,ADDRINT size,THREADID threadid)
 }
 
 /*******************  FUNCTION  *********************/
+static void beforeMmap(VOID * addr,ADDRINT size, ADDRINT flags,ADDRINT fd,THREADID threadid)
+{
+	//printf("Call munmap %p : %lu\n",addr,size);
+	//printf("Enter in %p\n",fctAddr);
+	getTls(threadid).tracker->onMmap((size_t)addr,size,flags,fd);
+}
+
+/*******************  FUNCTION  *********************/
 void A_ProcessDirectCall(ADDRINT ip, ADDRINT target, ADDRINT sp)
 {
 	cout << "Direct call: " << Target2String(ip) << " => " << Target2String(target) << endl;
@@ -354,17 +362,32 @@ static VOID instrImageMmap(IMG img, VOID *v)
 	// of each malloc() or free(), and the return value of malloc().
 	//
 	//  Find the malloc() function.
-	RTN callocRtn = RTN_FindByName(img, "munmap");
-	if (RTN_Valid(callocRtn))
+	RTN mmapRtn = RTN_FindByName(img, "munmap");
+	if (RTN_Valid(mmapRtn))
 	{
-		RTN_Open(callocRtn);
+		RTN_Open(mmapRtn);
 		
 		// Instrument malloc() to print the input argument value and the return value.
-		RTN_InsertCall(callocRtn, IPOINT_AFTER, (AFUNPTR)beforeMunmap,
+		RTN_InsertCall(mmapRtn, IPOINT_AFTER, (AFUNPTR)beforeMmap,
+					   IARG_FUNCARG_ENTRYPOINT_VALUE, 0,
+					   IARG_FUNCARG_ENTRYPOINT_VALUE, 1,
+					   IARG_FUNCARG_ENTRYPOINT_VALUE, 3,
+					   IARG_FUNCARG_ENTRYPOINT_VALUE, 4,
+					   IARG_THREAD_ID,IARG_END);
+		RTN_Close(mmapRtn);
+	}
+	
+	RTN munapRtn = RTN_FindByName(img, "munmap");
+	if (RTN_Valid(munapRtn))
+	{
+		RTN_Open(munapRtn);
+		
+		// Instrument malloc() to print the input argument value and the return value.
+		RTN_InsertCall(munapRtn, IPOINT_AFTER, (AFUNPTR)beforeMunmap,
 					   IARG_FUNCARG_ENTRYPOINT_VALUE, 0,
 					   IARG_FUNCARG_ENTRYPOINT_VALUE, 1,
 					   IARG_THREAD_ID,IARG_END);
-		RTN_Close(callocRtn);
+		RTN_Close(munapRtn);
 	}
 }
 

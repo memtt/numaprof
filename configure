@@ -263,7 +263,11 @@ cat > Makefile <<EOF
 all:
 	make -C build
 	make -C integration/pintool PIN_ROOT=${PINTOOL_PREFIX}
-	
+
+clean:
+	make -C build clean
+	make -C integration/pintool PIN_ROOT=${PINTOOL_PREFIX} clean
+
 install: all
 	make -C build install
 	install -D integration/pintool/obj-intel64/libnumaprof-pintool.so ${PREFIX_PATH}/lib/libnumaprof-pintool.so

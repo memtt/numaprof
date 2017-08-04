@@ -7,6 +7,7 @@
 *****************************************************/
 
 /********************  HEADERS  *********************/
+#include <sys/mman.h>
 #include <cassert>
 #include "ThreadTracker.hpp"
 #include "../extern-deps/from-numactl/MovePages.hpp"
@@ -100,7 +101,14 @@ void ThreadTracker::onAccess(size_t ip,size_t addr,bool write)
 		//if write, consider that we create the page so
 		//check if we are pinned to remember status for latter access
 		if (write)
-			page.fromPinnedThread = (numa != -1);
+		{
+			if (table->canBeHugePage(addr)) {
+				printf("huge page !\n");
+				table->setHugePageFromPinnedThread(addr,numa != -1);
+			} else { 
+				page.fromPinnedThread = (numa != -1);
+			}
+		}
 	} else {
 		assert(pageNode >= 0);
 		if (topo->getIsMcdram(pageNode)) 
@@ -168,6 +176,14 @@ void ThreadTracker::onStop(void)
 void ThreadTracker::onMunmap(size_t addr,size_t size)
 {
 	table->clear(addr,size);
+}
+
+/*******************  FUNCTION  *********************/
+void ThreadTracker::onMmap(size_t addr,size_t size,size_t flags,size_t fd)
+{
+	if (flags == MAP_ANON)
+		fd = NUMAPROF_PAGE_ANON_FD;
+	table->trackMMap(addr,size,fd);
 }
 
 /*******************  FUNCTION  *********************/
