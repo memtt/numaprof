@@ -1,3 +1,9 @@
+Numaprof
+========
+
+What it is ?
+------------
+
 Numaprof is currently a prototype to implement a NUMA memory 
 profiler. The idea is to instrument the read/write operations in 
 the application and check the NUMA location of the thread at 
@@ -8,7 +14,43 @@ also looking to possibly use a CLANG/LLVM plugin which offer
 the same thing but without support on non recompiled code :
 https://llvm.org/svn/llvm-project/safecode/trunk/lib/CommonMemorySafety/InstrumentMemoryAccesses.cpp
 
-Biblio:
+Metrics
+-------
+
+Numaprof extract the given metrics per call site and per malloc call site :
+
+ * firstTouch : permet de savoir où ont lieu les first touch depuis un thread bindé
+ * unpinnedFirstTouch : permet de savoir où ont lieu les first touch depuis des thread non bindés
+ * localAccess : Permet de compter les accès locaux (via un thread bindé)
+ * remoteAccess : Permet de compter les accès distant (via un thread bindé)
+ * unpinnedPageAccess : Accès depuis un thread bindé à une page dont le thread ayant fait le first touch était non bindé
+ * unpinnedThreadAccess : Accès depuis un thread non bindé à une page dont le thread ayant fait le first touch était bindé
+ * unpinnedBothAccess : Accès depuis un thread non bindé à une page mise en place par un thread non bindé
+ * mcdram : Accès à la mcdram sur KNL
+
+Usage
+-----
+
+Numaprof is currently a prototype so the usage is not yet simplified by using some wrapper script.
+
+First download the last version of pintoo (tested : 3.2-81205 on x86_64 arch) and extract it somewhere.
+
+The go into the `integration/pintool` directory to build the tool :
+
+```
+cd integration/pintool
+make PIN_ROOT={ROOT_PATH_TO_PINTOOL}
+```
+
+Then you can run by calling the `pin` command to wrap your executable :
+
+```
+{ROOT_PATH_TO_PINTOOL}/pin -t obj-intel64/numaprof.so -- {YOUR_PRGRAM} {YOUR_PRGRAM_OPTIONS}
+```
+
+Biblio
+------
+
  * http://valgrind.org/docs/memcheck2005.pdf
  * https://www.usenix.org/system/files/conference/atc12/atc12-final229.pdf
  * https://www.dcl.hpi.uni-potsdam.de/teaching/numasem/slides/NUMASem_Profiler.pdf
