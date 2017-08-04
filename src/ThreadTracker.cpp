@@ -64,9 +64,9 @@ void ThreadTracker::onAccess(size_t ip,size_t addr,bool write)
 		//printf("Page on %d, write = %d\n",pageNode,write);
 		if (write && pageNode != NUMAPROF_DEFAULT_NUMA_NODE)
 		{
-			if (table->canBeHugePage(addr))
-				table->setHugePageNuma(addr,pageNode);
-			else
+			//if (table->canBeHugePage(addr))
+			//	table->setHugePageNuma(addr,pageNode);
+			//else
 				page.numaNode = pageNode;
 		}
 	}
@@ -107,7 +107,11 @@ void ThreadTracker::onAccess(size_t ip,size_t addr,bool write)
 		//check if we are pinned to remember status for latter access
 		if (write)
 		{
-			if (table->canBeHugePage(addr)) {
+			if (page.canBeHugePage) {
+				printf("Huge page already done\n");
+				//nothing to do, already done
+				//CAUTION it rely on the fact that table->canBeHugePage() is called ONLY HERE.
+			} else if (table->canBeHugePage(addr)) {
 				printf("huge page !\n");
 				table->setHugePageFromPinnedThread(addr,numa != -1);
 			} else { 

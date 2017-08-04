@@ -105,6 +105,10 @@ bool PageTable::canBeHugePage(size_t addr)
 			return false;
 		}
 	
+	//mark
+	for (size_t i = 1 ; i < NUMAPROF_PAGE_LEVEL_ENTRIES ; i++)
+		page[i].canBeHugePage = true;
+	
 	printf("is huge page\n");
 	return true;
 }
@@ -130,6 +134,7 @@ void PageTable::clear(size_t baseAddr,size_t size)
 		page.allocPtr = NULL;
 		page.allocStatus = PAGE_ALLOC_NONE;
 		page.fd = NUMAPROF_PAGE_UNMAPPED_FD;
+		page.canBeHugePage = false;
 	}
 }
 

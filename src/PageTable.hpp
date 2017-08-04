@@ -55,13 +55,14 @@ struct AllocPointerPageMap
 /********************  STRUCT  **********************/
 struct Page
 {
-	Page(void) {numaNode = NUMAPROF_DEFAULT_NUMA_NODE; fromPinnedThread = NUMAPROF_DEFAULT_THREAD_PIN;allocStatus = PAGE_ALLOC_NONE;allocPtr = NULL;fd = NUMAPROF_PAGE_UNMAPPED_FD;};
+	Page(void) {numaNode = NUMAPROF_DEFAULT_NUMA_NODE; fromPinnedThread = NUMAPROF_DEFAULT_THREAD_PIN;allocStatus = PAGE_ALLOC_NONE;allocPtr = NULL;fd = NUMAPROF_PAGE_UNMAPPED_FD;canBeHugePage = false;};
 	~Page(void);
 	void * getAllocPointer(size_t addr);
 	int numaNode;
 	//@todo optimized by merging with fromPinnedThread using bitfields
 	int fd;
 	bool fromPinnedThread;
+	bool canBeHugePage;
 	PageAllocStatus allocStatus;
 	void * allocPtr;
 };
