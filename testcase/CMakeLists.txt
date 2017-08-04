@@ -8,9 +8,9 @@
 
 ######################################################
 add_executable(main-simple main-simple.cpp)
-SET_TARGET_PROPERTIES(main-simple PROPERTIES COMPILE_FLAGS "-g")
+SET_TARGET_PROPERTIES(main-simple PROPERTIES COMPILE_FLAGS "-g -O0")
 
 ######################################################
 add_executable(main-threads main-threads.cpp)
-SET_TARGET_PROPERTIES(main-threads PROPERTIES COMPILE_FLAGS "-g -pthread")
+SET_TARGET_PROPERTIES(main-threads PROPERTIES COMPILE_FLAGS "-g -pthread -O0")
 target_link_libraries(main-threads "-pthread")
