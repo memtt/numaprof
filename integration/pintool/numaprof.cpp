@@ -314,7 +314,7 @@ static VOID instrImageMalloc(IMG img, VOID *v)
 		// Instrument malloc() to print the input argument value and the return value.
 		RTN_InsertCall(mallocRtn, IPOINT_BEFORE, (AFUNPTR)beforeMalloc,
 					   IARG_FUNCARG_ENTRYPOINT_VALUE, 0,
-					   IARG_RETURN_IP, IARG_THREAD_ID,IARG_END);
+					   IARG_INST_PTR, IARG_THREAD_ID,IARG_END);
 		
 		// Instrument malloc() to print the input argument value and the return value.
 		RTN_InsertCall(mallocRtn, IPOINT_AFTER, (AFUNPTR)afterMalloc,
@@ -340,7 +340,7 @@ static VOID instrImageRealloc(IMG img, VOID *v)
 		RTN_InsertCall(reallocRtn, IPOINT_BEFORE, (AFUNPTR)beforeRealloc,
 					   IARG_FUNCARG_ENTRYPOINT_VALUE, 0,
 					   IARG_FUNCARG_ENTRYPOINT_VALUE, 1,
-					   IARG_RETURN_IP, IARG_THREAD_ID,IARG_END);
+					   IARG_INST_PTR, IARG_THREAD_ID,IARG_END);
 		
 		// Instrument malloc() to print the input argument value and the return value.
 		RTN_InsertCall(reallocRtn, IPOINT_AFTER, (AFUNPTR)afterRealloc,
