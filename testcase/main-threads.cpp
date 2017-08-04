@@ -1,11 +1,12 @@
 /*****************************************************
-			 PROJECT  : numaprof
-			 VERSION  : 2.3.0
-			 DATE     : 05/2017
-			 AUTHOR   : Valat Sébastien - CERN
-			 LICENSE  : CeCILL-C
+             PROJECT  : numaprof
+             VERSION  : 2.3.0
+             DATE     : 05/2017
+             AUTHOR   : Valat Sébastien - CERN
+             LICENSE  : CeCILL-C
 *****************************************************/
 
+/********************  HEADERS  *********************/
 #include <thread>
 #include <functional>
 #include <cstdio>
@@ -14,6 +15,10 @@
 #include <sched.h>
 #include <cstring>
 
+/********************  GLOBALS  *********************/
+static char * global = NULL;
+
+/*******************  FUNCTION  *********************/
 int func()
 {
 	char * buffer = (char*)malloc(128);
@@ -27,8 +32,7 @@ int func()
 	delete [] buffer;
 }
 
-char * global;
-
+/*******************  FUNCTION  *********************/
 int func2(int id)
 {
 	cpu_set_t set;
@@ -57,6 +61,7 @@ int func2(int id)
 	free(r);
 }
 
+/*******************  FUNCTION  *********************/
 int main(int argc, char ** argv)
 {
 	int ncpu = 1;
