@@ -337,6 +337,10 @@ void SymbolRegistry::solveNames(LinuxProcMapEntry * procMapEntry)
 		if (sep == NULL)
 		{
 			MATT_WARNING_ARG("Fail to split source location on ':' : %1").arg(bufferFile).end();
+			lst[i]->line = 0;
+			lst[i]->file = 0;
+			lst[i]->function = 0;
+			lst[i]->binaryStringId = 0;
 		} else {
 			*sep='\0';
 			
