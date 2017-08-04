@@ -1,0 +1,16 @@
+######################################################
+#            PROJECT  : numaprof                     #
+#            VERSION  : 0.0.0-dev                    #
+#            DATE     : 07/2017                      #
+#            AUTHOR   : Valat Sébastien  - CERN      #
+#            LICENSE  : CeCILL-C                     #
+######################################################
+
+######################################################
+add_executable(main-simple main-simple.cpp)
+SET_TARGET_PROPERTIES(main-simple PROPERTIES COMPILE_FLAGS "-g")
+
+######################################################
+add_executable(main-threads main-threads.cpp)
+SET_TARGET_PROPERTIES(main-threads PROPERTIES COMPILE_FLAGS "-g -pthread")
+target_link_libraries(main-threads "-pthread")

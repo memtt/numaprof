@@ -8,6 +8,7 @@
 
 /*******************  HEADERS  **********************/
 #include <cstdio>
+#include <cstring>
 #include "Helper.hpp"
 
 /*******************  NAMESPACE  ********************/

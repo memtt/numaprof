@@ -226,6 +226,13 @@ void A_ProcessDirectCall(ADDRINT ip, ADDRINT target, ADDRINT sp)
 }
 
 /*******************  FUNCTION  *********************/
+void A_ProcessDirectCall_ret(ADDRINT ip, ADDRINT target, ADDRINT sp)
+{
+	cout << "Direct call RET: " << Target2String(ip) << " <= " << Target2String(target) << endl;
+	//callStack.ProcessCall(sp, target);
+}
+
+/*******************  FUNCTION  *********************/
 void A_ProcessIndirectCall(ADDRINT ip, ADDRINT target, ADDRINT sp)
 {
 	cout << "Indirect call: " << Target2String(ip) << " => " << Target2String(target) << endl;
@@ -233,7 +240,14 @@ void A_ProcessIndirectCall(ADDRINT ip, ADDRINT target, ADDRINT sp)
 }
 
 /*******************  FUNCTION  *********************/
-static void A_ProcessStub(ADDRINT ip, ADDRINT target, ADDRINT sp) 
+void A_ProcessIndirectCall_ret(ADDRINT ip, ADDRINT target, ADDRINT sp)
+{
+	cout << "Indirect call RET: " << Target2String(ip) << " <= " << Target2String(target) << endl;
+	//callStack.ProcessCall(sp, target);
+}
+
+/*******************  FUNCTION  *********************/
+void A_ProcessStub(ADDRINT ip, ADDRINT target, ADDRINT sp) 
 {
 	cout << "Instrumenting stub: " << Target2String(ip) << " => " << Target2String(target) << endl;
 	cout << "STUB: ";
@@ -242,8 +256,17 @@ static void A_ProcessStub(ADDRINT ip, ADDRINT target, ADDRINT sp)
 }
 
 /*******************  FUNCTION  *********************/
+void A_ProcessStub_ret(ADDRINT ip, ADDRINT target, ADDRINT sp) 
+{
+	cout << "Instrumenting stub RET: " << Target2String(ip) << " <= " << Target2String(target) << endl;
+	cout << "STUB: ";
+	cout << Target2RtnName(target) << endl;
+	//callStack.ProcessCall(sp, target);
+}
+
+/*******************  FUNCTION  *********************/
 static void A_ProcessReturn(ADDRINT ip, ADDRINT sp) {
-	cout << "return" << endl;
+	cout << "return " << Target2String(ip) <<endl;
 	//callStack.ProcessReturn(sp, prevIpDoesPush);
 }
 
@@ -487,6 +510,13 @@ static void I_Trace(TRACE trace, void *v)
                                              IARG_ADDRINT, target,
                                              IARG_REG_VALUE, REG_STACK_PTR,
                                              IARG_END);
+					/*INS_InsertPredicatedCall(tail, IPOINT_AFTER,
+                                             (AFUNPTR)A_ProcessDirectCall_ret,
+                                             IARG_INST_PTR,
+                                             IARG_ADDRINT, target,
+                                             IARG_REG_VALUE, REG_STACK_PTR,
+											 IARG_CALL_ORDER, CALL_ORDER_LAST,
+                                             IARG_END);*/
                 } else if( !IsPLT(trace) ) {
                     INS_InsertPredicatedCall(tail, IPOINT_BEFORE,
                                              (AFUNPTR)A_ProcessIndirectCall,
@@ -494,6 +524,13 @@ static void I_Trace(TRACE trace, void *v)
                                              IARG_BRANCH_TARGET_ADDR,
                                              IARG_REG_VALUE, REG_STACK_PTR,
                                              IARG_END);
+					/*INS_InsertPredicatedCall(tail, IPOINT_AFTER,
+                                             (AFUNPTR)A_ProcessIndirectCall_ret,
+											 IARG_CALL_ORDER, CALL_ORDER_LAST,
+                                             IARG_INST_PTR,
+                                             IARG_BRANCH_TARGET_ADDR,
+                                             IARG_REG_VALUE, REG_STACK_PTR,
+                                             IARG_END);*/
                 }
             }
             if( IsPLT(trace) ) {
@@ -503,6 +540,13 @@ static void I_Trace(TRACE trace, void *v)
                                IARG_BRANCH_TARGET_ADDR,
                                IARG_REG_VALUE, REG_STACK_PTR,
                                IARG_END);
+				/*INS_InsertCall(tail, IPOINT_AFTER, 
+                               (AFUNPTR)A_ProcessStub_ret,
+							   IARG_CALL_ORDER, CALL_ORDER_LAST,
+                               IARG_INST_PTR,
+                               IARG_BRANCH_TARGET_ADDR,
+                               IARG_REG_VALUE, REG_STACK_PTR,
+                               IARG_END);*/
             }
             if( INS_IsRet(tail) ) {
                 INS_InsertPredicatedCall(tail, IPOINT_BEFORE,
@@ -588,7 +632,7 @@ int main(int argc, char *argv[])
 	if (false)
 	{
 		TRACE_AddInstrumentFunction(I_Trace, 0);
-		RTN_AddInstrumentFunction(instrFunctions, 0);
+		//RTN_AddInstrumentFunction(instrFunctions, 0);
 	}
 	PIN_AddFiniFunction(Fini, 0);
 

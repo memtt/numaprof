@@ -8,7 +8,7 @@
 
 ######################################################
 add_library(numaprof SHARED PageTable.cpp
-							TopoHwloc.cpp
+#							TopoHwloc.cpp
 							Debug.cpp
 							Helper.cpp
 							NumaTopo.cpp
@@ -19,4 +19,7 @@ add_library(numaprof SHARED PageTable.cpp
 							MallocTracker.cpp
 							$<TARGET_OBJECTS:htopml-json>
 							$<TARGET_OBJECTS:malt-core>)
-target_link_libraries(numaprof ${HWLOC_LIBRARY})
+#target_link_libraries(numaprof ${HWLOC_LIBRARY})
+INSTALL(TARGETS numaprof
+	ARCHIVE DESTINATION lib
+	LIBRARY DESTINATION lib)

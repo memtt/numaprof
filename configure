@@ -18,6 +18,7 @@
 PROJECT_NAME='numaprof'
 # State variables
 PREFIX='-DCMAKE_INSTALL_PREFIX=/usr/local'
+PREFIX_PATH="/usr/local"
 CMAKE='cmake'
 EXTRA_CC=''
 EXTRA_CXX=''
@@ -34,12 +35,13 @@ ENABLE_VALGRIND=''
 LIB_SUFFIX=''
 #prefix
 HLWOC_PREFIX=''
+PINTOOL_PREFIX=''
 #select transport
 TRANSPORT=''
 
 ######################################################
 #Find default source dir
-SOURCE_DIR="`dirname \"$0\"`"
+SOURCE_DIR="$PWD/`dirname \"$0\"`"
 
 ######################################################
 HELP_MESSAGE="'configure' is a cmake wrapper to build ${PROJECT_NAME}
@@ -78,6 +80,7 @@ To find libs and commands :
    --with-cmake={command}    Define the cmake command to use [cmake].
    --with-mpicxx={cmd}       Define the MPI compiler to use [mpicxx].
    --with-hwloc={prefix}     Define prefix to find hwloc [/usr].
+   --with-pintool={prefix}   Define prefix of pintool (REQUIRED).
 
 To get the generated cmake command :
    --show                  Display the cmake command and didn't execute it.
@@ -131,6 +134,7 @@ do
 			;;
 		--prefix=*)
 			PREFIX="-DCMAKE_INSTALL_PREFIX=`get_arg_value \"$arg\" --prefix`"
+			PREFIX_PATH="`get_arg_value \"$arg\" --prefix`"
 			;;
 		--srcdir=*)
 			SOURCE_DIR="`get_arg_value \"$arg\" --srcdir`"
@@ -147,6 +151,9 @@ do
 			;;
 		--with-hwloc=*)
 			HWLOC_PREFIX="-DHWLOC_PREFIX=`get_arg_value \"$arg\" --with-hwloc`"
+			;;
+		--with-pintool=*)
+			PINTOOL_PREFIX="`get_arg_value \"$arg\" --with-pintool`"
 			;;
 		--enable-debug)
 			BUILD_TYPE='Debug'
@@ -232,6 +239,41 @@ gen_clean_command()
 	done
 	echo "${res}"
 }
+
+######################################################
+mkdir -p integration/pintool
+cp "${SOURCE_DIR}/integration/pintool/Makefile" integration/pintool
+cp "${SOURCE_DIR}/integration/pintool/makefile.rules" integration/pintool
+sed -e "s#SRCDIR=./#SRCDIR=${SOURCE_DIR}/integration/pintool#g" -i integration/pintool/makefile.rules
+
+######################################################
+mkdir -p integration/scripts
+cp "${SOURCE_DIR}/integration/scripts/numaprof-pintool.sh" integration/scripts
+sed -e "s#NUMAPROF_PREFIX=#NUMAPROF_PREFIX=${PREFIX_PATH}#g" -e "s#PINTOOL_PREFIX=#PINTOOL_PREFIX=${PINTOOL_PREFIX}#g" -i integration/scripts/numaprof-pintool.sh
+
+######################################################
+if [ -z "${PINTOOL_PREFIX}" ]; then
+	echo "Missing pintool prefix, please provide path with --with-pintool=PREFIX"
+	exit 1
+fi
+
+######################################################
+#setup makefile
+cat > Makefile <<EOF
+all:
+	make -C build
+	make -C integration/pintool PIN_ROOT=${PINTOOL_PREFIX}
+	
+install: all
+	make -C build install
+	install -D integration/pintool/obj-intel64/libnumaprof-pintool.so ${PREFIX_PATH}/lib/libnumaprof-pintool.so
+	install -D ${SOURCE_DIR}/integration/scripts/numaprof-to-callgrind.py ${PREFIX_PATH}/bin/numaprof-to-callgrind
+	install -D integration/scripts/numaprof-pintool.sh ${PREFIX_PATH}/bin/numaprof-pintool
+EOF
+
+######################################################
+mkdir -p build
+cd build
 
 ######################################################
 #Gen final command
