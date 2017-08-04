@@ -92,24 +92,17 @@ bool PageTable::canBeHugePage(size_t addr)
 	
 	//trivial
 	if (fd == NUMAPROF_PAGE_UNMAPPED_FD)
-	{
-		printf("First is unmapped, so k4 page\n");
 		return false;
-	}
 	
 	//check if all page have same fd
 	for (size_t i = 1 ; i < NUMAPROF_PAGE_LEVEL_ENTRIES ; i++)
 		if (page[i].fd != fd)
-		{
-			printf("fd %d != %d, so k4 page\n",page[i].fd,fd);
 			return false;
-		}
 	
 	//mark
 	for (size_t i = 1 ; i < NUMAPROF_PAGE_LEVEL_ENTRIES ; i++)
 		page[i].canBeHugePage = true;
 	
-	printf("is huge page\n");
 	return true;
 }
 
@@ -144,8 +137,6 @@ void PageTable::trackMMap(size_t base,size_t size,int fd)
 	//check
 	assert(base % NUMAPROF_PAGE_SIZE == 0);
 	//assert(size % NUMAPROF_PAGE_SIZE == 0);
-	
-	printf("MMAP %lx [%lu] => %d\n",base,size,fd);
 	
 	//seutp
 	uint64_t end = (uint64_t)base + size;

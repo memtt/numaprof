@@ -108,11 +108,9 @@ void ThreadTracker::onAccess(size_t ip,size_t addr,bool write)
 		if (write)
 		{
 			if (page.canBeHugePage) {
-				printf("Huge page already done\n");
 				//nothing to do, already done
 				//CAUTION it rely on the fact that table->canBeHugePage() is called ONLY HERE.
 			} else if (table->canBeHugePage(addr)) {
-				printf("huge page !\n");
 				table->setHugePageFromPinnedThread(addr,numa != -1);
 			} else { 
 				page.fromPinnedThread = (numa != -1);
