@@ -101,6 +101,7 @@ class PageTable
 		void regAllocPointer(size_t baseAddr,size_t size,void * value);
 		void freeAllocPointer(size_t baseAddr,size_t size,void * value);
 		void setHugePageFromPinnedThread(size_t addr,bool value);
+		void setHugePageNuma(size_t addr,int numa);
 	private:
 		void regAllocPointerSmall(size_t baseAddr,size_t size,void * value);
 	private:

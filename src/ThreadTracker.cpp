@@ -63,7 +63,12 @@ void ThreadTracker::onAccess(size_t ip,size_t addr,bool write)
 		pageNode = getNumaOfPage(addr);
 		//printf("Page on %d, write = %d\n",pageNode,write);
 		if (write && pageNode != NUMAPROF_DEFAULT_NUMA_NODE)
-			page.numaNode = pageNode;
+		{
+			if (table->canBeHugePage(addr))
+				table->setHugePageNuma(addr,pageNode);
+			else
+				page.numaNode = pageNode;
+		}
 	}
 
 	//get instr
