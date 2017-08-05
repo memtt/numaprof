@@ -1,14 +1,42 @@
 <!doctype html>
 <html>
 	<head>
-		<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 		<title>Numaprof - {{file}} - {% block title %}{% endblock %}</title>
+		<!-- jquery -->
+		<script language="text/javascript" src="/static/jquery/jquery.min.js"></script>
+		<!-- bootstrap -->
+		<link rel="stylesheet" type="text/css" href="/static/bootstrap/css/bootstrap.min.css">
+		<link rel="stylesheet" type="text/css" href="/static/bootstrap/css/bootstrap-theme.min.css">
+		<script language="text/javascript" src="/static/bootstrap/js/bootstrap.min.js"></script>
+		<!-- Default style -->
+		<link rel="stylesheet" type="text/css" href="/static/styles/style.css">
 		{% block import %}
 		{% endblock %}
 	</head>
 	<body>
-		<div id="header"></div>
-		<div id="content">{% block content %}{% endblock %}</div>
-		<div id="footer"></div>
+		<!-- Fixed navbar -->
+		<nav class="navbar navbar-inverse">
+			<div class="container">
+				<div class="navbar-header">
+					<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+						<span class="sr-only">Toggle navigation</span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+					</button>
+				<a class="navbar-brand" href="#">Numaprof</a>
+				</div>
+				<div id="navbar" class="navbar-collapse collapse">
+				<ul class="nav navbar-nav">
+					<li {% if page == "home" %} class="active"{% endif %}><a href="#">Home</a></li>
+					<li {% if page == "sources" %} class="active"{% endif %}><a href="#">Sources</a></li>
+				</ul>
+				</div><!--/.nav-collapse -->
+			</div>
+		</nav>
+
+		<div class="container" role="main">
+			{% block content %}{% endblock %}
+		</div>
 	</body>
 </html>

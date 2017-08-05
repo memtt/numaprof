@@ -22,8 +22,16 @@ profile = ProfileHandler(os.environ["NUMAPROF_FILE"])
 @app.route('/')
 @app.route('/index.html')
 def root():
-    return render_template('index.html', file=profile.getFileName())
+    return render_template('index.html', file=profile.getFileName(), page = "home")
 
 @app.route('/static/<path:path>')
 def serveStaticFiles(path):
     return send_from_directory('./static', path)
+
+@app.route('/static/jquery/<path:path>')
+def jqueryFiles(path):
+    return send_from_directory('./bower_components/jquery/dist/', path)
+
+@app.route('/static/bootstrap/<path:path>')
+def bootsrapFiles(path):
+    return send_from_directory('./bower_components/bootstrap/dist/', path)
