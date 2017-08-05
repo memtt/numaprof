@@ -153,6 +153,37 @@ void PageTable::trackMMap(size_t base,size_t size,int fd)
 }
 
 /*******************  FUNCTION  *********************/
+void PageTable::mremap(size_t oldAddr,size_t oldSize,size_t newAddr, size_t newSize)
+{
+	//check
+	assert(oldAddr % NUMAPROF_PAGE_SIZE == 0);
+	assert(oldSize % NUMAPROF_PAGE_SIZE == 0);
+	assert(newAddr % NUMAPROF_PAGE_SIZE == 0);
+	assert(newSize % NUMAPROF_PAGE_SIZE == 0);
+	
+	//compute copy size
+	size_t copySize = oldSize;
+	if (newSize < copySize)
+		copySize = newSize;
+	
+	//if not overlap
+	if (oldAddr + oldSize <= newAddr || newAddr + newSize <= oldAddr)
+	{
+		for (size_t i = 0 ; i < copySize ; i += NUMAPROF_PAGE_SIZE)
+			getPage(newAddr+i) = getPage(oldAddr+i);
+		clear(oldAddr,oldSize);
+	} else {
+		Page * buf = new Page[copySize / NUMAPROF_PAGE_SIZE];
+		for (size_t i = 0 ; i < copySize ; i += NUMAPROF_PAGE_SIZE)
+			buf[i / NUMAPROF_PAGE_SIZE] = getPage(oldAddr+i);
+		clear(oldAddr,oldSize);
+		for (size_t i = 0 ; i < copySize ; i += NUMAPROF_PAGE_SIZE)
+			getPage(newAddr+i) = buf[i / NUMAPROF_PAGE_SIZE];
+		delete [] buf;
+	}
+}
+
+/*******************  FUNCTION  *********************/
 void PageTable::regAllocPointerSmall(size_t baseAddr,size_t size,void * value)
 {
 	//trivial

@@ -99,6 +99,7 @@ class PageTable
 		bool canBeHugePage(size_t addr);
 		void trackMMap(size_t base,size_t size,int fd);
 		void clear(size_t baseAddr,size_t size);
+		void mremap(size_t oldAddr,size_t oldSize,size_t newAddr, size_t newSize);
 		void regAllocPointer(size_t baseAddr,size_t size,void * value);
 		void freeAllocPointer(size_t baseAddr,size_t size,void * value);
 		void setHugePageFromPinnedThread(size_t addr,bool value);

@@ -44,6 +44,10 @@ struct ThreadData
 	size_t mmapSize;
 	size_t mmapFlags;
 	size_t mmapFd;
+	//keep track betwen enter/exit of mremap
+	void * mremapOldAddr;
+	size_t mremapOldSize;
+	size_t mremapNewSize;
 	//pointer to thread tracker
 	ThreadTracker * tracker;
 };
@@ -279,6 +283,28 @@ static void afterMmap(VOID * addr,THREADID threadid)
 }
 
 /*******************  FUNCTION  *********************/
+static void beforeMremap(VOID * oldAddr,ADDRINT oldSize, ADDRINT newSize,THREADID threadid)
+{
+	//printf("Call mrenmap %p : %lu\n",oldAddr,oldSize);
+	//printf("Enter in %p\n",fctAddr);
+	//getTls(threadid).tracker->onMmap((size_t)addr,size,flags,fd);
+	ThreadData & data = getTls(threadid);
+	data.mremapOldAddr = oldAddr;
+	data.mremapOldSize = oldSize;
+	data.mremapNewSize = newSize;
+}
+
+/*******************  FUNCTION  *********************/
+static void afterMremap(VOID * addr,THREADID threadid)
+{
+	//printf("Call munmap %p : %lu\n",addr,size);
+	//printf("Enter in %p\n",fctAddr);
+	ThreadData & data = getTls(threadid);
+	if (addr != MAP_FAILED)
+		data.tracker->onMremap((size_t)data.mremapOldAddr,data.mremapOldSize,(size_t)addr,data.mremapNewSize);
+}
+
+/*******************  FUNCTION  *********************/
 void A_ProcessDirectCall(ADDRINT ip, ADDRINT target, ADDRINT sp,THREADID threadid)
 {
 	cout << "Direct call: " << Target2String(ip) << " => " << Target2String(target) << endl;
@@ -492,6 +518,23 @@ static VOID instrImageMmap(IMG img, VOID *v)
 					   IARG_FUNCARG_ENTRYPOINT_VALUE, 1,
 					   IARG_THREAD_ID,IARG_END);
 		RTN_Close(munapRtn);
+	}
+	
+	RTN mremapRtn = RTN_FindByName(img, "mremap");
+	if (RTN_Valid(mremapRtn))
+	{
+		RTN_Open(mremapRtn);
+		
+		// Instrument malloc() to print the input argument value and the return value.
+		RTN_InsertCall(mremapRtn, IPOINT_AFTER, (AFUNPTR)beforeMremap,
+					   IARG_FUNCARG_ENTRYPOINT_VALUE, 0,
+					   IARG_FUNCARG_ENTRYPOINT_VALUE, 1,
+					   IARG_FUNCARG_ENTRYPOINT_VALUE, 2,
+					   IARG_THREAD_ID,IARG_END);
+		RTN_InsertCall(mremapRtn, IPOINT_AFTER, (AFUNPTR)afterMremap,
+					   IARG_FUNCRET_EXITPOINT_VALUE,
+					   IARG_THREAD_ID,IARG_END);
+		RTN_Close(mremapRtn);
 	}
 }
 

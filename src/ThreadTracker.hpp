@@ -34,6 +34,7 @@ class ThreadTracker
 		void onStop(void);
 		void onMunmap(size_t addr,size_t size);
 		void onMmap(size_t addr,size_t size,size_t flags,size_t fd);
+		void onMremap(size_t oldAddr,size_t oldSize,size_t newAddr, size_t newSize);
 		void onAlloc(size_t ip,size_t ptr,size_t size);
 		void onFree(size_t ptr);
 		void onRealloc(size_t ip, size_t oldPtr, size_t newPtr, size_t newSize);

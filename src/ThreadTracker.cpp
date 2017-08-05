@@ -204,6 +204,12 @@ void ThreadTracker::onMmap(size_t addr,size_t size,size_t flags,size_t fd)
 }
 
 /*******************  FUNCTION  *********************/
+void ThreadTracker::onMremap(size_t oldAddr,size_t oldSize,size_t newAddr, size_t newSize)
+{
+	table->mremap(oldAddr,oldSize,newAddr,newSize);
+}
+
+/*******************  FUNCTION  *********************/
 void ThreadTracker::onAlloc(size_t ip,size_t ptr,size_t size)
 {
 	//printf("%lu => %p => %lu\n",ip,(void*)ptr,size);
