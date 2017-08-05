@@ -17,6 +17,7 @@ add_library(numaprof SHARED PageTable.cpp
 							ProcessTracker.cpp
 							Stats.cpp
 							MallocTracker.cpp
+							Stack.cpp
 							$<TARGET_OBJECTS:htopml-json>
 							$<TARGET_OBJECTS:malt-core>)
 #target_link_libraries(numaprof ${HWLOC_LIBRARY})

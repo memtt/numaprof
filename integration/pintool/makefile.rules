@@ -1,7 +1,5 @@
 TOOL_ROOTS := libnumaprof-pintool
 
-SRCDIR=./
-
 HWLOC_PREFIX=$(HOME)/usr
 
 CST_SRC=$(SRCDIR)/../..
@@ -18,6 +16,7 @@ OBJS=$(OBJDIR)numaprof-debug$(OBJ_SUFFIX)\
 	 $(OBJDIR)numaprof-json-state$(OBJ_SUFFIX)\
 	 $(OBJDIR)numaprof-json-convert$(OBJ_SUFFIX)\
 	 $(OBJDIR)numaprof-stats$(OBJ_SUFFIX)\
+	 $(OBJDIR)numaprof-stack$(OBJ_SUFFIX)\
 	 $(OBJDIR)numaprof-malloc-tracker$(OBJ_SUFFIX)\
 	 $(OBJDIR)numaprof-malt-debug$(OBJ_SUFFIX)\
 	 $(OBJDIR)numaprof-malt-formatted-message$(OBJ_SUFFIX)\
@@ -33,6 +32,9 @@ $(OBJDIR)numaprof-debug$(OBJ_SUFFIX): $(SRCDIR)/../../src/Debug.cpp
 	$(CXX) $(TOOL_CXXFLAGS_NOOPT) $(COMP_OBJ)$@ $< $(CST_CFLAGS)
 
 $(OBJDIR)numaprof-page-table$(OBJ_SUFFIX): $(SRCDIR)/../../src/PageTable.cpp 
+	$(CXX) $(TOOL_CXXFLAGS_NOOPT) $(COMP_OBJ)$@ $< $(CST_CFLAGS)
+	
+$(OBJDIR)numaprof-stack$(OBJ_SUFFIX): $(SRCDIR)/../../src/Stack.cpp 
 	$(CXX) $(TOOL_CXXFLAGS_NOOPT) $(COMP_OBJ)$@ $< $(CST_CFLAGS)
 
 $(OBJDIR)numaprof-helper$(OBJ_SUFFIX): $(SRCDIR)/../../src/Helper.cpp 
