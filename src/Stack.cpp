@@ -93,4 +93,14 @@ void Stack::fillMiniStack(MiniStack & miniStack)
 	miniStack.computeHash();
 }
 
+/*******************  FUNCTION  *********************/
+void convertToJson(htopml::JsonState& json, const MiniStack& value)
+{
+	json.openArray();
+	for (int i = 0 ; i < NUMAPROG_MINI_STACk_SIZE ; i++)
+		if (value.stack[i] != NULL)
+			json.printValue(value.stack[i]);
+	json.closeArray();
+}
+
 }

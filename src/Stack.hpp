@@ -12,6 +12,7 @@
 /*******************  HEADERS  **********************/
 #include <cstdlib>
 #include <vector>
+#include "../extern-deps/from-htopml/json/ConvertToJson.h"
 
 /********************  MACRO  ***********************/
 #define NUMAPROG_MINI_STACk_SIZE 3
@@ -45,6 +46,9 @@ class Stack
 	private:
 		StackStorage stack;
 };
+
+/*******************  FUNCTION  *********************/
+void convertToJson(htopml::JsonState& json, const MiniStack& value);
 
 }
 

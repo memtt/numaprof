@@ -8,7 +8,9 @@
 
 /********************  HEADERS  *********************/
 #include <gtest/gtest.h>
+#include <sstream>
 #include "../src/Stack.hpp"
+#include "../extern-deps/from-htopml/json/ConvertToJson.h"
 
 /***************** USING NAMESPACE ******************/
 using namespace numaprof;
@@ -90,4 +92,20 @@ TEST(Stack,miniStackOp_1)
 	EXPECT_FALSE(mini1 == mini2);
 	
 	EXPECT_TRUE(mini1 < mini2);
+}
+
+/*******************  FUNCTION  *********************/
+TEST(Stack,mioniStackToJson)
+{
+	Stack stack;
+	stack.push((void*)0x1);
+	stack.push((void*)0x2);
+	stack.push((void*)0x3);
+	
+	MiniStack mini1;
+	stack.fillMiniStack(mini1);
+	
+	std::stringstream out;
+	htopml::convertToJson(out,mini1);
+	EXPECT_EQ("[\"0x1\", \"0x2\", \"0x3\"]",out.str());
 }
