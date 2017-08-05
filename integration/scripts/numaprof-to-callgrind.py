@@ -65,6 +65,24 @@ class Converter:
 		print "part: 1"
 		print ""
 		print "position: line"
+		#instr
+		print "event: firstTouch : First touch"
+		print "event: unpinnedFirstTouch : Unpinned first touch"
+		print "event: unpinnedPageAccess : Unpinned page access"
+		print "event: unpinnedThreadAccess : Unpinned thread access"
+		print "event: unpinnedBothAccess : Unpinned both access"
+		print "event: localAccess : Local NUMA access"
+		print "event: remoteAccess : Remote NUMA access"
+		print "event: mcdramAccess : KNL MCDRAM access"
+		#allocs
+		print "event: allocfirstTouch : Allocation first touch"
+		print "event: allocunpinnedFirstTouch : Allocation unpinned first touch"
+		print "event: allocunpinnedPageAccess : Allocation unpinned page access"
+		print "event: allocunpinnedThreadAccess : Allocation unpinned thread access"
+		print "event: allocunpinnedBothAccess : Allocation unpinned both access"
+		print "event: alloclocalAccess : Allocation local NUMA access"
+		print "event: allocremoteAccess : Allocation remote NUMA access"
+		print "event: allocmcdramAccess : Allocation KNL MCDRAM access"
 		print "events:"," ".join(self.counters)," ".join("alloc"+x for x in self.counters)
 		print "summary:",self.computeSummary()
 		print ""
