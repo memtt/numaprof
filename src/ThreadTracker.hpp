@@ -14,6 +14,7 @@
 #include "../extern-deps/from-htopml/json/ConvertToJson.h"
 #include "ProcessTracker.hpp"
 #include "MallocTracker.hpp"
+#include "Stack.hpp"
 
 /*******************  NAMESPACE  ********************/
 namespace numaprof
@@ -36,6 +37,8 @@ class ThreadTracker
 		void onAlloc(size_t ip,size_t ptr,size_t size);
 		void onFree(size_t ptr);
 		void onRealloc(size_t ip, size_t oldPtr, size_t newPtr, size_t newSize);
+		void onEnterFunction(void * addr);
+		void onExitFunction(void);
 		friend void convertToJson(htopml::JsonState& json, const ThreadTracker& value);
 	private:
 		ProcessTracker * process;
@@ -47,6 +50,7 @@ class ThreadTracker
 		MallocTracker allocTracker;
 		Stats dummyAlloc;
 		NumaTopo * topo;
+		Stack stack;
 };
 
 }

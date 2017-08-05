@@ -95,8 +95,26 @@ class Converter:
 		else:
 			ret["line"] = 0
 		return ret
+	
+	def buildContentStack(self):
+		for entry in self.data["instructions"]:
+			for instr in entry["stack"]:
+				location = self.getLocation(instr)
+				print "ob=%s"%(location["binary"])
+				print "fl=%s"%(location["file"])
+				print "fn=%s"%(location["function"])
+			print "%d %s %s"%(location["line"],self.statToString(entry["stats"]),self.getZeros())
+			print ""
+		for entry in self.data["allocs"]:
+			for instr in entry["stack"]:
+				location = self.getLocation(instr)
+				print "ob=%s"%(location["binary"])
+				print "fl=%s"%(location["file"])
+				print "fn=%s"%(location["function"])
+			print "%d %s %s"%(location["line"],self.getZeros(),self.statToString(entry["stats"]))
+			print ""
 
-	def buildContent(self):
+	def buildContentNoStack(self):
 		for instr in self.data["instructions"]:
 			location = self.getLocation(instr)
 			print "ob=%s"%(location["binary"])
@@ -111,6 +129,12 @@ class Converter:
 			print "fn=%s"%(location["function"])
 			print "%d %s %s"%(location["line"],self.getZeros(),self.statToString(self.data["allocs"][instr]))
 			print ""
+		
+	def buildContent(self):
+		if type(self.data["instructions"]) is dict:
+			self.buildContentNoStack();
+		else:
+			self.buildContentStack();
 
 	def convert(self):
 		self.buildHeader()

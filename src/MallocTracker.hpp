@@ -22,12 +22,19 @@ struct MallocInfos
 	Stats * stats;
 };
 
+/*********************  TYPES  **********************/
+#ifdef NUMAPROG_CALLSTACK
+	typedef MiniStack StackIp;
+#else
+	typedef size_t StackIp;
+#endif
+
 /*******************  FUNCTION  *********************/
 class MallocTracker
 {
 	public:
 		MallocTracker(PageTable * pageTable);
-		void onAlloc(size_t ip,size_t ptr, size_t size);
+		void onAlloc(StackIp & ip,size_t ptr, size_t size);
 		void onFree(size_t ptr);
 		void flush(class ProcessTracker * process);
 	private:

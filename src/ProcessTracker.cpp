@@ -95,10 +95,22 @@ void ProcessTracker::onExit(void)
 	
 	//extract symbols
 	registry.loadProcMap();
-	for (InstrInfoMap::iterator it = instructions.begin() ; it != instructions.end() ; ++it)
-		registry.registerAddress((void*)(it->first));
-	for (InstrInfoMap::iterator it = allocStats.begin() ; it != allocStats.end() ; ++it)
-		registry.registerAddress((void*)(it->first));
+
+	#ifdef NUMAPROG_CALLSTACK
+		for (InstrInfoMap::iterator it = instructions.begin() ; it != instructions.end() ; ++it)
+			for (int i = 0 ; i < NUMAPROG_MINI_STACk_SIZE ; i++)
+				if (it->first.stack[i] != NULL)
+					registry.registerAddress((void*)(it->first.stack[i]));
+		for (InstrInfoMap::iterator it = allocStats.begin() ; it != allocStats.end() ; ++it)
+			for (int i = 0 ; i < NUMAPROG_MINI_STACk_SIZE ; i++)
+				if (it->first.stack[i] != NULL)
+					registry.registerAddress((void*)(it->first.stack[i]));
+	#else
+		for (InstrInfoMap::iterator it = instructions.begin() ; it != instructions.end() ; ++it)
+			registry.registerAddress((void*)(it->first));
+		for (InstrInfoMap::iterator it = allocStats.begin() ; it != allocStats.end() ; ++it)
+			registry.registerAddress((void*)(it->first));
+	#endif
 	registry.solveNames();
 
 	//prep filename

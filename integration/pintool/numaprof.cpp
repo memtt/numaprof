@@ -247,55 +247,62 @@ static void afterMmap(VOID * addr,THREADID threadid)
 }
 
 /*******************  FUNCTION  *********************/
-void A_ProcessDirectCall(ADDRINT ip, ADDRINT target, ADDRINT sp)
+void A_ProcessDirectCall(ADDRINT ip, ADDRINT target, ADDRINT sp,THREADID threadid)
 {
 	cout << "Direct call: " << Target2String(ip) << " => " << Target2String(target) << endl;
 	//callStack.ProcessCall(sp, target);
+	getTls(threadid).tracker->onEnterFunction((void*)ip);
 }
 
 /*******************  FUNCTION  *********************/
-void A_ProcessDirectCall_ret(ADDRINT ip, ADDRINT target, ADDRINT sp)
+void A_ProcessDirectCall_ret(ADDRINT ip, ADDRINT target, ADDRINT sp,THREADID threadid)
 {
 	cout << "Direct call RET: " << Target2String(ip) << " <= " << Target2String(target) << endl;
 	//callStack.ProcessCall(sp, target);
+	getTls(threadid).tracker->onExitFunction();
 }
 
 /*******************  FUNCTION  *********************/
-void A_ProcessIndirectCall(ADDRINT ip, ADDRINT target, ADDRINT sp)
+void A_ProcessIndirectCall(ADDRINT ip, ADDRINT target, ADDRINT sp,THREADID threadid)
 {
 	cout << "Indirect call: " << Target2String(ip) << " => " << Target2String(target) << endl;
 	//callStack.ProcessCall(sp, target);
+	getTls(threadid).tracker->onEnterFunction((void*)ip);
 }
 
 /*******************  FUNCTION  *********************/
-void A_ProcessIndirectCall_ret(ADDRINT ip, ADDRINT target, ADDRINT sp)
+void A_ProcessIndirectCall_ret(ADDRINT ip, ADDRINT target, ADDRINT sp,THREADID threadid)
 {
 	cout << "Indirect call RET: " << Target2String(ip) << " <= " << Target2String(target) << endl;
 	//callStack.ProcessCall(sp, target);
+	getTls(threadid).tracker->onExitFunction();
 }
 
 /*******************  FUNCTION  *********************/
-void A_ProcessStub(ADDRINT ip, ADDRINT target, ADDRINT sp) 
+void A_ProcessStub(ADDRINT ip, ADDRINT target, ADDRINT sp,THREADID threadid) 
 {
 	cout << "Instrumenting stub: " << Target2String(ip) << " => " << Target2String(target) << endl;
 	cout << "STUB: ";
 	cout << Target2RtnName(target) << endl;
 	//callStack.ProcessCall(sp, target);
+	getTls(threadid).tracker->onEnterFunction((void*)ip);
 }
 
 /*******************  FUNCTION  *********************/
-void A_ProcessStub_ret(ADDRINT ip, ADDRINT target, ADDRINT sp) 
+void A_ProcessStub_ret(ADDRINT ip, ADDRINT target, ADDRINT sp,THREADID threadid) 
 {
 	cout << "Instrumenting stub RET: " << Target2String(ip) << " <= " << Target2String(target) << endl;
 	cout << "STUB: ";
 	cout << Target2RtnName(target) << endl;
 	//callStack.ProcessCall(sp, target);
+	getTls(threadid).tracker->onExitFunction();
 }
 
 /*******************  FUNCTION  *********************/
-static void A_ProcessReturn(ADDRINT ip, ADDRINT sp) {
+static void A_ProcessReturn(ADDRINT ip, ADDRINT sp,THREADID threadid) {
 	cout << "return " << Target2String(ip) <<endl;
 	//callStack.ProcessReturn(sp, prevIpDoesPush);
+	getTls(threadid).tracker->onExitFunction();
 }
 
 /*******************  FUNCTION  *********************/
@@ -529,7 +536,7 @@ static VOID Instruction(INS ins, VOID *v)
 }
 
 /*******************  FUNCTION  *********************/
-static void I_Trace(TRACE trace, void *v)
+void I_Trace(TRACE trace, void *v)
 {
     //FIXME if (PIN_IsSignalHandler()) {Sequence_ProcessSignalHandler(head)};
 
@@ -555,6 +562,7 @@ static void I_Trace(TRACE trace, void *v)
                                              IARG_INST_PTR,
                                              IARG_ADDRINT, target,
                                              IARG_REG_VALUE, REG_STACK_PTR,
+                                             IARG_THREAD_ID,
                                              IARG_END);
 					/*INS_InsertPredicatedCall(tail, IPOINT_AFTER,
                                              (AFUNPTR)A_ProcessDirectCall_ret,
@@ -569,7 +577,8 @@ static void I_Trace(TRACE trace, void *v)
                                              IARG_INST_PTR,
                                              IARG_BRANCH_TARGET_ADDR,
                                              IARG_REG_VALUE, REG_STACK_PTR,
-                                             IARG_END);
+                                             IARG_THREAD_ID,
+											 IARG_END);
 					/*INS_InsertPredicatedCall(tail, IPOINT_AFTER,
                                              (AFUNPTR)A_ProcessIndirectCall_ret,
 											 IARG_CALL_ORDER, CALL_ORDER_LAST,
@@ -585,7 +594,8 @@ static void I_Trace(TRACE trace, void *v)
                                IARG_INST_PTR,
                                IARG_BRANCH_TARGET_ADDR,
                                IARG_REG_VALUE, REG_STACK_PTR,
-                               IARG_END);
+                               IARG_THREAD_ID,
+							   IARG_END);
 				/*INS_InsertCall(tail, IPOINT_AFTER, 
                                (AFUNPTR)A_ProcessStub_ret,
 							   IARG_CALL_ORDER, CALL_ORDER_LAST,
@@ -599,7 +609,8 @@ static void I_Trace(TRACE trace, void *v)
                                          (AFUNPTR)A_ProcessReturn,
                                          IARG_INST_PTR,
                                          IARG_REG_VALUE, REG_STACK_PTR,
-                                         IARG_END);
+                                         IARG_THREAD_ID,
+										 IARG_END);
 	
             }
         }
@@ -675,11 +686,10 @@ int main(int argc, char *argv[])
 
 	IMG_AddInstrumentFunction(instrImage, 0);
 	INS_AddInstrumentFunction(Instruction, 0);
-	if (false)
-	{
+	#ifdef NUMAPROG_CALLSTACK
 		TRACE_AddInstrumentFunction(I_Trace, 0);
-		//RTN_AddInstrumentFunction(instrFunctions, 0);
-	}
+	#endif
+	//RTN_AddInstrumentFunction(instrFunctions, 0);
 	PIN_AddFiniFunction(Fini, 0);
 
 	// Register ThreadStart to be called when a thread starts and stop.

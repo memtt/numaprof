@@ -9,9 +9,13 @@
 #ifndef NUMAPROF_STATS_HPP
 #define NUMAPROF_STATS_HPP
 
+/********************  MACRO  ***********************/
+//#define NUMAPROG_CALLSTACK
+
 /*******************  HEADERS  **********************/
 #include <cstdlib>
 #include <map>
+#include "Stack.hpp"
 #include "../extern-deps/from-htopml/json/ConvertToJson.h"
 
 /*******************  NAMESPACE  ********************/
@@ -37,7 +41,11 @@ struct Stats
 };
 
 /*********************  TYPES  **********************/
+#ifdef NUMAPROG_CALLSTACK
+typedef std::map<MiniStack,Stats> InstrInfoMap;
+#else
 typedef std::map<size_t,Stats> InstrInfoMap;
+#endif
 
 /*******************  FUNCTION  *********************/
 void convertToJson(htopml::JsonState& json, const Stats& value);

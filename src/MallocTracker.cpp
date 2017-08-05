@@ -21,9 +21,10 @@ MallocTracker::MallocTracker(PageTable * pageTable)
 }
 
 /*******************  FUNCTION  *********************/
-void MallocTracker::onAlloc(size_t ip,size_t ptr, size_t size)
+void MallocTracker::onAlloc(StackIp & ip,size_t ptr, size_t size)
 {
 	//printf("On alloc : (%p) %p => %lu\n",(void*)ip,(void*)ptr,size);
+	//get mini stack
 
 	//allocate info
 	MallocInfos * infos = new MallocInfos;

@@ -65,14 +65,27 @@ void convertToJson(htopml::JsonState& json, const Stats& value)
 /*******************  FUNCTION  *********************/
 void convertToJson(htopml::JsonState& json, const InstrInfoMap& value)
 {
-	json.openStruct();
-		for (InstrInfoMap::const_iterator it = value.begin() ; it != value.end() ; ++it)
-		{
-			char buffer[32];
-			sprintf(buffer,"0x%lx",it->first);
+	#ifdef NUMAPROG_CALLSTACK
+		json.openArray();
+			for (InstrInfoMap::const_iterator it = value.begin() ; it != value.end() ; ++it)
+			{
+				json.printListSeparator();
+				json.openStruct();
+					json.printField("stack",it->first);
+					json.printField("stats",it->second);
+				json.closeStruct();
+			}
+		json.closeArray();
+	#else
+		json.openStruct();
+			for (InstrInfoMap::const_iterator it = value.begin() ; it != value.end() ; ++it)
+			{
+				char buffer[32];
+				sprintf(buffer,"0x%lx",it->first);
 				json.printField(buffer,it->second);
-		}
-	json.closeStruct();
+			}
+		json.closeStruct();
+	#endif
 }
 
 }

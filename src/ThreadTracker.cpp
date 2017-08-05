@@ -70,9 +70,19 @@ void ThreadTracker::onAccess(size_t ip,size_t addr,bool write)
 				page.numaNode = pageNode;
 		}
 	}
+	
+	//extrct mini stack
+	#ifdef NUMAPROG_CALLSTACK
+		MiniStack miniStack;
+		stack.fillMiniStack(miniStack);
+	#endif
 
 	//get instr
-	Stats & instr = instructions[ip];
+	#ifdef NUMAPROG_CALLSTACK
+		Stats & instr = instructions[miniStack];
+	#else
+		Stats & instr = instructions[ip];
+	#endif
 
 	//get malloc relation
 	MallocInfos * allocInfos = (MallocInfos *)page.getAllocPointer(addr);
@@ -197,14 +207,27 @@ void ThreadTracker::onMmap(size_t addr,size_t size,size_t flags,size_t fd)
 void ThreadTracker::onAlloc(size_t ip,size_t ptr,size_t size)
 {
 	//printf("%lu => %p => %lu\n",ip,(void*)ptr,size);
-	allocTracker.onAlloc(ip,ptr,size);
+	#ifdef NUMAPROG_CALLSTACK
+		MiniStack miniStack;
+		stack.fillMiniStack(miniStack);
+		allocTracker.onAlloc(miniStack,ptr,size);
+	#else
+		allocTracker.onAlloc(ip,ptr,size);
+	#endif
 }
 
 /*******************  FUNCTION  *********************/
 void ThreadTracker::onRealloc(size_t ip, size_t oldPtr, size_t newPtr, size_t newSize)
 {
-	allocTracker.onFree(oldPtr);
-	allocTracker.onAlloc(ip,newPtr,newSize);
+	#ifdef NUMAPROG_CALLSTACK
+		MiniStack miniStack;
+		stack.fillMiniStack(miniStack);
+		allocTracker.onFree(oldPtr);
+		allocTracker.onAlloc(miniStack,newPtr,newSize);
+	#else
+		allocTracker.onFree(oldPtr);
+		allocTracker.onAlloc(ip,newPtr,newSize);
+	#endif
 }
 
 /*******************  FUNCTION  *********************/
@@ -212,6 +235,18 @@ void ThreadTracker::onFree(size_t ptr)
 {
 	//printf("free %p\n",(void*)ptr);
 	allocTracker.onFree(ptr);
+}
+
+/*******************  FUNCTION  *********************/
+void ThreadTracker::onEnterFunction(void * addr)
+{
+	stack.push(addr);
+}
+
+/*******************  FUNCTION  *********************/
+void ThreadTracker::onExitFunction(void)
+{
+	stack.pop();
 }
 
 /*******************  FUNCTION  *********************/
