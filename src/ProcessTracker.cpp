@@ -51,6 +51,7 @@ void ProcessTracker::mergeInstruction(InstrInfoMap & stats)
 	for (InstrInfoMap::iterator it = stats.begin() ; it != stats.end() ; ++it)
 		instructions[it->first].merge(it->second);
 	mutex.unlock();
+	stats.clear();
 }
 
 /*******************  FUNCTION  *********************/
@@ -60,6 +61,7 @@ void ProcessTracker::mergeAllocInstruction(InstrInfoMap & stats)
 	for (InstrInfoMap::iterator it = stats.begin() ; it != stats.end() ; ++it)
 		allocStats[it->first].merge(it->second);
 	mutex.unlock();
+	stats.clear();
 }
 
 /*******************  FUNCTION  *********************/
