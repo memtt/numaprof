@@ -1,0 +1,14 @@
+<!doctype html>
+<html>
+	<head>
+		<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+		<title>Numaprof - {{file}} - {% block title %}{% endblock %}</title>
+		{% block import %}
+		{% endblock %}
+	</head>
+	<body>
+		<div id="header"></div>
+		<div id="content">{% block content %}{% endblock %}</div>
+		<div id="footer"></div>
+	</body>
+</html>

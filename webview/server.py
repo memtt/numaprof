@@ -1,0 +1,29 @@
+# -*- coding: utf-8 -*-
+######################################################
+#            PROJECT  : numaprof                     #
+#            VERSION  : 0.0.0-dev                    #
+#            DATE     : 07/2017                      #
+#            AUTHOR   : Valat Sébastien  - CERN      #
+#            LICENSE  : CeCILL-C                     #
+######################################################
+
+######################################################
+from flask import Flask, render_template, send_from_directory
+from ProfileHandler import ProfileHandler
+import os
+
+######################################################
+app = Flask(__name__, static_url_path='')
+
+######################################################
+profile = ProfileHandler(os.environ["NUMAPROF_FILE"])
+
+######################################################
+@app.route('/')
+@app.route('/index.html')
+def root():
+    return render_template('index.html', file=profile.getFileName())
+
+@app.route('/static/<path:path>')
+def serveStaticFiles(path):
+    return send_from_directory('./static', path)

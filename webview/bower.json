@@ -1,0 +1,21 @@
+{
+  "name": "NumaProf Webview",
+  "authors": [
+    "Sebastien Valat <sebastien.valat@gmail.com>"
+  ],
+  "description": "Webview for numaprof",
+  "main": "",
+  "license": "CeCILL-C",
+  "homepage": "",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "^3.2.1"
+  }
+}

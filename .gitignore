@@ -1,1 +1,6 @@
 build
+*.pyc
+package-lock.json
+webview/node_modules/
+webview/deps/
+webview/bower_components/
