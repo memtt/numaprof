@@ -1,7 +1,7 @@
 Numaprof
 ========
 
-What it is ?
+What is it ?
 ------------
 
 Numaprof is currently a prototype to implement a NUMA memory 
