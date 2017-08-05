@@ -7,6 +7,7 @@
 *****************************************************/
 
 #include "pin.H"
+#include <cstring>
 #include <sys/mman.h>
 #include <cstdio>
 #include <ProcessTracker.hpp>
@@ -33,10 +34,12 @@ using namespace numaprof;
 /*******************  STRUCT  ***********************/
 struct ThreadData
 {
+	ThreadData(void);
 	//keep track between enter/exit of malloc/calloc/... functions
 	int allocSize;
 	void * allocCallsite;
 	void * reallocPtr;
+	void * newCallsite;
 	//keep track between enter/exit of mmap
 	size_t mmapSize;
 	size_t mmapFlags;
@@ -50,6 +53,13 @@ ProcessTracker * gblProcessTracker = NULL;
 
 // key for accessing TLS storage in the threads. initialized once in main()
 static  TLS_KEY tls_key = INVALID_TLS_KEY;
+
+/*******************  FUNCTION  *********************/
+ThreadData::ThreadData::ThreadData()
+{
+	newCallsite = NULL;
+	tracker = NULL;
+}
 
 /*******************  FUNCTION  *********************/
 static ThreadData & getTls(THREADID threadid)
@@ -136,7 +146,29 @@ static VOID afterMalloc(ADDRINT ret,THREADID threadid)
 {
 	//printf("    => %p\n",(void*)ret);
 	ThreadData & data = getTls(threadid);
-	data.tracker->onAlloc((size_t)data.allocCallsite,ret,data.allocSize);
+	if (data.newCallsite == NULL)
+	{
+		data.tracker->onAlloc((size_t)data.allocCallsite,ret,data.allocSize);
+	} else {
+		data.tracker->onAlloc((size_t)data.newCallsite,ret,data.allocSize);
+	}
+}
+
+/*******************  FUNCTION  *********************/
+static VOID beforeNew(ADDRINT size, VOID * retIp,THREADID threadid)
+{
+	ThreadData & data = getTls(threadid);
+	if (data.newCallsite == NULL)
+		data.newCallsite = retIp;
+	//printf("malloc %lu (from %p)\n",size,retIp);
+}
+
+/*******************  FUNCTION  *********************/
+static VOID afterNew(ADDRINT ret,THREADID threadid)
+{
+	//printf("    => %p\n",(void*)ret);
+	ThreadData & data = getTls(threadid);
+	data.newCallsite = NULL;
 }
 
 /*******************  FUNCTION  *********************/
@@ -303,6 +335,48 @@ static void A_ProcessReturn(ADDRINT ip, ADDRINT sp,THREADID threadid) {
 	cout << "return " << Target2String(ip) <<endl;
 	//callStack.ProcessReturn(sp, prevIpDoesPush);
 	getTls(threadid).tracker->onExitFunction();
+}
+
+/*******************  FUNCTION  *********************/
+static bool isNewOperator(const std::string & name)
+{
+	if (strncmp(name.c_str(),"_Znw",4) == 0)
+		return true;
+	if (strncmp(name.c_str(),"_Zna",4) == 0)
+		return true;
+	return false;
+}
+
+/*******************  FUNCTION  *********************/
+VOID instrImageNew(IMG img, VOID *v)
+{
+	// Instrument the malloc() and free() functions.  Print the input argument
+	// of each malloc() or free(), and the return value of malloc().
+	//
+	//  Find the new() function.
+	for( SEC sec= IMG_SecHead(img); SEC_Valid(sec); sec = SEC_Next(sec) )
+	{
+		for( RTN rtn= SEC_RtnHead(sec); RTN_Valid(rtn); rtn = RTN_Next(rtn) )
+		{
+			std::string name = RTN_Name(rtn);
+			if (isNewOperator(name))
+			{
+				//printf("Instument NEW %s\n",name.c_str());
+				RTN_Open(rtn);
+				
+				// Instrument malloc() to print the input argument value and the return value.
+				RTN_InsertCall(rtn, IPOINT_BEFORE, (AFUNPTR)beforeNew,
+							IARG_FUNCARG_ENTRYPOINT_VALUE, 0,
+							IARG_RETURN_IP, IARG_THREAD_ID,IARG_END);
+				
+				// Instrument malloc() to print the input argument value and the return value.
+				RTN_InsertCall(rtn, IPOINT_AFTER, (AFUNPTR)afterNew,
+							IARG_FUNCRET_EXITPOINT_VALUE,
+							IARG_THREAD_ID,IARG_END);
+				RTN_Close(rtn);
+			}
+		}
+	}
 }
 
 /*******************  FUNCTION  *********************/
@@ -623,6 +697,9 @@ static VOID instrImage(IMG img, VOID *v)
 {
 	instrImageMmap(img,v);
 	instrImageMalloc(img,v);
+	#ifndef NUMAPROG_CALLSTACK
+		instrImageNew(img,v);
+	#endif
 	instrImageRealloc(img,v);
 	instrImageCalloc(img,v);
 	instrImageFree(img,v);
