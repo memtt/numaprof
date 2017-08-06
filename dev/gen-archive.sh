@@ -18,6 +18,22 @@ version=0.0.0-dev
 prefix=numaprof-${version}
 
 ######################################################
+if [ ! -z "$(echo $version | grep dev)" ]; then
+	prefix=${prefix}-$(git rev-parse --short HEAD)
+fi
+
+######################################################
 echo "Generate ${prefix}.tar.gz..."
-git archive --format=tar --prefix=${prefix}/ HEAD | gzip > ${prefix}.tar.gz
+set -e
+git archive --format=tar --prefix=${prefix}/ HEAD | bzip2 > /tmp/${prefix}.tar.bz2
+current=$PWD
+cd /tmp
+tar -xf ${prefix}.tar.bz2
+cd /tmp/${prefix}/webview
+./prepare.sh
+rm -rfd node_modules
+cd /tmp
+tar -cjf ${prefix}.tar.bz2 ${prefix}
+cd $current
+mv /tmp/${prefix}.tar.bz2 ./
 echo "Finished"
