@@ -9,11 +9,17 @@
 /*******************  HEADERS  **********************/
 #include <cstdio>
 #include <cstring>
+#include <unistd.h>
+#include "Debug.hpp"
 #include "Helper.hpp"
 
 /*******************  NAMESPACE  ********************/
 namespace numaprof
 {
+
+/********************  GLOBALS  *********************/
+static const char * cstExeFile = "/proc/self/exe";
+static const char * cstCmdFile = "/proc/self/cmdline";
 
 /*******************  FUNCTION  *********************/
 char * Helper::loadTxtFile(const char * path,size_t maxSize)
@@ -74,6 +80,63 @@ bool Helper::extractNth(char * out,const char * value,char sep,int index)
 }
 
 /*******************  FUNCTION  ********************/
+std::string Helper::getExeName(void)
+{
+	//buffer to read link
+	char buffer[2048];
+	
+	//read
+	size_t res = readlink(cstExeFile,buffer,sizeof(buffer));
+	//assumeArg(res != (size_t)-1,"Fail to read link %1 : %2 !").arg(cstExeFile).argStrErrno().end();
+	//assume(res < sizeof(buffer),"Fail to read link to get exe name. Maybe buffer is too small.");
+	numaprofAssumePerror(res != (size_t)-1,"Fail to read link to get exe file !");
+	numaprofAssume(res < sizeof(buffer),"Fail to read link to get exe name. Maybe buffer is too small.");
+	
+	
+	//put \0
+	buffer[res] = '\0';
+
+	//extract exe from path
+	char * name = basename(buffer);
+	return name;
+}
+
+/*******************  FUNCTION  *********************/
+std::string Helper::getCmdLine(void)
+{
+	return loadTxtFile(cstCmdFile);
+}
+
+/*******************  FUNCTION  *********************/
+std::string Helper::getHostname(void)
+{
+	char buffer[4096];
+	int res = gethostname(buffer,sizeof(buffer));
+	numaprofAssume(res != 0,"Failed to read hostname with getHostname() !");
+	return buffer;
+}
+
+/*******************  FUNCTION  *********************/
+std::string Helper::getDateTime(void)
+{
+	//vars
+	char buffer[200];
+	time_t t;
+	struct tm *tmp;
+
+	//get time
+	t = time(NULL);
+	tmp = localtime(&t);
+	numaprofAssume(tmp != NULL,"Failed to get time with localtime() !");
+	
+	//convert to string format
+	int res = strftime(buffer, sizeof(buffer), "%F %R", tmp);
+	numaprofAssume(res > 0,"Failed to convert time to string format with strftime() !");
+	
+    return buffer;
+}
+
+/*******************  FUNCTION  ********************/
 //extect format "0-39"
 Range::Range(const char * value)
 {
@@ -98,7 +161,7 @@ bool Range::contain(int value)
 	return value >= start && value <= end;
 }
 
-/********************  STRUCT  **********************/
+/*******************  FUNCTION  ********************/
 /**
  * Check if a given string end by a reference.
  * @param value String to check
