@@ -14,5 +14,5 @@ export PATH=./node_modules/.bin/:$PATH
 set -e
 set -x
 pip install -t deps flask
-npm install
+npm install bower
 bower install
