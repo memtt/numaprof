@@ -12,11 +12,11 @@
 /********************  HEADERS  *********************/
 #include <map>
 #include "PageTable.hpp"
-#include "Mutex.hpp"
-#include "NumaTopo.hpp"
+#include "../portability/Mutex.hpp"
+#include "../portability/NumaTopo.hpp"
 #include "Stats.hpp"
-#include "../extern-deps/from-htopml/json/ConvertToJson.h"
-#include "../extern-deps/from-malt-v2/SymbolRegistry.hpp"
+#include "../../extern-deps/from-htopml/json/ConvertToJson.h"
+#include "../../extern-deps/from-malt-v2/SymbolRegistry.hpp"
 
 /*******************  NAMESPACE  ********************/
 namespace numaprof

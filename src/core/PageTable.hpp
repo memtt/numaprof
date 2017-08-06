@@ -10,7 +10,7 @@
 #define PAGE_TABLE_HPP
 
 /********************  HEADERS  *********************/
-#include "Mutex.hpp"
+#include "../portability/Mutex.hpp"
 #include <cstdlib>
 #include <cassert>
 #include <iostream>

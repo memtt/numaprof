@@ -12,9 +12,10 @@
 #include <unistd.h>
 #include <cassert>
 #include <cstdio>
-#include "Debug.hpp"
-#include "Helper.hpp"
-#include "NumaTopo.hpp"
+#include "../common/Debug.hpp"
+#include "../common/Helper.hpp"
+#include "../portability/NumaTopo.hpp"
+#include "../portability/OS.hpp"
 
 //we cannot use the standard sched_get_affinity function in pin :(
 #ifdef USE_PIN_LOCKS
@@ -57,7 +58,7 @@ void NumaTopo::loadCpuNb()
 {
 	//load present
 	//format is "0-39"
-	char * present = Helper::loadTxtFile("/sys/devices/system/cpu/present",256);
+	char * present = OS::loadTxtFile("/sys/devices/system/cpu/present",256);
 
 	//scan all ranges
 	char tmp[64];
@@ -102,7 +103,7 @@ void NumaTopo::loadNumaMap(void)
 		sprintf(fname,"/sys/devices/system/node/node%d/cpulist",node);
 
 		//load
-		char * list = Helper::loadTxtFile(fname,256);
+		char * list = OS::loadTxtFile(fname,256);
 		if (list == NULL)
 			break;
 

@@ -29,13 +29,8 @@ struct Range
 /*******************  FUNCTION  *********************/
 struct Helper
 {
-	static char * loadTxtFile(const char * path,size_t maxSize = 4096);
 	static bool extractNth(char * out,const char * value,char sep,int index);
 	static bool endBy(const std::string & value,const std::string & what);
-	static std::string getExeName(void);
-	static std::string getCmdLine(void);
-	static std::string getHostname(void);
-	static std::string getDateTime(void);
 };
 
 }

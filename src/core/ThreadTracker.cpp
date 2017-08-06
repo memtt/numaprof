@@ -10,7 +10,7 @@
 #include <sys/mman.h>
 #include <cassert>
 #include "ThreadTracker.hpp"
-#include "../extern-deps/from-numactl/MovePages.hpp"
+#include "../../extern-deps/from-numactl/MovePages.hpp"
 
 /*******************  NAMESPACE  ********************/
 namespace numaprof

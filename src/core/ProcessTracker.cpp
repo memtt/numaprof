@@ -9,7 +9,8 @@
 /********************  HEADERS  *********************/
 #include "ProcessTracker.hpp"
 #include "ThreadTracker.hpp"
-#include "Helper.hpp"
+#include "../common/Helper.hpp"
+#include "../portability/OS.hpp"
 #include <sys/types.h>
 #include <unistd.h>
 #include <fstream>
@@ -116,7 +117,7 @@ void ProcessTracker::onExit(void)
 
 	//prep filename
 	char buffer[64];
-	sprintf(buffer,"numaprof-%d.json",getpid());
+	sprintf(buffer,"numaprof-%d.json",OS::getPID());
 
 	//open & dump
 	std::ofstream out;
@@ -132,10 +133,10 @@ void convertToJson(htopml::JsonState& json, const ProcessTracker& value)
 		json.openFieldStruct("infos");
 			json.printField("formatVersion",1);
 			json.printField("tool","numaprof");
-			json.printField("exe",Helper::getExeName());
-			json.printField("command",Helper::getCmdLine());
-			json.printField("hostname",Helper::getHostname());
-			json.printField("date",Helper::getDateTime());
+			json.printField("exe",OS::getExeName());
+			json.printField("command",OS::getCmdLine());
+			json.printField("hostname",OS::getHostname());
+			json.printField("date",OS::getDateTime());
 		json.closeFieldStruct("infos");
 		json.printField("threads",value.threads);
 		json.printField("symbols",value.registry);

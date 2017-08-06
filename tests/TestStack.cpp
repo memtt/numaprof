@@ -9,7 +9,7 @@
 /********************  HEADERS  *********************/
 #include <gtest/gtest.h>
 #include <sstream>
-#include "../src/Stack.hpp"
+#include "../src/core/Stack.hpp"
 #include "../extern-deps/from-htopml/json/ConvertToJson.h"
 
 /***************** USING NAMESPACE ******************/

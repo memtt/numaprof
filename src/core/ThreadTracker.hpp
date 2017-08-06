@@ -11,7 +11,7 @@
 
 /********************  HEADERS  *********************/
 #include <map>
-#include "../extern-deps/from-htopml/json/ConvertToJson.h"
+#include "../../extern-deps/from-htopml/json/ConvertToJson.h"
 #include "ProcessTracker.hpp"
 #include "MallocTracker.hpp"
 #include "Stack.hpp"

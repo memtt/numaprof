@@ -8,7 +8,7 @@
 
 /********************  HEADERS  *********************/
 #include <gtest/gtest.h>
-#include "../src/Helper.hpp"
+#include "../src/common/Helper.hpp"
 
 /***************** USING NAMESPACE ******************/
 using namespace numaprof;

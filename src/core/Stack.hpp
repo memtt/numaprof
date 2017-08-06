@@ -12,7 +12,7 @@
 /*******************  HEADERS  **********************/
 #include <cstdlib>
 #include <vector>
-#include "../extern-deps/from-htopml/json/ConvertToJson.h"
+#include "../../extern-deps/from-htopml/json/ConvertToJson.h"
 
 /********************  MACRO  ***********************/
 #define NUMAPROG_MINI_STACk_SIZE 3

@@ -7,19 +7,17 @@
 ######################################################
 
 ######################################################
-add_library(numaprof SHARED PageTable.cpp
-#							TopoHwloc.cpp
-							Debug.cpp
-							Helper.cpp
-							NumaTopo.cpp
-							../extern-deps/from-numactl/MovePages.cpp
-							ThreadTracker.cpp
-							ProcessTracker.cpp
-							Stats.cpp
-							MallocTracker.cpp
-							Stack.cpp
+add_library(numaprof SHARED ../extern-deps/from-numactl/MovePages.cpp
+							$<TARGET_OBJECTS:numaprof-core>
+							$<TARGET_OBJECTS:numaprof-portability>
+							$<TARGET_OBJECTS:numaprof-common>
 							$<TARGET_OBJECTS:htopml-json>
 							$<TARGET_OBJECTS:malt-core>)
+
+add_subdirectory(common)
+add_subdirectory(core)
+add_subdirectory(portability)
+
 #target_link_libraries(numaprof ${HWLOC_LIBRARY})
 INSTALL(TARGETS numaprof
 	ARCHIVE DESTINATION lib

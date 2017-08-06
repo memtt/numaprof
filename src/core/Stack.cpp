@@ -8,7 +8,7 @@
 
 /*******************  HEADERS  **********************/
 #include "Stack.hpp"
-#include "Debug.hpp"
+#include "../common/Debug.hpp"
 
 /*******************  NAMESPACE  ********************/
 namespace numaprof

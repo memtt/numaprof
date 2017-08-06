@@ -10,8 +10,8 @@
 #include <cstdio>
 #include <cstring>
 #include <unistd.h>
-#include "Debug.hpp"
-#include "Helper.hpp"
+#include "../common/Debug.hpp"
+#include "OS.hpp"
 
 /*******************  NAMESPACE  ********************/
 namespace numaprof
@@ -22,7 +22,7 @@ static const char * cstExeFile = "/proc/self/exe";
 static const char * cstCmdFile = "/proc/self/cmdline";
 
 /*******************  FUNCTION  *********************/
-char * Helper::loadTxtFile(const char * path,size_t maxSize)
+char * OS::loadTxtFile(const char * path,size_t maxSize)
 {
 	//open
 	FILE * fp = fopen(path,"r");
@@ -50,37 +50,9 @@ char * Helper::loadTxtFile(const char * path,size_t maxSize)
 	//ret
 	return buffer;
 }
-/*******************  FUNCTION  ********************/
-bool Helper::extractNth(char * out,const char * value,char sep,int index)
-{
-	//search start
-	const char * start = value;
-	while (index > 0 && *start != '\0')
-	{
-		if (*start == sep)
-			index--;
-		start++;
-	}
-
-	//check not found
-	if (*start == '\0')
-		return false;
-
-	//copy until end
-	while (*start != '\0' && *start != sep)
-	{
-		*out = *start;
-		out++;
-		start++;
-	}
-
-	//close
-	*out = '\0';
-	return true;
-}
 
 /*******************  FUNCTION  ********************/
-std::string Helper::getExeName(void)
+std::string OS::getExeName(void)
 {
 	//buffer to read link
 	char buffer[2048];
@@ -102,13 +74,13 @@ std::string Helper::getExeName(void)
 }
 
 /*******************  FUNCTION  *********************/
-std::string Helper::getCmdLine(void)
+std::string OS::getCmdLine(void)
 {
 	return loadTxtFile(cstCmdFile);
 }
 
 /*******************  FUNCTION  *********************/
-std::string Helper::getHostname(void)
+std::string OS::getHostname(void)
 {
 	char buffer[4096];
 	int res = gethostname(buffer,sizeof(buffer));
@@ -117,7 +89,7 @@ std::string Helper::getHostname(void)
 }
 
 /*******************  FUNCTION  *********************/
-std::string Helper::getDateTime(void)
+std::string OS::getDateTime(void)
 {
 	//vars
 	char buffer[200];
@@ -133,48 +105,13 @@ std::string Helper::getDateTime(void)
 	int res = strftime(buffer, sizeof(buffer), "%F %R", tmp);
 	numaprofAssume(res > 0,"Failed to convert time to string format with strftime() !");
 	
-    return buffer;
+	return buffer;
 }
 
-/*******************  FUNCTION  ********************/
-//extect format "0-39"
-Range::Range(const char * value)
+/*******************  FUNCTION  *********************/
+int OS::getPID(void)
 {
-	//first value
-	start = atoi(value);
-
-	//move to second, search pos of '-'
-	const char * second = value;
-	while(*second != '-' && *second != '\0')
-		second++;
-
-	//parse second
-	if (*second == '\0')
-		end = start;
-	else
-		end = atoi(second+1);
-}
-
-/*******************  FUNCTION  ********************/
-bool Range::contain(int value)
-{
-	return value >= start && value <= end;
-}
-
-/*******************  FUNCTION  ********************/
-/**
- * Check if a given string end by a reference.
- * @param value String to check
- * @param what Need to end by this.
-**/
-bool Helper::endBy(const std::string & value,const std::string & what)
-{
-	//if too large
-	if (what.size() > value.size())
-		return false;
-	
-	//check
-	return (strncmp(value.c_str()+value.size()-what.size(),what.c_str(),what.size()) == 0);
+	return getpid();
 }
 
 }
