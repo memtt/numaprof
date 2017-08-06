@@ -246,7 +246,7 @@ then
 	echo "You cloned the master branch, need to download GUI dependencies !"
 	current=$PWD
 	cd ${SOURCE_DIR}/webview
-	./prepare.sh
+	./prepare.sh || exit 1
 	cd $current
 fi
 
