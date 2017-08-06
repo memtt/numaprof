@@ -198,4 +198,28 @@ int NumaTopo::getCurrentNumaAffinity(cpu_set_t * mask)
 	return numa;
 }
 
+/*******************  FUNCTION  *********************/
+void convertToJson(htopml::JsonState& json, const NumaTopo& value)
+{
+	int nodes = value.numaNodes;
+	if (nodes == 0)
+		nodes = 1;
+	
+	json.openStruct();
+		for (int node = 0 ; node < nodes ; node++)
+		{
+			char nodeName[128];
+			sprintf(nodeName,"%d",node);
+			json.openFieldStruct(nodeName);
+				json.printField("isMcdram",value.isMcdram[node]);
+				json.openFieldArray("cpus");
+					for (int cpu = 0 ; cpu < value.cpus ; cpu++)
+						if (value.numaMap[cpu] == node || value.numaMap[cpu] == -1)
+							json.printValue(cpu);
+				json.closeFieldArray("cpus");
+			json.closeFieldStruct(nodeName);
+		}
+	json.closeStruct();
+}
+
 }

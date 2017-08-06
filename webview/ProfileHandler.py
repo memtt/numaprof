@@ -14,6 +14,7 @@ import json
 class ProfileHandler:
 	def __init__(self,filepath):
 		self.filepath = filepath
+		self.load()
 	
 	def load(self):
 		json_data=open(self.filepath).read()
@@ -21,3 +22,9 @@ class ProfileHandler:
 	
 	def getFileName(self):
 		return self.filepath.split('/')[-1]
+
+	def getInfos(self):
+		return self.data["infos"]
+
+	def getNumaTopo(self):
+		return self.data["topo"]

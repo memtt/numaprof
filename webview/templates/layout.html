@@ -3,13 +3,15 @@
 	<head>
 		<title>Numaprof - {{file}} - {% block title %}{% endblock %}</title>
 		<!-- jquery -->
-		<script language="text/javascript" src="/static/jquery/jquery.min.js"></script>
+		<script language="javascript" src="/static/jquery/jquery.min.js"></script>
 		<!-- bootstrap -->
 		<link rel="stylesheet" type="text/css" href="/static/bootstrap/css/bootstrap.min.css">
 		<link rel="stylesheet" type="text/css" href="/static/bootstrap/css/bootstrap-theme.min.css">
-		<script language="text/javascript" src="/static/bootstrap/js/bootstrap.min.js"></script>
+		<script language="javascript" src="/static/bootstrap/js/bootstrap.min.js"></script>
 		<!-- Default style -->
-		<link rel="stylesheet" type="text/css" href="/static/styles/style.css">
+		<link rel="stylesheet" type="text/css" href="/static/css/style.css">
+		<!-- common scirpts -->
+		<script language="javascript" src="/static/js/common.js"></script>
 		{% block import %}
 		{% endblock %}
 	</head>
@@ -28,14 +30,15 @@
 				</div>
 				<div id="navbar" class="navbar-collapse collapse">
 				<ul class="nav navbar-nav">
-					<li {% if page == "home" %} class="active"{% endif %}><a href="#">Home</a></li>
-					<li {% if page == "sources" %} class="active"{% endif %}><a href="#">Sources</a></li>
+					<li {% if page == "home" %} class="active"{% endif %}><a href="/index.html">Home</a></li>
+					<li {% if page == "sources" %} class="active"{% endif %}><a href="/sources.html">Sources</a></li>
 				</ul>
 				</div><!--/.nav-collapse -->
 			</div>
 		</nav>
 
-		<div class="container" role="main">
+		<div class="view-container container-fluid" role="main">
+			<div id="errors"></div>
 			{% block content %}{% endblock %}
 		</div>
 	</body>

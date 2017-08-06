@@ -12,6 +12,7 @@
 #include <cassert>
 #include <sched.h>
 #include <sys/types.h>
+#include "../../extern-deps/from-htopml/json/ConvertToJson.h"
 
 /*******************  NAMESPACE  ********************/
 namespace numaprof
@@ -26,6 +27,7 @@ class NumaTopo
 		int getCurrentNumaAffinity(void);
 		int getCurrentNumaAffinity(cpu_set_t * mask);
 		bool getIsMcdram(int cpuid) {assert(cpuid < cpus);return isMcdram[cpuid];};
+		friend void convertToJson(htopml::JsonState& json, const NumaTopo& value);
 	private:
 		void loadCpuNb(void);
 		void loadNumaMap(void);

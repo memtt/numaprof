@@ -8,12 +8,15 @@
 ######################################################
 
 ######################################################
-from flask import Flask, render_template, send_from_directory
+from flask import Flask, render_template, send_from_directory, Response
 from ProfileHandler import ProfileHandler
 import os
+import json
+from nocache import nocache
 
 ######################################################
 app = Flask(__name__, static_url_path='')
+app.config["CACHE_TYPE"] = "null"
 
 ######################################################
 profile = ProfileHandler(os.environ["NUMAPROF_FILE"])
@@ -21,17 +24,35 @@ profile = ProfileHandler(os.environ["NUMAPROF_FILE"])
 ######################################################
 @app.route('/')
 @app.route('/index.html')
+@nocache
 def root():
     return render_template('index.html', file=profile.getFileName(), page = "home")
 
 @app.route('/static/<path:path>')
+@nocache
 def serveStaticFiles(path):
     return send_from_directory('./static', path)
 
 @app.route('/static/jquery/<path:path>')
+@nocache
 def jqueryFiles(path):
     return send_from_directory('./bower_components/jquery/dist/', path)
 
 @app.route('/static/bootstrap/<path:path>')
+@nocache
 def bootsrapFiles(path):
     return send_from_directory('./bower_components/bootstrap/dist/', path)
+
+@app.route('/api/index/infos.json')
+@nocache
+def apiIndexSummary():
+	data = profile.getInfos()
+	jsonData = json.dumps(data)
+	return Response(jsonData, mimetype='application/json')
+
+@app.route('/api/index/numa-topo.json')
+@nocache
+def apiIndexNumaTopo():
+	data = profile.getNumaTopo()
+	jsonData = json.dumps(data)
+	return Response(jsonData, mimetype='application/json')

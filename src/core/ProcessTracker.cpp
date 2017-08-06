@@ -139,6 +139,7 @@ void convertToJson(htopml::JsonState& json, const ProcessTracker& value)
 			json.printField("date",OS::getDateTime());
 		json.closeFieldStruct("infos");
 		json.printField("threads",value.threads);
+		json.printField("topo",value.topo);
 		json.printField("symbols",value.registry);
 		json.printField("instructions",value.instructions);
 		json.printField("allocs",value.allocStats);

@@ -1,13 +1,37 @@
 {% extends "layout.html" %}
 {% block title %}Index{% endblock %}
 {% block import %}
-	<style type="text/css">
-		.important { color: #336699; }
-	</style>
+<script language="javascript" src="/static/js/index.js"></script>
 {% endblock %}
 {% block content %}
-	<h1>Index</h1>
-	<p class="important">
-		Welcome on my awesome homepage.
-	</p>
+	<h2>Infos</h2>
+	<table class='table table-bordered'>
+		<tr>
+			<th>Executable :</th>
+			<td id="summaryExe"></td>
+		</tr><tr>
+			<th>Commande :</th>
+			<td><pre id="summaryCommand"></pre></td>
+		</tr><tr>
+			<th>Tool :</th>
+			<td id="summaryTool"></td>
+		</tr><tr>
+			<th>Host :</th>
+			<td id="summaryHostname"></td>
+		</tr>
+		</tr><tr>
+			<th>Date :</th>
+			<td id="summaryDate"></td>
+		</tr>
+	</table>
+	
+	<h2>Topology</h2>
+	<table class='table table-bordered'>
+		<tbody id="numaTopology">
+			<tr>
+				<th>Numa node</th>
+				<th>CPUs</th>
+			</tr>
+		<tbody>
+	</table>
 {% endblock %}
