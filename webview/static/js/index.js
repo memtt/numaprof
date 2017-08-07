@@ -84,6 +84,9 @@ function setupHeadMap(svgId,data)
 		.domain([d3.min(fdata, function(d) { return d.value; }), d3.max(fdata, function(d) { return d.value; })])
 		.range(["#6363FF",  "#FF6364"]);
 		//.range(colors);
+		
+	/* Initialize tooltip */
+	var tip = d3.tip().attr('class', 'd3-tip').html(function(d) { return d.value; });
 
 	var svg = d3.select('#accessMatrix')
 		.append("svg")
@@ -91,6 +94,8 @@ function setupHeadMap(svgId,data)
 		.attr("height", height + margin.top + margin.bottom)
 		.append("g")
 		.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+		
+	svg.call(tip);
 
 	var cells = svg.selectAll('rect')
 		.data(fdata)
@@ -100,7 +105,9 @@ function setupHeadMap(svgId,data)
 		.attr('height', cellSize)
 		.attr('y', function(d) { return yScale(d.source); })
 		.attr('x', function(d) { return xScale(d.dest); })
-		.attr('fill', function(d) { return heatmapColor(d.value); });
+		.attr('fill', function(d) { return heatmapColor(d.value); })
+		.on('mouseover',tip.show)
+		.on('mouseout',tip.hige);
 
 	svg.append("g")
 		.attr("class", "y axis")

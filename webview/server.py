@@ -75,6 +75,12 @@ def d3Files(path):
 def nvd3Files(path):
     return send_from_directory('./bower_components/nvd3/build/', path)
 
+@app.route('/static/d3-tip/<path:path>')
+@auth.login_required
+@nocache
+def d3TipFiles(path):
+    return send_from_directory('./bower_components/d3-tip/', path)
+
 @app.route('/api/index/infos.json')
 @auth.login_required
 @nocache

@@ -22,7 +22,6 @@ function listToRange(elts)
 	//loop on all
 	for (var i in elts)
 	{
-		console.log(i);
 		if (start == -1)
 		{
 			start = +i
