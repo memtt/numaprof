@@ -116,7 +116,7 @@ void ThreadTracker::onAccess(size_t ip,size_t addr,bool write)
 				//CAUTION it rely on the fact that table->canBeHugePage() is called ONLY HERE.
 			} else if (table->canBeHugePage(addr)) {
 				table->setHugePageFromPinnedThread(addr,numa != -1);
-				sum = NUMAPROG_HUGE_PAGE_SIZE / NUMAPROF_PAGE_SIZE;
+				touchedPages = NUMAPROG_HUGE_PAGE_SIZE / NUMAPROF_PAGE_SIZE;
 			} else { 
 				page.fromPinnedThread = (numa != -1);
 			}
