@@ -31,6 +31,9 @@ class ProfileHandler:
 	def getNumaTopo(self):
 		return self.data["topo"]
 
+	def getThreadInfos(self):
+		return self.data["threads"]
+
 	def getProcessSummary(self):
 		#init
 		total = {}

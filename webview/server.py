@@ -124,3 +124,11 @@ def apiIndexProcessAccessMatrix():
 	data = profile.getProcessAccessMatrix()
 	jsonData = json.dumps(data)
 	return Response(jsonData, mimetype='application/json')
+
+@app.route('/api/threads/infos.json')
+@auth.login_required
+@nocache
+def apiThreadsInfos():
+	data = profile.getThreadInfos()
+	jsonData = json.dumps(data)
+	return Response(jsonData, mimetype='application/json')

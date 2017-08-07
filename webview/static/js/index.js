@@ -186,7 +186,6 @@ function loadNumaTopo()
 	$.getJSON( "/api/index/numa-topo.json", function(data) {
 		for(var node in data)
 		{
-			console.log(node)
 			var entry;
 			if (data[node].isMcdram)
 				entry = $("<tr><th>"+node+"</th><td>MCDRAM</td>");

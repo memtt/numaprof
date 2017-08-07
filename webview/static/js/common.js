@@ -13,6 +13,15 @@ function logError(message)
 }
 
 /*******************  FUNCTION  *********************/
+function valOfDefault(value,defaultValue)
+{
+	if (value == undefined)
+		return defaultValue;
+	else
+		return value;
+}
+
+/*******************  FUNCTION  *********************/
 function listToRange(elts)
 {
 	var start = -1;
