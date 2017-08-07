@@ -98,3 +98,11 @@ def apiIndexProcessSummary():
 	data = profile.getProcessSummary()
 	jsonData = json.dumps(data)
 	return Response(jsonData, mimetype='application/json')
+
+@app.route('/api/index/process-access-matrix.json')
+@auth.login_required
+@nocache
+def apiIndexProcessAccessMatrix():
+	data = profile.getProcessAccessMatrix()
+	jsonData = json.dumps(data)
+	return Response(jsonData, mimetype='application/json')

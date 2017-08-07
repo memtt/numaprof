@@ -46,3 +46,26 @@ class ProfileHandler:
 		return {
 			"metrics": total
 		}
+	
+	def getNumaNodes(self):
+		cnt = 0
+		for topo in self.data["topo"]:
+			cnt += 1
+		return cnt
+
+	def getProcessAccessMatrix(self):
+		out = {}
+		#init
+		for node in range(-1,self.getNumaNodes()):
+			out[str(node)] = []
+			for i in range(0,self.getNumaNodes()):
+				out[str(node)].append(0)
+
+		#merge
+		for thread in self.data["threads"]:
+			matrix = thread["accessMatrix"]
+			for node in range(-1,self.getNumaNodes()):
+				for i in range(0,self.getNumaNodes()):
+					out[str(node)][i] += matrix[str(node)][i]
+		#ret
+		return out
