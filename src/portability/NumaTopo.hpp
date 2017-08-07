@@ -28,6 +28,7 @@ class NumaTopo
 		int getCurrentNumaAffinity(cpu_set_t * mask);
 		bool getIsMcdram(int cpuid) {assert(cpuid < cpus);return isMcdram[cpuid];};
 		friend void convertToJson(htopml::JsonState& json, const NumaTopo& value);
+		int getNumaNodes(void);
 	private:
 		void loadCpuNb(void);
 		void loadNumaMap(void);

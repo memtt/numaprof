@@ -154,6 +154,13 @@ void NumaTopo::loadNumaMap(void)
 			numaMap[i] = 0;
 		}
 	}
+	
+	//if no node
+	if (node == 0)
+		node = 1;
+	
+	//store
+	numaNodes = node;
 }
 
 /*******************  FUNCTION  *********************/
@@ -196,6 +203,12 @@ int NumaTopo::getCurrentNumaAffinity(cpu_set_t * mask)
 
 	printf("Thread is binded on NUMA %d\n",numa);
 	return numa;
+}
+
+/*******************  FUNCTION  *********************/
+int NumaTopo::getNumaNodes ( void )
+{
+	return this->numaNodes;
 }
 
 /*******************  FUNCTION  *********************/

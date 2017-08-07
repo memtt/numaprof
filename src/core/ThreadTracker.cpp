@@ -19,6 +19,7 @@ namespace numaprof
 /*******************  FUNCTION  *********************/
 ThreadTracker::ThreadTracker(ProcessTracker * process)
               :allocTracker(process->getPageTable())
+              ,accessMatrix(process->getNumaTopo().getNumaNodes())
 {
 	assert(process != NULL);
 	this->process = process;
@@ -83,6 +84,10 @@ void ThreadTracker::onAccess(size_t ip,size_t addr,bool write)
 	#else
 		Stats & instr = instructions[ip];
 	#endif
+	
+	//acces matrix
+	if (pageNode != NUMAPROF_DEFAULT_NUMA_NODE)
+		accessMatrix.access(numa,pageNode);
 
 	//get malloc relation
 	MallocInfos * allocInfos = (MallocInfos *)page.getAllocPointer(addr);
@@ -261,6 +266,7 @@ void convertToJson(htopml::JsonState& json, const ThreadTracker& value)
 	json.openStruct();
 		json.printField("stats",value.stats);
 		json.printField("numa",value.numa);
+		json.printField("accessMatrix",value.accessMatrix);
 	json.closeStruct();
 }
 

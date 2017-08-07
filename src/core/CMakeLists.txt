@@ -7,7 +7,7 @@
 ######################################################
 
 ######################################################
-add_library(numaprof-core OBJECT MallocTracker.cpp PageTable.cpp ProcessTracker.cpp Stack.cpp Stats.cpp ThreadTracker.cpp)
+add_library(numaprof-core OBJECT MallocTracker.cpp PageTable.cpp ProcessTracker.cpp Stack.cpp Stats.cpp ThreadTracker.cpp AccessMatrix.cpp)
 SET_TARGET_PROPERTIES(numaprof-core PROPERTIES COMPILE_FLAGS -fPIC)
 
 ######################################################

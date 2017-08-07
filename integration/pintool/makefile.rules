@@ -18,6 +18,7 @@ OBJS=$(OBJDIR)numaprof-debug$(OBJ_SUFFIX)\
 	 $(OBJDIR)numaprof-stats$(OBJ_SUFFIX)\
 	 $(OBJDIR)numaprof-stack$(OBJ_SUFFIX)\
 	 $(OBJDIR)numaprof-os$(OBJ_SUFFIX)\
+	 $(OBJDIR)numaprof-access-matrix$(OBJ_SUFFIX)\
 	 $(OBJDIR)numaprof-malloc-tracker$(OBJ_SUFFIX)\
 	 $(OBJDIR)numaprof-malt-debug$(OBJ_SUFFIX)\
 	 $(OBJDIR)numaprof-malt-formatted-message$(OBJ_SUFFIX)\
@@ -36,6 +37,9 @@ $(OBJDIR)numaprof-page-table$(OBJ_SUFFIX): $(SRCDIR)/../../src/core/PageTable.cp
 	$(CXX) $(TOOL_CXXFLAGS_NOOPT) $(COMP_OBJ)$@ $< $(CST_CFLAGS)
 	
 $(OBJDIR)numaprof-stack$(OBJ_SUFFIX): $(SRCDIR)/../../src/core/Stack.cpp 
+	$(CXX) $(TOOL_CXXFLAGS_NOOPT) $(COMP_OBJ)$@ $< $(CST_CFLAGS)
+
+$(OBJDIR)numaprof-access-matrix$(OBJ_SUFFIX): $(SRCDIR)/../../src/core/AccessMatrix.cpp 
 	$(CXX) $(TOOL_CXXFLAGS_NOOPT) $(COMP_OBJ)$@ $< $(CST_CFLAGS)
 
 $(OBJDIR)numaprof-helper$(OBJ_SUFFIX): $(SRCDIR)/../../src/common/Helper.cpp 

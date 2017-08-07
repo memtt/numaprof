@@ -15,6 +15,7 @@
 #include "ProcessTracker.hpp"
 #include "MallocTracker.hpp"
 #include "Stack.hpp"
+#include "AccessMatrix.hpp"
 
 /*******************  NAMESPACE  ********************/
 namespace numaprof
@@ -52,6 +53,7 @@ class ThreadTracker
 		Stats dummyAlloc;
 		NumaTopo * topo;
 		Stack stack;
+		AccessMatrix accessMatrix;
 };
 
 }
