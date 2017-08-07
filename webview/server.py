@@ -69,35 +69,11 @@ def helpPage():
 def serveStaticFiles(path):
     return send_from_directory('./static', path)
 
-@app.route('/static/jquery/<path:path>')
+@app.route('/static/bower/<path:path>')
 @auth.login_required
 @nocache
 def jqueryFiles(path):
-    return send_from_directory('./bower_components/jquery/dist/', path)
-
-@app.route('/static/bootstrap/<path:path>')
-@auth.login_required
-@nocache
-def bootsrapFiles(path):
-    return send_from_directory('./bower_components/bootstrap/dist/', path)
-
-@app.route('/static/d3/<path:path>')
-@auth.login_required
-@nocache
-def d3Files(path):
-    return send_from_directory('./bower_components/d3/', path)
-
-@app.route('/static/nvd3/<path:path>')
-@auth.login_required
-@nocache
-def nvd3Files(path):
-    return send_from_directory('./bower_components/nvd3/build/', path)
-
-@app.route('/static/d3-tip/<path:path>')
-@auth.login_required
-@nocache
-def d3TipFiles(path):
-    return send_from_directory('./bower_components/d3-tip/', path)
+    return send_from_directory('./bower_components/', path)
 
 @app.route('/api/index/infos.json')
 @auth.login_required
@@ -139,4 +115,4 @@ def apiThreadsInfos():
 	jsonData = json.dumps(data)
 	return Response(jsonData, mimetype='application/json')
 
-app.run(host="127.0.0.1", port=8080, threaded=True)
+app.run(host="127.0.0.1", port=8080, threaded=False)

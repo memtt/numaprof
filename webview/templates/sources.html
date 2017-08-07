@@ -2,19 +2,31 @@
 {% block title %}Sources{% endblock %}
 {% block import %}
 <script language="javascript" src="/static/js/sources.js"></script>
+<script language="javascript" src="/static/bower/mustache.js/mustache.min.js"></script>
+<link rel="stylesheet" type="text/css" href="/static/css/sources.css">
 {% endblock %}
 {% block content %}
-	<div class="col-md-12">
-		<div class="panel panel-default">
-			<div class="panel-heading">Topology</div>
-			<table class='table table-bordered'>
-				<tbody id="numaTopology">
-					<tr>
-						<th>Numa node</th>
-						<th>CPUs</th>
-					</tr>
-				<tbody>
-			</table>
+	<div class="row">
+		<div class="col-sm-5 col-md-4 col-lg-3 sidebar">
+			<ul class='nav nav-sidebar' id='numaprof-func-list'>
+				<li id='numaprof-func-list-entry'>
+					<a href='' data-toggle='popover' data-content='{{ longName }}'>
+						<div class='progress'>
+							<div class='progress-bar' role='progressbar' aria-valuenow='60' aria-valuemin='0' aria-valuemax='100' style='width: {{ ratio }}%;'>
+								<span class='sr-only'>{{ ratio }}% Complete</span>
+							</div>
+						</div>
+						<span class='size'>
+							{{value}}
+							<div class='progress-fg' style='width: {{ ratio }}%;'></div>
+							<div class='progress-bg'></div>
+						</span>
+						<span class='func' ng-hide='compact'>{{ shortName }}</span>
+					</a>
+				</li>
+			</ul>
+
 		</div>
 	</div>
+
 {% endblock %}

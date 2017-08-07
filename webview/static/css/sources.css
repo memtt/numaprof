@@ -1,0 +1,78 @@
+/*****************************************************
+             PROJECT  : numaprof
+             VERSION  : 2.3.0
+             DATE     : 05/2017
+             AUTHOR   : Valat Sébastien - CERN
+             LICENSE  : CeCILL-C
+*****************************************************/
+
+/******************* FLAT FUNC LIST ******************/
+/* Flat list of function in stack-analysis */
+#numaprof-func-list li a {
+	height:3em
+}
+
+#numaprof-func-list div.progress {
+	display:block;
+	float:left;
+	width:7%;
+}
+
+#numaprof-func-list .size {
+	width:7em;
+	display:block;
+	float:left;
+	text-align:right;
+	padding-right:1em;
+}
+
+#numaprof-func-list .func {
+	display:block;
+	float:left;
+	white-space: nowrap;
+	overflow:hidden;
+	text-overflow:
+	ellipsis;max-width:51%;
+}
+
+/**
+ * Compact function list styling
+ */
+
+#numaprof-func-list.compact .progress {
+	display: none;
+}
+
+#numaprof-func-list.compact .size, #numaprof-func-list.compact .func {
+	font-size: 12px;
+}
+
+#numaprof-func-list.compact .func {
+	padding-top: 4px;
+	font-family: Menlo,Monaco,Consolas,"Courier New",monospace;
+	max-width: 75%;
+}
+
+#numaprof-func-list.compact .size {
+	width: 25%;
+}
+
+#numaprof-func-list.compact .size .progress-fg {
+	content: '';
+	display: block;
+	height: 4px;
+	background-color: #337ab7;
+	position: relative;
+	top: 4px;
+	width: attr(progress);
+	border-radius: 2px;
+}
+
+#numaprof-func-list.compact .size .progress-bg {
+	content: '';
+	height: 4px;
+	display: block;
+	border-radius: 2px;
+	background-color: #d8d8d8;
+	box-shadow: inset 0 1px 1px rgba(0,0,0,.1);
+}
