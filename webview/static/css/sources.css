@@ -39,25 +39,25 @@
  * Compact function list styling
  */
 
-#numaprof-func-list.compact .progress {
+#numaprof-func-list .progress {
 	display: none;
 }
 
-#numaprof-func-list.compact .size, #numaprof-func-list.compact .func {
+#numaprof-func-list .size, #numaprof-func-list .func {
 	font-size: 12px;
 }
 
-#numaprof-func-list.compact .func {
+#numaprof-func-list .func {
 	padding-top: 4px;
 	font-family: Menlo,Monaco,Consolas,"Courier New",monospace;
 	max-width: 75%;
 }
 
-#numaprof-func-list.compact .size {
+#numaprof-func-list .size {
 	width: 25%;
 }
 
-#numaprof-func-list.compact .size .progress-fg {
+#numaprof-func-list .size .progress-fg {
 	content: '';
 	display: block;
 	height: 4px;
@@ -68,7 +68,7 @@
 	border-radius: 2px;
 }
 
-#numaprof-func-list.compact .size .progress-bg {
+#numaprof-func-list .size .progress-bg {
 	content: '';
 	height: 4px;
 	display: block;

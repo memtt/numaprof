@@ -17,11 +17,6 @@ function exampleMenu()
 	
 	var template = "<li id='numaprof-func-list-entry'>\
 					<a href='javascript:' data-toggle='popover' data-content='{{ longName }}'>\
-						<div class='progress'>\
-							<div class='progress-bar' role='progressbar' aria-valuenow='60' aria-valuemin='0' aria-valuemax='100' style='width: {{ ratio }}%;'>\
-								<span class='sr-only'>{{ ratio }}% Complete</span>\
-							</div>\
-						</div>\
 						<span class='size'>\
 							{{value}}\
 							<div class='progress-fg' style='width: {{ ratio }}%;'></div>\
