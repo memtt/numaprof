@@ -72,6 +72,7 @@ int main(int argc, char ** argv)
 	a.join();
 	std::thread lst[40];
 	global = new char[20*1024*1024];
+	memset(global,0,20*1024*1024);
 	for (int i = 0 ; i < 20*1024*1024 ; i++)
 		global[i] = 1;
 	for (int i = 0 ; i < ncpu ; i++)

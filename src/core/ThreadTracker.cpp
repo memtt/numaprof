@@ -86,7 +86,7 @@ void ThreadTracker::onAccess(size_t ip,size_t addr,bool write)
 	#endif
 	
 	//acces matrix
-	if (pageNode != NUMAPROF_DEFAULT_NUMA_NODE)
+	if (pageNode >= 0)
 		accessMatrix.access(numa,pageNode);
 
 	//get malloc relation
