@@ -1,0 +1,20 @@
+{% extends "layout.html" %}
+{% block title %}Sources{% endblock %}
+{% block import %}
+<script language="javascript" src="/static/js/sources.js"></script>
+{% endblock %}
+{% block content %}
+	<div class="col-md-12">
+		<div class="panel panel-default">
+			<div class="panel-heading">Topology</div>
+			<table class='table table-bordered'>
+				<tbody id="numaTopology">
+					<tr>
+						<th>Numa node</th>
+						<th>CPUs</th>
+					</tr>
+				<tbody>
+			</table>
+		</div>
+	</div>
+{% endblock %}

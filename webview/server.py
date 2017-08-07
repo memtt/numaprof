@@ -42,8 +42,20 @@ profile = ProfileHandler(os.environ["NUMAPROF_FILE"])
 @app.route('/index.html')
 @auth.login_required
 @nocache
-def root():
+def rootPage():
     return render_template('index.html', file=profile.getFileName(), page = "home")
+
+@app.route('/threads.html')
+@auth.login_required
+@nocache
+def threadPage():
+    return render_template('threads.html', file=profile.getFileName(), page = "threads")
+
+@app.route('/sources.html')
+@auth.login_required
+@nocache
+def sourcesPage():
+    return render_template('sources.html', file=profile.getFileName(), page = "sources")
 
 @app.route('/static/<path:path>')
 @auth.login_required
