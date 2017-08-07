@@ -57,6 +57,12 @@ def threadPage():
 def sourcesPage():
     return render_template('sources.html', file=profile.getFileName(), page = "sources")
 
+@app.route('/help.html')
+@auth.login_required
+@nocache
+def helpPage():
+    return render_template('help.html', file=profile.getFileName(), page = "help")
+
 @app.route('/static/<path:path>')
 @auth.login_required
 @nocache
