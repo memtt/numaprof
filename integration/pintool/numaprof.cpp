@@ -10,8 +10,8 @@
 #include <cstring>
 #include <sys/mman.h>
 #include <cstdio>
-#include <ProcessTracker.hpp>
-#include <ThreadTracker.hpp>
+#include <core/ProcessTracker.hpp>
+#include <core/ThreadTracker.hpp>
 #include <iostream>
 
 using namespace std;
