@@ -138,3 +138,5 @@ def apiThreadsInfos():
 	data = profile.getThreadInfos()
 	jsonData = json.dumps(data)
 	return Response(jsonData, mimetype='application/json')
+
+app.run(host="127.0.0.1", port=8080, threaded=True)
