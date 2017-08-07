@@ -7,7 +7,8 @@
 *****************************************************/
 
 /*******************  FUNCTION  *********************/
-$(function() {
+function exampleMenu()
+{
 	lst = [
 		{value:"60%", ratio:"60",shortName:"shortName",longName:"lllllooooooonnnnnngggg_naaaammme"},
 		{value:"60%", ratio:"60",shortName:"shortName2",longName:"lllllooooooonnnnnnggggnaaaammme"},
@@ -15,7 +16,7 @@ $(function() {
 	];
 	
 	var template = "<li id='numaprof-func-list-entry'>\
-					<a href='' data-toggle='popover' data-content='{{ longName }}'>\
+					<a href='javascript:' data-toggle='popover' data-content='{{ longName }}'>\
 						<div class='progress'>\
 							<div class='progress-bar' role='progressbar' aria-valuenow='60' aria-valuemin='0' aria-valuemax='100' style='width: {{ ratio }}%;'>\
 								<span class='sr-only'>{{ ratio }}% Complete</span>\
@@ -38,4 +39,11 @@ $(function() {
 		$('#numaprof-func-list').append(rendered);
 	}
 	$('[data-toggle="popover"]').popover({ trigger: "hover" });  
+}
+
+/*******************  FUNCTION  *********************/
+$(function() {
+	exampleMenu();
+	var sourceEditor = new MaltSourceEditor('malt-source-editor',undefined);
+	sourceEditor.moveToFile("/home/sebv/Projects/numaprof/src/core/ProcessTracker.cpp");
 });

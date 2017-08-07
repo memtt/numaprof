@@ -8,7 +8,7 @@
 ######################################################
 
 ######################################################
-from flask import Flask, render_template, send_from_directory, Response
+from flask import Flask, render_template, send_from_directory, Response, send_file
 from ProfileHandler import ProfileHandler
 import os
 import json
@@ -114,5 +114,12 @@ def apiThreadsInfos():
 	data = profile.getThreadInfos()
 	jsonData = json.dumps(data)
 	return Response(jsonData, mimetype='application/json')
+
+@app.route('/api/sources/file/<path:path>')
+@auth.login_required
+@nocache
+def sourceFiles(path):
+	data=open("/"+path).read()
+	return data
 
 app.run(host="127.0.0.1", port=8080, threaded=False)
