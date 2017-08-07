@@ -12,6 +12,8 @@ import json
 
 ######################################################
 class ProfileHandler:
+	metrics = [ "firstTouch", "unpinnedFirstTouch", "unpinnedPageAccess", "unpinnedThreadAccess", "unpinnedBothAccess", "localAccess", "remoteAccess", "mcdramAccess" ]
+	
 	def __init__(self,filepath):
 		self.filepath = filepath
 		self.load()
@@ -28,3 +30,19 @@ class ProfileHandler:
 
 	def getNumaTopo(self):
 		return self.data["topo"]
+
+	def getProcessSummary(self):
+		#init
+		total = {}
+		for m in self.metrics:
+			total[m] = 0
+		
+		#sum all threads
+		for thread in self.data["threads"]:
+			for m in thread["stats"]:
+				total[m] += thread["stats"][m]
+		
+		#ret
+		return {
+			"metrics": total
+		}

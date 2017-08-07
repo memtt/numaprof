@@ -19,5 +19,5 @@ export NUMAPROF_FILE="$1"
 ######################################################
 export FLASK_APP=server.py
 export PYTHONPATH=$PWD/deps/:$PYTHONPATH
-python -m flask run -p 8080 -h localhost
+python -m flask run -p 8080 -h 127.0.0.1
 exit $?

@@ -14,10 +14,13 @@ import os
 import json
 from flask_httpauth import HTTPBasicAuth
 from nocache import nocache
+from flask.ext.cache import Cache
 
 ######################################################
 app = Flask(__name__, static_url_path='')
-app.config["CACHE_TYPE"] = "null"
+#app.config["CACHE_TYPE"] = "null"
+#cache = Cache(app,config={'CACHE_TYPE': 'null'})
+#cache.init_app(app)
 
 ######################################################
 auth = HTTPBasicAuth()
@@ -60,6 +63,18 @@ def jqueryFiles(path):
 def bootsrapFiles(path):
     return send_from_directory('./bower_components/bootstrap/dist/', path)
 
+@app.route('/static/d3/<path:path>')
+@auth.login_required
+@nocache
+def d3Files(path):
+    return send_from_directory('./bower_components/d3/', path)
+
+@app.route('/static/nvd3/<path:path>')
+@auth.login_required
+@nocache
+def nvd3Files(path):
+    return send_from_directory('./bower_components/nvd3/build/', path)
+
 @app.route('/api/index/infos.json')
 @auth.login_required
 @nocache
@@ -73,5 +88,13 @@ def apiIndexSummary():
 @nocache
 def apiIndexNumaTopo():
 	data = profile.getNumaTopo()
+	jsonData = json.dumps(data)
+	return Response(jsonData, mimetype='application/json')
+
+@app.route('/api/index/process-summary.json')
+@auth.login_required
+@nocache
+def apiIndexProcessSummary():
+	data = profile.getProcessSummary()
 	jsonData = json.dumps(data)
 	return Response(jsonData, mimetype='application/json')

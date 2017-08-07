@@ -1,4 +1,4 @@
-#!/bin/bash
+# -*- coding: utf-8 -*-
 ######################################################
 #            PROJECT  : numaprof                     #
 #            VERSION  : 0.0.0-dev                    #
@@ -8,11 +8,3 @@
 ######################################################
 
 ######################################################
-export PATH=./node_modules/.bin/:$PATH
-
-######################################################
-set -e
-set -x
-pip install -t deps --no-compile flask flask_httpauth Flask-Cache
-npm install bower
-bower install

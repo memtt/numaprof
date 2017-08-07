@@ -4,34 +4,60 @@
 <script language="javascript" src="/static/js/index.js"></script>
 {% endblock %}
 {% block content %}
-	<h2>Infos</h2>
-	<table class='table table-bordered'>
-		<tr>
-			<th>Executable :</th>
-			<td id="summaryExe"></td>
-		</tr><tr>
-			<th>Commande :</th>
-			<td><pre id="summaryCommand"></pre></td>
-		</tr><tr>
-			<th>Tool :</th>
-			<td id="summaryTool"></td>
-		</tr><tr>
-			<th>Host :</th>
-			<td id="summaryHostname"></td>
-		</tr>
-		</tr><tr>
-			<th>Date :</th>
-			<td id="summaryDate"></td>
-		</tr>
-	</table>
+	<div class="col-md-12">
+		<div class="panel panel-default">
+			<div class="panel-heading">Run infos</div>
+			<table class='table table-bordered'>
+				<tr>
+					<th>Executable :</th>
+					<td id="summaryExe"></td>
+				</tr><tr>
+					<th>Commande :</th>
+					<td><pre id="summaryCommand"></pre></td>
+				</tr><tr>
+					<th>Tool :</th>
+					<td id="summaryTool"></td>
+				</tr><tr>
+					<th>Host :</th>
+					<td id="summaryHostname"></td>
+				</tr>
+				</tr><tr>
+					<th>Date :</th>
+					<td id="summaryDate"></td>
+				</tr>
+			</table>
+		</div>
+	</div>
 	
-	<h2>Topology</h2>
-	<table class='table table-bordered'>
-		<tbody id="numaTopology">
-			<tr>
-				<th>Numa node</th>
-				<th>CPUs</th>
-			</tr>
-		<tbody>
-	</table>
+	<div class="col-md-12">
+		<div class="panel panel-default">
+			<div class="panel-heading">Topology</div>
+			<table class='table table-bordered'>
+				<tbody id="numaTopology">
+					<tr>
+						<th>Numa node</th>
+						<th>CPUs</th>
+					</tr>
+				<tbody>
+			</table>
+		</div>
+	</div>
+	
+	<div class="col-md-6">
+		<div class="panel panel-default">
+			<div class="panel-heading">First touch</div>
+			<div class="panel-body" id="processFirstTouch">
+				<svg height="300px"></svg>
+			</div>
+		</div>
+	</div>
+
+	<div class="col-md-6">
+		<div class="panel panel-default">
+			<div class="panel-heading">Memory access</div>
+			<div class="panel-body" id="processAccess">
+				<svg height="300px"></svg>
+			</div>
+		</div>
+	</div>
 {% endblock %}
