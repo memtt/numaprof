@@ -33,15 +33,15 @@ function listToRange(elts)
 	{
 		if (start == -1)
 		{
-			start = +i
-		} else if (i != last+1) {
+			start = +elts[i]
+		} else if (elts[i] != last+1) {
 			if (start != last)
 				out.push(start+"-"+last);
 			else
 				out.push(start);
-			start = +i
+			start = +elts[i]
 		}
-		last = +i;
+		last = +elts[i]
 	}
 
 	//flush

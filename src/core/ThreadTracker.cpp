@@ -106,18 +106,7 @@ void ThreadTracker::onAccess(size_t ip,size_t addr,bool write)
 	//cases
 	if (pageNode <= NUMAPROF_DEFAULT_NUMA_NODE)
 	{
-		//check unpinned first access
-		if (numa == -1)
-		{
-			stats.unpinnedFirstTouch++;
-			instr.unpinnedFirstTouch++;
-			allocStats->unpinnedFirstTouch++;
-		} else {
-			stats.firstTouch++;
-			instr.firstTouch++;
-			allocStats->firstTouch++;
-		}
-
+		size_t touchedPages = 1;
 		//if write, consider that we create the page so
 		//check if we are pinned to remember status for latter access
 		if (write)
@@ -127,9 +116,22 @@ void ThreadTracker::onAccess(size_t ip,size_t addr,bool write)
 				//CAUTION it rely on the fact that table->canBeHugePage() is called ONLY HERE.
 			} else if (table->canBeHugePage(addr)) {
 				table->setHugePageFromPinnedThread(addr,numa != -1);
+				sum = NUMAPROG_HUGE_PAGE_SIZE / NUMAPROF_PAGE_SIZE;
 			} else { 
 				page.fromPinnedThread = (numa != -1);
 			}
+		}
+		
+		//check unpinned first access
+		if (numa == -1)
+		{
+			stats.unpinnedFirstTouch += touchedPages;
+			instr.unpinnedFirstTouch += touchedPages;
+			allocStats->unpinnedFirstTouch += touchedPages;
+		} else {
+			stats.firstTouch += touchedPages;
+			instr.firstTouch += touchedPages;
+			allocStats->firstTouch += touchedPages;
 		}
 	} else {
 		assert(pageNode >= 0);
