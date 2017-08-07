@@ -50,7 +50,10 @@ function setupHeadMap(svgId,data)
 	var fdata = [];
 	for (var i in data)
 		for (var j in data[i])
-			fdata.push({source:i,dest:j,value:data[i][j]});
+			if (i == -1)
+				fdata.push({source:"Unpinned",dest:j,value:data[i][j]});
+			else
+				fdata.push({source:i,dest:j,value:data[i][j]});
 
 	var x_elements = d3.set(fdata.map(function( item ) { return item.dest; } )).values(),
 		y_elements = d3.set(fdata.map(function( item ) { return item.source; } )).values();
