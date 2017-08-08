@@ -171,7 +171,7 @@ void PageTable::mremap(size_t oldAddr,size_t oldSize,size_t newAddr, size_t newS
 	if (oldAddr + oldSize <= newAddr || newAddr + newSize <= oldAddr)
 	{
 		for (size_t i = 0 ; i < copySize ; i += NUMAPROF_PAGE_SIZE)
-			getPage(newAddr+i) = getPage(oldAddr+i);
+			getPage(newAddr+i).remap(getPage(oldAddr+i));
 		clear(oldAddr,oldSize);
 	} else {
 		Page * buf = new Page[copySize / NUMAPROF_PAGE_SIZE];
@@ -179,7 +179,7 @@ void PageTable::mremap(size_t oldAddr,size_t oldSize,size_t newAddr, size_t newS
 			buf[i / NUMAPROF_PAGE_SIZE] = getPage(oldAddr+i);
 		clear(oldAddr,oldSize);
 		for (size_t i = 0 ; i < copySize ; i += NUMAPROF_PAGE_SIZE)
-			getPage(newAddr+i) = buf[i / NUMAPROF_PAGE_SIZE];
+			getPage(newAddr+i).remap(buf[i / NUMAPROF_PAGE_SIZE]);
 		delete [] buf;
 	}
 }
@@ -199,29 +199,52 @@ void PageTable::regAllocPointerSmall(size_t baseAddr,size_t size,void * value)
 	Page & page = getPage(baseAddr);
 	
 	//allocate if need
-	AllocPointerPageMap * map;
+	AllocPointerPageMap * map = NULL;
 	if (page.allocStatus == PAGE_ALLOC_FRAG)
 	{
 		map = (AllocPointerPageMap*)page.allocPtr;
 	} else if (page.allocStatus == PAGE_ALLOC_NONE) {
-		map = new AllocPointerPageMap;
-		page.allocStatus = PAGE_ALLOC_FRAG;
-		page.allocPtr = map;
+		//there could be thread fighting for this particular case, need to handle safety
+		//idea to avoid a single mutex =>  we hash the address to have multiple one
+		//to reduce contention
+		int mutexId = (baseAddr / NUMAPROG_HUGE_PAGE_SIZE) % NUMAPROF_FRAG_MUTEX_CNT;
+		fragMutex[mutexId].lock();
+			if (page.allocStatus == PAGE_ALLOC_NONE)
+			{
+				map = new AllocPointerPageMap;
+				page.allocPtr = map;
+				page.allocStatus = PAGE_ALLOC_FRAG;
+			} else if (page.allocStatus == PAGE_ALLOC_FRAG) {
+				map = (AllocPointerPageMap*)page.allocPtr;
+			} else {
+				numaprofWarning("Must never append !");
+				return;
+			}
+		fragMutex[mutexId].unlock();
 	} else if (page.allocStatus == PAGE_ALLOC_FULL) {
-		numaprofWarning("Invalid status of page, should be NONE, get FULL");
+		printf("Invalid status of page, should be NONE, get FULL : %p\n",page.allocPtr);
 		return;
 	} else {
-		numaprofWarning("Invalid status of page, should be NONE, get invalid value");
+		printf("Invalid status of page, should be NONE, get invalid value\n");
 		return;
 	}
 	
 	//start
 	size_t start = (baseAddr & NUMAPROF_PAGE_MASK) / NUMAPROF_ALLOC_GRAIN;
+	if (size % NUMAPROF_ALLOC_GRAIN != 0)
+		size += NUMAPROF_ALLOC_GRAIN;
 	size_t end = start + (size/ NUMAPROF_ALLOC_GRAIN);
 	
 	//mark
+	printf("setup map %p from %lu => %lu => %p\n",map,start,end,value);
 	for (size_t i = start ; i < end ;  i++)
+	{
+		//#ifndef NDEBUG
+			if (value != NULL && map->entries[i] != NULL)
+				printf("Invalid status, get %lu entry = %p of %p, expect NULL !\n",i,map->entries[i],map);
+		//#endif
 		map->entries[i] = value;
+	}
 }
 
 /*******************  FUNCTION  *********************/
@@ -249,6 +272,8 @@ void PageTable::regAllocPointer(size_t baseAddr,size_t size,void * value)
 		regAllocPointerSmall(baseAddr,firstPageEnd - baseAddr,value);
 		
 		//middle full pages
+		if (firstPageEnd < endPageStart)
+			printf("Setup full page %p\n",value);
 		for (size_t addr = firstPageEnd ; addr < endPageStart ; addr += NUMAPROF_PAGE_SIZE)
 		{
 			//get page
@@ -264,7 +289,7 @@ void PageTable::regAllocPointer(size_t baseAddr,size_t size,void * value)
 				delete (AllocPointerPageMap*)page.allocPtr;
 				page.allocStatus = PAGE_ALLOC_FULL;
 			} else {
-				numaprofWarning("WARNING : Invalid page status !");
+				printf("WARNING : Invalid page status %d => %p => %p !\n",page.allocStatus,page.allocPtr,value);
 				continue;
 			}
 			

@@ -4,7 +4,7 @@ HWLOC_PREFIX=$(HOME)/usr
 
 CST_SRC=$(SRCDIR)/../..
 CST_BUILD=$(CST_SRC)/build
-CST_CFLAGS=-I$(CST_SRC)/src -I$(CST_BUILD)/src -DUSE_PIN_LOCKS -I$(CST_SRC)/extern-deps/from-numactl -O3 -g
+CST_CFLAGS=-I$(CST_SRC)/src -I$(CST_BUILD)/src -DUSE_PIN_LOCKS -I$(CST_SRC)/extern-deps/from-numactl -O0 -g
 #CST_LSFLAGS=-Wl,-rpath=$(CST_BUILD)/src $(CST_BUILD)/src/libnumaprof.so 
 
 OBJS=$(OBJDIR)numaprof-debug$(OBJ_SUFFIX)\

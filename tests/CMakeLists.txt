@@ -15,7 +15,7 @@ include_directories(../)
 #add_definitions(-DTEST_DATA_PATH="${CMAKE_CURRENT_SOURCE_DIR}/data")
 
 ######################################################
-set(TEST_NAMES TestPageTable TestHelper TestMovePages TestStack)
+set(TEST_NAMES TestPageTable TestHelper TestMovePages TestStack TestMallocTracker)
 
 ######################################################
 FOREACH(test_name ${TEST_NAMES})
@@ -23,3 +23,7 @@ FOREACH(test_name ${TEST_NAMES})
 	target_link_libraries(${test_name} ${GTEST_BOTH_LIBRARIES} ${GMOCK_BOTH_LIBRARIES} numaprof)
 	daq_add_test(${test_name} ${test_name})
 ENDFOREACH(test_name)
+
+######################################################
+add_executable(ReplayAllocTracker ReplayAllocTracker.cpp)
+target_link_libraries(ReplayAllocTracker numaprof)

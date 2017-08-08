@@ -29,6 +29,10 @@ using namespace std;
 #define REALLOC "realloc"
 #endif
 
+//HUm finally I'm not totaly sure we can do this with pintool
+//See : https://github.com/wapiflapi/villoc/issues/3
+#define TRACK_MALLOC false
+
 using namespace numaprof;
 
 /*******************  STRUCT  ***********************/
@@ -54,6 +58,7 @@ struct ThreadData
 
 /*******************  GLOBALS  **********************/
 ProcessTracker * gblProcessTracker = NULL;
+bool gblHasSeenMain = false;
 
 // key for accessing TLS storage in the threads. initialized once in main()
 static  TLS_KEY tls_key = INVALID_TLS_KEY;
@@ -120,76 +125,102 @@ static VOID RecordMemWrite(VOID * ip, VOID * addr,THREADID threadid)
 /*******************  FUNCTION  *********************/
 static VOID beforeRealloc(VOID* ptr,ADDRINT size, VOID * retIp,THREADID threadid)
 {
-	ThreadData & data = getTls(threadid);
-	data.allocSize = size;
-	data.allocCallsite = retIp;
-	data.reallocPtr = ptr;
-	//printf("malloc %lu (from %p)\n",size,retIp);
+	if (gblHasSeenMain)
+	{
+		ThreadData & data = getTls(threadid);
+		data.allocSize = size;
+		data.allocCallsite = retIp;
+		data.reallocPtr = ptr;
+		printf("realloc %p %lu (from %p)\n",ptr,size,retIp);
+		data.tracker->onFree((ADDRINT)ptr);
+	}
 }
 
 /*******************  FUNCTION  *********************/
 static VOID afterRealloc(ADDRINT ret,THREADID threadid)
 {
-	//printf("    => %p\n",(void*)ret);
-	ThreadData & data = getTls(threadid);
-	data.tracker->onRealloc((size_t)data.allocCallsite,(size_t)data.reallocPtr,ret,data.allocSize);
+	if (gblHasSeenMain)
+	{
+		printf("    => %p\n",(void*)ret);
+		ThreadData & data = getTls(threadid);
+		//data.tracker->onRealloc((size_t)data.allocCallsite,(size_t)data.reallocPtr,ret,data.allocSize);
+		data.tracker->onAlloc((size_t)data.allocCallsite,ret,data.allocSize);
+	}
 }
 
 
 /*******************  FUNCTION  *********************/
 static VOID beforeMalloc(ADDRINT size, VOID * retIp,THREADID threadid)
 {
-	ThreadData & data = getTls(threadid);
-	data.allocSize = size;
-	data.allocCallsite = retIp;
-	//printf("malloc %lu (from %p)\n",size,retIp);
+	if (gblHasSeenMain)
+	{
+		ThreadData & data = getTls(threadid);
+		data.allocSize = size;
+		data.allocCallsite = retIp;
+		printf("malloc %lu (from %p)\n",size,retIp);
+	}
 }
 
 /*******************  FUNCTION  *********************/
 static VOID afterMalloc(ADDRINT ret,THREADID threadid)
 {
-	//printf("    => %p\n",(void*)ret);
-	ThreadData & data = getTls(threadid);
-	if (data.newCallsite == NULL)
+	if (gblHasSeenMain)
 	{
-		data.tracker->onAlloc((size_t)data.allocCallsite,ret,data.allocSize);
-	} else {
-		data.tracker->onAlloc((size_t)data.newCallsite,ret,data.allocSize);
+		printf("    => %p\n",(void*)ret);
+		ThreadData & data = getTls(threadid);
+		if (data.newCallsite == NULL)
+		{
+			data.tracker->onAlloc((size_t)data.allocCallsite,ret,data.allocSize);
+		} else {
+			data.tracker->onAlloc((size_t)data.newCallsite,ret,data.allocSize);
+		}
 	}
 }
 
 /*******************  FUNCTION  *********************/
 static VOID beforeNew(ADDRINT size, VOID * retIp,THREADID threadid)
 {
-	ThreadData & data = getTls(threadid);
-	if (data.newCallsite == NULL)
-		data.newCallsite = retIp;
-	//printf("malloc %lu (from %p)\n",size,retIp);
+	if (gblHasSeenMain)
+	{
+		ThreadData & data = getTls(threadid);
+		if (data.newCallsite == NULL)
+			data.newCallsite = retIp;
+		printf("before new %lu (from %p)\n",size,retIp);
+	}
 }
 
 /*******************  FUNCTION  *********************/
 static VOID afterNew(ADDRINT ret,THREADID threadid)
 {
-	//printf("    => %p\n",(void*)ret);
-	ThreadData & data = getTls(threadid);
-	data.newCallsite = NULL;
+	if (gblHasSeenMain)
+	{
+		printf("    => %p\n",(void*)ret);
+		ThreadData & data = getTls(threadid);
+		data.newCallsite = NULL;
+	}
 }
 
 /*******************  FUNCTION  *********************/
 static VOID beforeCalloc(ADDRINT nmemb,ADDRINT size,VOID * retIp,THREADID threadid)
 {
-	ThreadData & data = getTls(threadid);
-	data.allocSize = size;
-	data.allocCallsite = retIp;
-	//printf("calloc %lu %lu (from %p)\n",nmemb,size,retIp);
+	if (gblHasSeenMain)
+	{
+		ThreadData & data = getTls(threadid);
+		data.allocSize = size * nmemb;
+		data.allocCallsite = retIp;
+		printf("calloc %lu %lu (from %p)\n",nmemb,size,retIp);
+	}
 }
 
 /*******************  FUNCTION  *********************/
 static VOID beforeFree(ADDRINT ptr,THREADID threadid)
 {
-	//printf("free %p\n",(void*)ptr);
-	ThreadData & data = getTls(threadid);
-	data.tracker->onFree(ptr);
+	if (gblHasSeenMain)
+	{
+		printf("free %p\n",(void*)ptr);
+		ThreadData & data = getTls(threadid);
+		data.tracker->onFree(ptr);
+	}
 }
 
 /*******************  FUNCTION  *********************/
@@ -371,6 +402,12 @@ static bool isNewOperator(const std::string & name)
 	if (strncmp(name.c_str(),"_Zna",4) == 0)
 		return true;
 	return false;
+}
+
+/*******************  FUNCTION  *********************/
+VOID beforeMain(void)
+{
+	gblHasSeenMain = true;
 }
 
 /*******************  FUNCTION  *********************/
@@ -561,6 +598,26 @@ static VOID instrImageFree(IMG img, VOID *v)
 }
 
 /*******************  FUNCTION  *********************/
+static VOID instrImageMain(IMG img, VOID *v)
+{
+	// Instrument the malloc() and free() functions.  Print the input argument
+	// of each malloc() or free(), and the return value of malloc().
+	//
+	//  Find the malloc() function.
+	RTN mainRtn = RTN_FindByName(img, "_init");
+	
+	//printf(FREE " out\n");
+	if (RTN_Valid(mainRtn))
+	{
+		RTN_Open(mainRtn);
+
+		// Instrument malloc() to print the input argument value and the return value.
+		RTN_InsertCall(mainRtn, IPOINT_BEFORE, (AFUNPTR)beforeMain,IARG_END);
+		RTN_Close(mainRtn);
+	}
+}
+
+/*******************  FUNCTION  *********************/
 static VOID instrImageSetSchedAffinity(IMG img, VOID *v)
 {
 	// Instrument the sched_setaffinity function to intercept thread pinning.  
@@ -739,15 +796,14 @@ void I_Trace(TRACE trace, void *v)
 static VOID instrImage(IMG img, VOID *v)
 {
 	instrImageMmap(img,v);
-	if (false)
+	if (TRACK_MALLOC)
 	{
-	instrImageMalloc(img,v);
-	#ifndef NUMAPROG_CALLSTACK
+		instrImageMalloc(img,v);
 		instrImageNew(img,v);
-	#endif
-	instrImageRealloc(img,v);
-	instrImageCalloc(img,v);
-	instrImageFree(img,v);
+		instrImageRealloc(img,v);
+		instrImageCalloc(img,v);
+		instrImageFree(img,v);
+		instrImageMain(img,v);
 	}
 	instrImageSetSchedAffinity(img,v);
 }

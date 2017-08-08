@@ -32,6 +32,9 @@ void MallocTracker::onAlloc(StackIp & ip,size_t ptr, size_t size)
 	infos->size = size;
 	infos->stats = &(instructions[ip]);
 
+	//debug
+	printf("TRACE: tracker.onAlloc(ip,%p,%lu);\n",(void*)ptr,size);
+	
 	//reg to page table
 	pageTable->regAllocPointer(ptr,size,infos);
 }
@@ -51,6 +54,9 @@ void MallocTracker::onFree(size_t ptr)
 	if (infos == NULL || infos->ptr != ptr)
 		return;
 
+	//debug
+	printf("TRACE: tracker.onFree(%p);\n",(void*)ptr);
+	
 	//free into page table
 	pageTable->freeAllocPointer(ptr,infos->size,infos);
 

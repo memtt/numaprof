@@ -36,6 +36,7 @@ namespace numaprof
 #define NUMAPROF_DEFAULT_THREAD_PIN true
 #define NUMAPROF_PAGE_UNMAPPED_FD -200
 #define NUMAPROF_PAGE_ANON_FD -1
+#define NUMAPROF_FRAG_MUTEX_CNT 32
 
 /********************  ENUM  ************************/
 enum PageAllocStatus
@@ -57,7 +58,9 @@ struct Page
 {
 	Page(void) {numaNode = NUMAPROF_DEFAULT_NUMA_NODE; fromPinnedThread = NUMAPROF_DEFAULT_THREAD_PIN;allocStatus = PAGE_ALLOC_NONE;allocPtr = NULL;fd = NUMAPROF_PAGE_UNMAPPED_FD;canBeHugePage = false;};
 	~Page(void);
+	inline void remap(const Page & page);
 	void * getAllocPointer(size_t addr);
+	//vars
 	int numaNode;
 	//@todo optimized by merging with fromPinnedThread using bitfields
 	int fd;
@@ -109,6 +112,7 @@ class PageTable
 	private:
 		 PageGlobalDirectory pgd;
 		 Mutex mutex;
+		 Mutex fragMutex[NUMAPROF_FRAG_MUTEX_CNT];
 };
 
 /*******************  FUNCTION  *********************/
@@ -173,6 +177,15 @@ inline void * Page::getAllocPointer(size_t addr)
 		assert(false);
 		return NULL;
 	}
+}
+
+/*******************  FUNCTION  *********************/
+inline void Page::remap(const Page & page)
+{
+	fd = page.fd;
+	fromPinnedThread = page.fromPinnedThread;
+	canBeHugePage = page.canBeHugePage;
+	numaNode = page.numaNode;
 }
 
 }
