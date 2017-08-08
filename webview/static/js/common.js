@@ -51,5 +51,5 @@ function listToRange(elts)
 		out.push(start);
 	
 	//join
-	return out.join(",")
+	return out.join(", ")
 }
