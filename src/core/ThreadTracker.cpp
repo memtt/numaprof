@@ -10,6 +10,7 @@
 #include <sys/mman.h>
 #include <cassert>
 #include "ThreadTracker.hpp"
+#include "../common/Debug.hpp"
 #include "../../extern-deps/from-numactl/MovePages.hpp"
 
 /*******************  NAMESPACE  ********************/
@@ -68,7 +69,12 @@ void ThreadTracker::onAccess(size_t ip,size_t addr,bool write)
 			//if (table->canBeHugePage(addr))
 			//	table->setHugePageNuma(addr,pageNode);
 			//else
-				page.numaNode = pageNode;
+			page.numaNode = pageNode;
+			#ifdef NUMAPROF_HUGE_CHECK
+				if (page.canBeHugePage)
+					if (pageNode != getNumaOfPage(addr & (~NUMAPROG_HUGE_PAGE_MASK)))
+						numaprofWarning("Expect huge page but get different mapping inside !");
+			#endif
 		}
 	}
 	
