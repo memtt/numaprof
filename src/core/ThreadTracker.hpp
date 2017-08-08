@@ -54,6 +54,7 @@ class ThreadTracker
 		NumaTopo * topo;
 		Stack stack;
 		AccessMatrix accessMatrix;
+		CpuBindList cpuBindList;
 };
 
 }

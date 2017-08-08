@@ -37,8 +37,8 @@ class ProcessTracker
 		ThreadTracker * createThreadTracker(int threadId);
 		void mergeInstruction(InstrInfoMap & stats);
 		void mergeAllocInstruction(InstrInfoMap & stats);
-		int getNumaAffinity(void);
-		int getNumaAffinity(cpu_set_t * mask);
+		int getNumaAffinity(CpuBindList * cpuBindList);
+		int getNumaAffinity(cpu_set_t * mask, CpuBindList * cpuBindList);
 		PageTable * getPageTable(void);
 		friend void convertToJson(htopml::JsonState& json, const ProcessTracker& value);
 		void onExit(void);

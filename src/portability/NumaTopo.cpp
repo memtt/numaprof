@@ -164,7 +164,7 @@ void NumaTopo::loadNumaMap(void)
 }
 
 /*******************  FUNCTION  *********************/
-int NumaTopo::getCurrentNumaAffinity(void)
+int NumaTopo::getCurrentNumaAffinity(CpuBindList * cpuBindList)
 {
 	//check
 	numaprofAssume(cpus <= CPU_SETSIZE,"To many CPU to be handled by cpu_set_t !");
@@ -181,25 +181,36 @@ int NumaTopo::getCurrentNumaAffinity(void)
 	}
 
 	//map to numa
-	return getCurrentNumaAffinity(&mask);
+	return getCurrentNumaAffinity(&mask,cpuBindList);
 }
 
 /*******************  FUNCTION  *********************/
-int NumaTopo::getCurrentNumaAffinity(cpu_set_t * mask)
+int NumaTopo::getCurrentNumaAffinity(cpu_set_t * mask,CpuBindList * cpuBindList)
 {
-	int numa = -1;
+	int numa = -2;
 
+	//clear
+	if (cpuBindList != NULL)
+		cpuBindList->clear();
+
+	//check numa
 	for (int i = 0 ; i < cpus ; i++)
 	{
 		if (CPU_ISSET(i,mask))
 		{
 			//printf("Thread can be on %d, numa = %d\n",i,numaMap[i]);
-			if (numa == -1)
+			if (numa == -2)
 				numa = numaMap[i];
-			if (numa != numaMap[i])
-				return -1;
+			else if (numa != numaMap[i])
+				numa = -1;
+			if (cpuBindList != NULL)
+				cpuBindList->push_back(i);
 		}
 	}
+
+	//might not append but in case...
+	if (numa == -2)
+		numa = -1;
 
 	printf("Thread is binded on NUMA %d\n",numa);
 	return numa;

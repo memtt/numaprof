@@ -65,15 +65,15 @@ void ProcessTracker::mergeAllocInstruction(InstrInfoMap & stats)
 }
 
 /*******************  FUNCTION  *********************/
-int ProcessTracker::getNumaAffinity(void)
+int ProcessTracker::getNumaAffinity(CpuBindList * cpuBindList)
 {
-	return topo.getCurrentNumaAffinity();
+	return topo.getCurrentNumaAffinity(cpuBindList);
 }
 
 /*******************  FUNCTION  *********************/
-int ProcessTracker::getNumaAffinity(cpu_set_t * mask)
+int ProcessTracker::getNumaAffinity(cpu_set_t * mask,CpuBindList * cpuBindList)
 {
-	return topo.getCurrentNumaAffinity(mask);
+	return topo.getCurrentNumaAffinity(mask,cpuBindList);
 }
 
 /*******************  FUNCTION  *********************/

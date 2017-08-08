@@ -11,6 +11,7 @@
 
 #include <cassert>
 #include <sched.h>
+#include <list>
 #include <sys/types.h>
 #include "../../extern-deps/from-htopml/json/ConvertToJson.h"
 
@@ -18,14 +19,17 @@
 namespace numaprof
 {
 
-/********************  CLASS  **********************/
+/********************  TYPES  ***********************/
+typedef std::list<int> CpuBindList;
+
+/********************  CLASS  ***********************/
 class NumaTopo
 {
 	public:
 		NumaTopo(void);
 		~NumaTopo(void);
-		int getCurrentNumaAffinity(void);
-		int getCurrentNumaAffinity(cpu_set_t * mask);
+		int getCurrentNumaAffinity(CpuBindList * cpuBindList = NULL);
+		int getCurrentNumaAffinity(cpu_set_t * mask,CpuBindList * cpuBindList = NULL);
 		bool getIsMcdram(int cpuid) {assert(cpuid < cpus);return isMcdram[cpuid];};
 		friend void convertToJson(htopml::JsonState& json, const NumaTopo& value);
 		int getNumaNodes(void);

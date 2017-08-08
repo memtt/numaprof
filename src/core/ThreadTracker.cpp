@@ -24,7 +24,7 @@ ThreadTracker::ThreadTracker(ProcessTracker * process)
 {
 	assert(process != NULL);
 	this->process = process;
-	this->numa = process->getNumaAffinity();
+	this->numa = process->getNumaAffinity(&cpuBindList);
 	this->table = process->getPageTable();
 	this->topo = &process->getNumaTopo();
 	printf("Numa initial mapping : %d\n",numa);
@@ -46,7 +46,7 @@ void ThreadTracker::flush(void)
 /*******************  FUNCTION  *********************/
 void ThreadTracker::onSetAffinity(cpu_set_t * mask)
 {
-	this->numa = process->getNumaAffinity(mask);
+	this->numa = process->getNumaAffinity(mask,&cpuBindList);
 }
 
 /*******************  FUNCTION  *********************/
@@ -274,6 +274,7 @@ void convertToJson(htopml::JsonState& json, const ThreadTracker& value)
 	json.openStruct();
 		json.printField("stats",value.stats);
 		json.printField("numa",value.numa);
+		json.printField("binding",value.cpuBindList);
 		json.printField("accessMatrix",value.accessMatrix);
 	json.closeStruct();
 }
