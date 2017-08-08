@@ -739,6 +739,8 @@ void I_Trace(TRACE trace, void *v)
 static VOID instrImage(IMG img, VOID *v)
 {
 	instrImageMmap(img,v);
+	if (false)
+	{
 	instrImageMalloc(img,v);
 	#ifndef NUMAPROG_CALLSTACK
 		instrImageNew(img,v);
@@ -746,6 +748,7 @@ static VOID instrImage(IMG img, VOID *v)
 	instrImageRealloc(img,v);
 	instrImageCalloc(img,v);
 	instrImageFree(img,v);
+	}
 	instrImageSetSchedAffinity(img,v);
 }
 

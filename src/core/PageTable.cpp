@@ -11,6 +11,7 @@
 #include <cstdint>
 #include <iostream>
 #include "PageTable.hpp"
+#include "../common/Debug.hpp"
 
 /*******************  NAMESPACE  ********************/
 namespace numaprof
@@ -206,8 +207,11 @@ void PageTable::regAllocPointerSmall(size_t baseAddr,size_t size,void * value)
 		map = new AllocPointerPageMap;
 		page.allocStatus = PAGE_ALLOC_FRAG;
 		page.allocPtr = map;
+	} else if (page.allocStatus == PAGE_ALLOC_FULL) {
+		numaprofWarning("Invalid status of page, should be NONE, get FULL");
+		return;
 	} else {
-		printf("Invalid status of page, should be NONE\n");
+		numaprofWarning("Invalid status of page, should be NONE, get invalid value");
 		return;
 	}
 	
@@ -225,7 +229,7 @@ void PageTable::regAllocPointer(size_t baseAddr,size_t size,void * value)
 {
 	//check
 	if (baseAddr % NUMAPROF_ALLOC_GRAIN != 0)
-		printf("WARNING : allocated bloc not aligned on grain size : %d (get %lu)\n",NUMAPROF_ALLOC_GRAIN,baseAddr % NUMAPROF_ALLOC_GRAIN);
+		numaprofWarning("WARNING : allocated bloc not aligned on grain size : %d (get %lu)\n",NUMAPROF_ALLOC_GRAIN,baseAddr % NUMAPROF_ALLOC_GRAIN);
 	
 	//compute end
 	size_t endAddr = baseAddr + size;
@@ -260,8 +264,8 @@ void PageTable::regAllocPointer(size_t baseAddr,size_t size,void * value)
 				delete (AllocPointerPageMap*)page.allocPtr;
 				page.allocStatus = PAGE_ALLOC_FULL;
 			} else {
-				printf("WARNING : Invalid page status !\n");
-				assert(false);
+				numaprofWarning("WARNING : Invalid page status !");
+				continue;
 			}
 			
 			//setup 
