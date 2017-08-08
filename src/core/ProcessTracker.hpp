@@ -25,6 +25,7 @@ namespace numaprof
 /*********************  TYPES  **********************/
 class ThreadTracker;
 typedef std::map<int,ThreadTracker *> ThreadTrackerMap;
+typedef std::vector<size_t> AllocatedPageCounter;
 
 /*******************  FUNCTION  *********************/
 void convertToJson(htopml::JsonState& json, const ThreadTrackerMap& value);
@@ -42,6 +43,8 @@ class ProcessTracker
 		PageTable * getPageTable(void);
 		friend void convertToJson(htopml::JsonState& json, const ProcessTracker& value);
 		void onExit(void);
+		void onAfterFirstTouch(int pageNuma);
+		void onMunmap(size_t baseAddr,size_t size);
 		NumaTopo & getNumaTopo(void);
 	private:
 		PageTable pageTable;
@@ -51,6 +54,8 @@ class ProcessTracker
 		Mutex mutex;
 		NumaTopo topo;
 		MATT::SymbolRegistry registry;
+		AllocatedPageCounter currentAllocatedPages;
+		AllocatedPageCounter maxAllocatedPages;
 };
 
 }

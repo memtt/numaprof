@@ -22,7 +22,15 @@ namespace numaprof
 /*******************  FUNCTION  *********************/
 ProcessTracker::ProcessTracker(void)
 {
-
+	//setup page counters
+	int nodes = topo.getNumaNodes();
+	currentAllocatedPages.reserve(nodes);
+	maxAllocatedPages.reserve(nodes);
+	for (int i = 0 ; i < nodes ; i++)
+	{
+		currentAllocatedPages.push_back(0);
+		maxAllocatedPages.push_back(0);
+	}
 }
 
 /*******************  FUNCTION  *********************/
@@ -89,6 +97,35 @@ PageTable * ProcessTracker::getPageTable(void)
 }
 
 /*******************  FUNCTION  *********************/
+void ProcessTracker::onAfterFirstTouch(int pageNuma)
+{
+	size_t res = __sync_add_and_fetch(&currentAllocatedPages[pageNuma],1,__ATOMIC_SEQ_CST);
+	if (res > maxAllocatedPages[pageNuma])
+	{
+		__atomic_store(&maxAllocatedPages[pageNuma],&res,__ATOMIC_SEQ_CST);
+	}
+}
+
+/*******************  FUNCTION  *********************/
+void ProcessTracker::onMunmap(size_t baseAddr,size_t size)
+{
+	//seutp
+	uint64_t end = (uint64_t)baseAddr + size;
+	uint64_t start = ((uint64_t)baseAddr) & (~NUMAPROF_PAGE_MASK);
+	
+	//loop
+	for (uint64_t addr = start; addr < end ; addr += NUMAPROF_PAGE_SIZE)
+	{
+		Page & page = pageTable.getPage(addr);
+		if (page.numaNode >= 0)
+			__atomic_sub_fetch(&currentAllocatedPages[page.numaNode],1,__ATOMIC_SEQ_CST);
+	}
+
+	//clear page table
+	pageTable.clear(baseAddr,size);
+}
+
+/*******************  FUNCTION  *********************/
 void ProcessTracker::onExit(void)
 {
 	//flush local data
@@ -138,6 +175,9 @@ void convertToJson(htopml::JsonState& json, const ProcessTracker& value)
 			json.printField("hostname",OS::getHostname());
 			json.printField("date",OS::getDateTime());
 		json.closeFieldStruct("infos");
+		json.openFieldStruct("process");
+			json.printField("maxAllocatedPages",value.maxAllocatedPages);
+		json.closeFieldStruct("process");
 		json.printField("threads",value.threads);
 		json.printField("topo",value.topo);
 		json.printField("symbols",value.registry);

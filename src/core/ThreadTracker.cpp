@@ -75,8 +75,10 @@ void ThreadTracker::onAccess(size_t ip,size_t addr,bool write)
 					if (pageNode != getNumaOfPage(addr & (~NUMAPROG_HUGE_PAGE_MASK)))
 						numaprofWarning("Expect huge page but get different mapping inside !");
 			#endif
+		} else if (pageNode != NUMAPROF_DEFAULT_NUMA_NODE) {
+			process->onAfterFirstTouch(pageNode);
 		}
-	}
+	} 
 	
 	//extrct mini stack
 	#ifdef NUMAPROG_CALLSTACK
@@ -205,7 +207,7 @@ void ThreadTracker::onStop(void)
 /*******************  FUNCTION  *********************/
 void ThreadTracker::onMunmap(size_t addr,size_t size)
 {
-	table->clear(addr,size);
+	process->onMunmap(addr,size);
 }
 
 /*******************  FUNCTION  *********************/
