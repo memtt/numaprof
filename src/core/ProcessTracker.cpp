@@ -99,11 +99,9 @@ PageTable * ProcessTracker::getPageTable(void)
 /*******************  FUNCTION  *********************/
 void ProcessTracker::onAfterFirstTouch(int pageNuma)
 {
-	size_t res = __sync_add_and_fetch(&currentAllocatedPages[pageNuma],1,__ATOMIC_SEQ_CST);
+	size_t res = __sync_add_and_fetch(&currentAllocatedPages[pageNuma],1,__ATOMIC_RELAXED);
 	if (res > maxAllocatedPages[pageNuma])
-	{
-		__atomic_store(&maxAllocatedPages[pageNuma],&res,__ATOMIC_SEQ_CST);
-	}
+		__atomic_store(&maxAllocatedPages[pageNuma],&res,__ATOMIC_RELAXED);
 }
 
 /*******************  FUNCTION  *********************/
@@ -118,7 +116,7 @@ void ProcessTracker::onMunmap(size_t baseAddr,size_t size)
 	{
 		Page & page = pageTable.getPage(addr);
 		if (page.numaNode >= 0)
-			__atomic_sub_fetch(&currentAllocatedPages[page.numaNode],1,__ATOMIC_SEQ_CST);
+			__atomic_sub_fetch(&currentAllocatedPages[page.numaNode],1,__ATOMIC_RELAXED);
 	}
 
 	//clear page table
