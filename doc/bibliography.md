@@ -22,3 +22,4 @@ Biblio
  * https://www.researchgate.net/publication/261322796_Call_Paths_for_Pin_Tools
  * https://github.com/chabbimilind/cctlib
  * http://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=5452060
+ * http://www.dynamorio.org/
