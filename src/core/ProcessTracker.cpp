@@ -83,9 +83,9 @@ int ProcessTracker::getNumaAffinity(CpuBindList * cpuBindList)
 }
 
 /*******************  FUNCTION  *********************/
-int ProcessTracker::getNumaAffinity(cpu_set_t * mask,CpuBindList * cpuBindList)
+int ProcessTracker::getNumaAffinity(cpu_set_t * mask, int size,CpuBindList * cpuBindList)
 {
-	return topo.getCurrentNumaAffinity(mask,cpuBindList);
+	return topo.getCurrentNumaAffinity(mask,size,cpuBindList);
 }
 
 /*******************  FUNCTION  *********************/
@@ -128,7 +128,7 @@ void ProcessTracker::onMunmap(size_t baseAddr,size_t size)
 }
 
 /*******************  FUNCTION  *********************/
-void ProcessTracker::onThreadSetAffinity(int pid,cpu_set_t * mask)
+void ProcessTracker::onThreadSetAffinity(int pid,cpu_set_t * mask, int size)
 {
 	bool found = false;
 	mutex.lock();
@@ -136,7 +136,7 @@ void ProcessTracker::onThreadSetAffinity(int pid,cpu_set_t * mask)
 		if (it->second->getTID() == pid)
 		{
 			found = true;
-			it->second->onSetAffinity(mask);
+			it->second->onSetAffinity(mask,size);
 			break;
 		}
 	mutex.unlock();

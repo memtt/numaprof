@@ -40,14 +40,14 @@ class ProcessTracker
 		void mergeInstruction(InstrInfoMap & stats);
 		void mergeAllocInstruction(InstrInfoMap & stats);
 		int getNumaAffinity(CpuBindList * cpuBindList);
-		int getNumaAffinity(cpu_set_t * mask, CpuBindList * cpuBindList);
+		int getNumaAffinity(cpu_set_t * mask, int size, CpuBindList * cpuBindList);
 		PageTable * getPageTable(void);
 		friend void convertToJson(htopml::JsonState& json, const ProcessTracker& value);
 		void onExit(void);
 		void onAfterFirstTouch(int pageNuma);
 		void onMunmap(size_t baseAddr,size_t size);
 		NumaTopo & getNumaTopo(void);
-		void onThreadSetAffinity(int pid,cpu_set_t * mask);
+		void onThreadSetAffinity(int pid,cpu_set_t * mask,int size);
 	private:
 		PageTable pageTable;
 		InstrInfoMap instructions;

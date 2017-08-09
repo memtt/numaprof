@@ -29,7 +29,7 @@ class NumaTopo
 		NumaTopo(void);
 		~NumaTopo(void);
 		int getCurrentNumaAffinity(CpuBindList * cpuBindList = NULL);
-		int getCurrentNumaAffinity(cpu_set_t * mask,CpuBindList * cpuBindList = NULL);
+		int getCurrentNumaAffinity(cpu_set_t * mask,int size,CpuBindList * cpuBindList = NULL);
 		bool getIsMcdram(int cpuid) {assert(cpuid < cpus);return isMcdram[cpuid];};
 		friend void convertToJson(htopml::JsonState& json, const NumaTopo& value);
 		int getNumaNodes(void);

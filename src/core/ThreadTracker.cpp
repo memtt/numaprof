@@ -69,9 +69,9 @@ void ThreadTracker::flush(void)
 }
 
 /*******************  FUNCTION  *********************/
-void ThreadTracker::onSetAffinity(cpu_set_t * mask)
+void ThreadTracker::onSetAffinity(cpu_set_t * mask,int size)
 {
-	this->numa = process->getNumaAffinity(mask,&cpuBindList);
+	this->numa = process->getNumaAffinity(mask,size,&cpuBindList);
 	bindingLogMutex.lock();
 	this->logBinding(this->numa);
 	bindingLogMutex.unlock();

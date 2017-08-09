@@ -251,9 +251,9 @@ static VOID beforeSchedGetAffinity(ADDRINT pid, ADDRINT size,ADDRINT mask,THREAD
 	//topo.getCurrentNumaAffinity(*(cpu_set_t*)mask);
 	if (pid == 0 || pid == (ADDRINT)OS::getTID())
 	{
-		getTls(threadid).tracker->onSetAffinity((cpu_set_t*)mask);
+		getTls(threadid).tracker->onSetAffinity((cpu_set_t*)mask,size);
 	} else {
-		gblProcessTracker->onThreadSetAffinity(pid,(cpu_set_t*)mask);
+		gblProcessTracker->onThreadSetAffinity(pid,(cpu_set_t*)mask,size);
 	}
 }
 

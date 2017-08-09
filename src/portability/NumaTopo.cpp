@@ -181,11 +181,11 @@ int NumaTopo::getCurrentNumaAffinity(CpuBindList * cpuBindList)
 	}
 
 	//map to numa
-	return getCurrentNumaAffinity(&mask,cpuBindList);
+	return getCurrentNumaAffinity(&mask, sizeof(cpu_set_t),cpuBindList);
 }
 
 /*******************  FUNCTION  *********************/
-int NumaTopo::getCurrentNumaAffinity(cpu_set_t * mask,CpuBindList * cpuBindList)
+int NumaTopo::getCurrentNumaAffinity(cpu_set_t * mask, int size,CpuBindList * cpuBindList)
 {
 	int numa = -2;
 
