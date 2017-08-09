@@ -14,6 +14,7 @@
 #include <unistd.h>
 #include <sched.h>
 #include <cstring>
+#include <vector>
 
 /********************  GLOBALS  *********************/
 static char * global = NULL;
@@ -45,6 +46,12 @@ int func2(int id)
 	sprintf(buffer,"Hellow world!");
 	printf("%s\n",buffer);
 	free(buffer);
+
+	std::vector<int> vec;
+	for (int i = 0 ; i < 10000 ; i++)
+		vec.push_back(0);
+	for (int i = 0 ; i < 10000 ; i++)
+		vec[0]++;
 
 	for (int i = 0 ; i < 1 ; i++)
 	{

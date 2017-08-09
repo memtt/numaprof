@@ -415,6 +415,8 @@ static void A_ProcessReturn(ADDRINT ip, ADDRINT sp,THREADID threadid) {
 /*******************  FUNCTION  *********************/
 static bool isNewOperator(const std::string & name)
 {
+	//std::string demangled = PIN_UndecorateSymbolName(name,UNDECORATION_COMPLETE);
+	//printf("%s => %s\n",name.c_str(),demangled.c_str());
 	if (strncmp(name.c_str(),"_Znw",4) == 0)
 		return true;
 	if (strncmp(name.c_str(),"_Zna",4) == 0)

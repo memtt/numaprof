@@ -11,6 +11,7 @@
 
 /********************  HEADERS  *********************/
 #include <map>
+#include <list>
 #include "../../extern-deps/from-htopml/json/ConvertToJson.h"
 #include "ProcessTracker.hpp"
 #include "MallocTracker.hpp"
@@ -23,6 +24,7 @@ namespace numaprof
 
 /*********************  TYPES  **********************/
 typedef std::map<Stats *,Stats> AllocCacheMap;
+typedef std::list<int> ThreadBindingLog;
 
 /*********************  CLASS  **********************/
 class ThreadTracker
@@ -55,6 +57,7 @@ class ThreadTracker
 		Stack stack;
 		AccessMatrix accessMatrix;
 		CpuBindList cpuBindList;
+		ThreadBindingLog bindingLog;
 };
 
 }
