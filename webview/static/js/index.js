@@ -204,6 +204,9 @@ function genPieDataAccess(data)
 		},{
 			"label": "Unpinned both",
 			"value": data.metrics.unpinnedBothAccess
+		},{
+			"label": "MCDRAM",
+			"value": data.metrics.mcdramAccess
 		}
 	];
 }
