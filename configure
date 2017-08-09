@@ -256,7 +256,7 @@ cp "${SOURCE_DIR}/integration/pintool/Makefile" integration/pintool
 ln -fs "${SOURCE_DIR}/integration/pintool/makefile.rules" integration/pintool
 sed -e "s#SRCDIR=./#SRCDIR=${SOURCE_DIR}/integration/pintool#g" -i integration/pintool/Makefile
 if [ "$BUILD_TYPE" = "Debug" ]; then
-	sed -e "s#CST_DEBUG_FLAGS=.*#CST_DEBUG_FLAGS=-O0 -g#g" -i integration/pintool/Makefile
+	sed -e "s#CST_DEBUG_FLAGS=.*#CST_DEBUG_FLAGS=-O3 -g#g" -i integration/pintool/Makefile
 else
 	sed -e "s#CST_DEBUG_FLAGS=.*#CST_DEBUG_FLAGS=-O3 -DNDEBUG#g" -i integration/pintool/Makefile
 fi
