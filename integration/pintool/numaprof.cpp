@@ -12,6 +12,7 @@
 #include <cstdio>
 #include <core/ProcessTracker.hpp>
 #include <core/ThreadTracker.hpp>
+#include <portability/OS.hpp>
 #include <iostream>
 
 using namespace std;
@@ -242,14 +243,18 @@ static VOID beforeFree(ADDRINT ptr,THREADID threadid)
 }
 
 /*******************  FUNCTION  *********************/
-static VOID beforeSchedGetAffinity(ADDRINT mask,THREADID threadid)
+static VOID beforeSchedGetAffinity(ADDRINT pid, ADDRINT size,ADDRINT mask,THREADID threadid)
 {
-	printf("--> Intercept thread affinity (%p)!\n",(void*)mask);
+	printf("--> Intercept thread affinity of %lu (%d) (%p)!\n",pid,OS::getTID(),(void*)mask);
 
 	//numaprof::NumaTopo topo;
 	//topo.getCurrentNumaAffinity(*(cpu_set_t*)mask);
-
-	getTls(threadid).tracker->onSetAffinity((cpu_set_t*)mask);
+	if (pid == 0 || pid == (ADDRINT)OS::getTID())
+	{
+		getTls(threadid).tracker->onSetAffinity((cpu_set_t*)mask);
+	} else {
+		gblProcessTracker->onThreadSetAffinity(pid,(cpu_set_t*)mask);
+	}
 }
 
 /*******************  FUNCTION  *********************/
@@ -653,6 +658,8 @@ static VOID instrImageSetSchedAffinity(IMG img, VOID *v)
 
 		// Instrument malloc() to print the input argument value and the return value.
 		RTN_InsertCall(schedRtn, IPOINT_BEFORE, (AFUNPTR)beforeSchedGetAffinity,
+					   IARG_FUNCARG_ENTRYPOINT_VALUE, 0,
+					   IARG_FUNCARG_ENTRYPOINT_VALUE, 1,
 					   IARG_FUNCARG_ENTRYPOINT_VALUE, 2,
 					   IARG_THREAD_ID,IARG_END);
 		RTN_Close(schedRtn);

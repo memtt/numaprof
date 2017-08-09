@@ -11,6 +11,7 @@
 #include <cassert>
 #include "ThreadTracker.hpp"
 #include "../common/Debug.hpp"
+#include "../portability/OS.hpp"
 #include "../../extern-deps/from-numactl/MovePages.hpp"
 
 /*******************  NAMESPACE  ********************/
@@ -28,8 +29,15 @@ ThreadTracker::ThreadTracker(ProcessTracker * process)
 	this->table = process->getPageTable();
 	this->topo = &process->getNumaTopo();
 	this->clockStart = Clock::get();
+	this->tid = OS::getTID();
 	logBinding(this->numa);
 	printf("Numa initial mapping : %d\n",numa);
+}
+
+/*******************  FUNCTION  *********************/
+int ThreadTracker::getTID(void)
+{
+	return this->tid;
 }
 
 /*******************  FUNCTION  *********************/
@@ -64,7 +72,9 @@ void ThreadTracker::flush(void)
 void ThreadTracker::onSetAffinity(cpu_set_t * mask)
 {
 	this->numa = process->getNumaAffinity(mask,&cpuBindList);
+	bindingLogMutex.lock();
 	this->logBinding(this->numa);
+	bindingLogMutex.unlock();
 }
 
 /*******************  FUNCTION  *********************/

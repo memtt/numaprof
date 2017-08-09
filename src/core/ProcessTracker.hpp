@@ -47,6 +47,7 @@ class ProcessTracker
 		void onAfterFirstTouch(int pageNuma);
 		void onMunmap(size_t baseAddr,size_t size);
 		NumaTopo & getNumaTopo(void);
+		void onThreadSetAffinity(int pid,cpu_set_t * mask);
 	private:
 		PageTable pageTable;
 		InstrInfoMap instructions;

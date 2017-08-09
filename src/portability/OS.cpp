@@ -12,10 +12,20 @@
 #include <unistd.h>
 #include "../common/Debug.hpp"
 #include "OS.hpp"
+#include <sys/types.h>
+#ifndef gettid
+	#include <sys/syscall.h>
+#endif
 
 /*******************  NAMESPACE  ********************/
 namespace numaprof
 {
+
+/********************  MACROS  **********************/
+//weird thing :(
+#ifndef gettid
+	#define gettid() syscall(__NR_gettid)
+#endif
 
 /********************  GLOBALS  *********************/
 static const char * cstExeFile = "/proc/self/exe";
@@ -112,6 +122,12 @@ std::string OS::getDateTime(void)
 int OS::getPID(void)
 {
 	return getpid();
+}
+
+/*******************  FUNCTION  *********************/
+int OS::getTID(void)
+{
+	return gettid();
 }
 
 }

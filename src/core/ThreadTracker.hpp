@@ -51,10 +51,12 @@ class ThreadTracker
 		void onRealloc(size_t ip, size_t oldPtr, size_t newPtr, size_t newSize);
 		void onEnterFunction(void * addr);
 		void onExitFunction(void);
+		int getTID(void);
 		friend void convertToJson(htopml::JsonState& json, const ThreadTracker& value);
 	private:
 		void logBinding(int numa);
 	private:
+		int tid;
 		ProcessTracker * process;
 		InstrInfoMap instructions;
 		AllocCacheMap allocCache;
@@ -67,6 +69,7 @@ class ThreadTracker
 		Stack stack;
 		AccessMatrix accessMatrix;
 		CpuBindList cpuBindList;
+		Mutex bindingLogMutex;
 		ThreadBindingLog bindingLog;
 		ClockValue clockStart;
 		ClockValue clockEnd;

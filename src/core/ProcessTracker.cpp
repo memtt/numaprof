@@ -128,6 +128,25 @@ void ProcessTracker::onMunmap(size_t baseAddr,size_t size)
 }
 
 /*******************  FUNCTION  *********************/
+void ProcessTracker::onThreadSetAffinity(int pid,cpu_set_t * mask)
+{
+	bool found = false;
+	mutex.lock();
+	for (ThreadTrackerMap::iterator it = threads.begin() ; it != threads.end() ; ++it)
+		if (it->second->getTID() == pid)
+		{
+			found = true;
+			it->second->onSetAffinity(mask);
+			break;
+		}
+	mutex.unlock();
+
+	//error
+	if (found == false)
+		printf("WARNING, failed to found TID %d for binding, is it from an external process ?\n",pid);
+}
+
+/*******************  FUNCTION  *********************/
 void ProcessTracker::onExit(void)
 {
 	//get clock

@@ -26,6 +26,7 @@ struct OS
 	static std::string getHostname(void);
 	static std::string getDateTime(void);
 	static int getPID(void);
+	static int getTID(void);
 };
 
 }
