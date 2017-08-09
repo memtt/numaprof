@@ -9,7 +9,6 @@
 /********************  GLOBALS  *********************/
 var selector = new NumaprofSelector();
 var functions = {};
-var search = "";
 var template = "<li id='numaprof-func-list-entry'>\
 					<a href='javascript:' data-toggle='popover' data-content='{{ longName }}'>\
 						<span class='size'>\
@@ -48,7 +47,7 @@ function selectRatio()
 /*******************  FUNCTION  *********************/
 function selectSearch(value)
 {
-	search = value;
+	selector.query = value;
 	updateFuncList();
 }
 
@@ -77,7 +76,7 @@ function updateFuncList()
 	var out = [];
 	for (var i in functions)
 	{
-		if (search == "" || i.indexOf(search) != -1)
+		if (selector.filter(functions[i]))
 		{
 			out.push({
 				shortName: i,
@@ -112,6 +111,8 @@ function loadFunctions()
 {
 	$.getJSON( "/api/sources/functions.json", function(data) {
 		functions = data;
+		for (var i in data)
+			data[i].function = i;
 		selector.setData(functions);
 		updateFuncList();
 	})
