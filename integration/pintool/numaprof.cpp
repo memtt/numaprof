@@ -13,6 +13,7 @@
 #include <core/ProcessTracker.hpp>
 #include <core/ThreadTracker.hpp>
 #include <portability/OS.hpp>
+#include <common/Helper.hpp>
 #include <iostream>
 
 using namespace std;
@@ -827,7 +828,7 @@ static VOID instrImage(IMG img, VOID *v)
 	if (TRACK_MALLOC)
 	{
 		//we do not instrument ld-linux mallocs
-		if (strncmp(IMG_Name(img).c_str(),"ld-linux",8) != 0)
+		if (Helper::contain(IMG_Name(img).c_str(),"ld-linux") == false)
 		{
 			instrImageMalloc(img,v);
 			instrImageNew(img,v);

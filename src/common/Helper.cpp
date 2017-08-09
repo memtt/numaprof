@@ -87,4 +87,10 @@ bool Helper::endBy(const std::string & value,const std::string & what)
 	return (strncmp(value.c_str()+value.size()-what.size(),what.c_str(),what.size()) == 0);
 }
 
+/*******************  FUNCTION  ********************/
+bool Helper::contain(const char * in, const char * what)
+{
+	return strstr(in,what) != NULL;
+}
+
 }
