@@ -90,12 +90,12 @@ function genFirstAccess(data)
 	for (var i in data)
 	{
 		var stats = data[i].stats;
-		out[0].values.push({label:"Thread "+i,value:valOfDefault(stats.unpinnedPageAccess,0)});
-		out[1].values.push({label:"Thread "+i,value:valOfDefault(stats.unpinnedThreadAccess,0)});
-		out[2].values.push({label:"Thread "+i,value:valOfDefault(stats.unpinnedBothAccess,0)});
-		out[3].values.push({label:"Thread "+i,value:valOfDefault(stats.localAccess,0)});
-		out[4].values.push({label:"Thread "+i,value:valOfDefault(stats.remoteAccess,0)});
-		out[5].values.push({label:"Thread "+i,value:valOfDefault(stats.mcdramAccess,0)});
+		out[0].values.push({label:"Thread "+i,value:numaprofHelper.valOfDefault(stats.unpinnedPageAccess,0)});
+		out[1].values.push({label:"Thread "+i,value:numaprofHelper.valOfDefault(stats.unpinnedThreadAccess,0)});
+		out[2].values.push({label:"Thread "+i,value:numaprofHelper.valOfDefault(stats.unpinnedBothAccess,0)});
+		out[3].values.push({label:"Thread "+i,value:numaprofHelper.valOfDefault(stats.localAccess,0)});
+		out[4].values.push({label:"Thread "+i,value:numaprofHelper.valOfDefault(stats.remoteAccess,0)});
+		out[5].values.push({label:"Thread "+i,value:numaprofHelper.valOfDefault(stats.mcdramAccess,0)});
 	}
 	
 	return out;
