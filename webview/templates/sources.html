@@ -3,6 +3,8 @@
 {% block import %}
 <script language="javascript" src="/static/js/prism.js"></script>
 <script language="javascript" src="/static/js/source-editor.js"></script>
+<script language="javascript" src="/static/js/metrics.js"></script>
+<script language="javascript" src="/static/js/selector.js"></script>
 <script language="javascript" src="/static/js/sources.js"></script>
 <script language="javascript" src="/static/bower/mustache.js/mustache.min.js"></script>
 <link rel="stylesheet" type="text/css" href="/static/css/sources.css">
@@ -10,6 +12,26 @@
 {% endblock %}
 {% block content %}
 	<div class="row">
+		<div id='numaprof-func-list-selector'>
+			<div class="btn-group">
+				<button type="button" class="btn btn-default" id="numaprof-ratio-select" title='Show ratio to reference (max or sum) or absolute value.'><b>%</b></button>
+				<!--<button type="button" class="btn btn-default" title='Show inclusive or exclusive costs.'><b>I</b></button>-->
+				<!-- 						<span class='dropdown'> -->
+				<button type="button" class="btn btn-default dropdown-toggle" type='button' data-toggle="dropdown" id='dropdownMenu1' title="Select metric.">
+					<span id="numaprof-selected-metric">METRIC</span>
+					<span class="caret"></span>
+				</button>
+				<ul class="dropdown-menu" id='numaprof-selector-list' role='menu' aria-labelledby='dropdownMenu1'>
+					<!--<li><a href="">NAME</a></li>-->
+				</ul>
+				<!-- 						</span> -->
+			</div>
+			<div class="input-group">
+				<input class="form-control col-lg-8" type="text" placeholder="Search" id="numaprof-input-search"></input>
+			</div>
+		</div>
+
+	
 		<div class="col-sm-5 col-md-4 col-lg-3 sidebar">
 			<ul class='nav nav-sidebar' id='numaprof-func-list' class="compact">
 				<li id='numaprof-func-list-entry'>
@@ -24,12 +46,12 @@
 							<div class='progress-fg' style='width: {{ ratio }}%;'></div>
 							<div class='progress-bg'></div>
 						</span>
-						<span class='func' ng-hide='compact'>{{ shortName }}</span>
+						<span class='func'>{{ shortName }}</span>
 					</a>
 				</li>
 			</ul>
 		</div>
 		
-		<div id='malt-source-editor'></div></div>
+		<div id='numaprof-source-editor'></div></div>
 	</div>
 {% endblock %}

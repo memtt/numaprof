@@ -6,6 +6,53 @@
              LICENSE  : CeCILL-C
 *****************************************************/
 
+/********************  GLOBALS  *********************/
+var selector = new NumaprofSelector();
+
+/*******************  FUNCTION  *********************/
+function selectMetric(name)
+{
+	console.log("Select metric: "+ name);
+	selector.selectMetric(name);
+	$("#numaprof-selected-metric").text(selector.getMetricName());
+}
+
+/*******************  FUNCTION  *********************/
+function selectRatio()
+{
+	if (selector.ratio)
+	{
+		selector.ratio = false;
+		$("#numaprof-ratio-select").removeClass("active");
+	} else {
+		selector.ratio = true;
+		$("#numaprof-ratio-select").addClass("active");
+	}
+}
+
+/*******************  FUNCTION  *********************/
+function selectSearch(value)
+{
+	console.log(value);
+}
+
+/*******************  FUNCTION  *********************/
+function setupSelectorList()
+{
+	var metrics = selector.getMetrics();
+	console.log(metrics);
+	for (var i in metrics)
+	{
+		entry = $("<li><a>"+metrics[i].name+"</a></li>").on("click",{ sel: i },function(event) {
+			selectMetric(event.data.sel);
+		});
+		$("#numaprof-selector-list").append(entry);
+	}
+	$("#numaprof-ratio-select").on("click",function() {selectRatio();});
+	$("#numaprof-input-search").on("keypress",function() {selectSearch($("#numaprof-input-search").val());});
+	selectMetric(selector.metric);
+}
+
 /*******************  FUNCTION  *********************/
 function exampleMenu()
 {
@@ -39,6 +86,7 @@ function exampleMenu()
 /*******************  FUNCTION  *********************/
 $(function() {
 	exampleMenu();
-	var sourceEditor = new MaltSourceEditor('malt-source-editor',undefined);
+	var sourceEditor = new MaltSourceEditor('numaprof-source-editor',undefined);
 	sourceEditor.moveToFile("/home/sebv/Projects/numaprof/src/core/ProcessTracker.cpp");
+	setupSelectorList();
 });

@@ -135,6 +135,7 @@ void ThreadTracker::onAccess(size_t ip,size_t addr,bool write)
 					numaprofWarning("Expect huge page but get different mapping inside !");
 		#endif
 
+		assert(pageNode >= 0);
 		process->onAfterFirstTouch(pageNode);
 	} 
 	
