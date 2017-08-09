@@ -129,7 +129,6 @@ void PageTable::clear(size_t baseAddr,size_t size)
 		page.allocStatus = PAGE_ALLOC_NONE;
 		page.fd = NUMAPROF_PAGE_UNMAPPED_FD;
 		page.canBeHugePage = false;
-		page.alreadySeeReadFirstTouch = false;
 	}
 }
 
