@@ -5,6 +5,7 @@
 ##############################################################
 
 SRCDIR=./
+CST_DEBUG_FLAGS=-g -O0
 
 # If the tool is built out of the kit, PIN_ROOT must be specified in the make invocation and point to the kit root.
 ifdef PIN_ROOT
