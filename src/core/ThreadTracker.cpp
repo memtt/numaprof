@@ -123,19 +123,19 @@ void ThreadTracker::onAccess(size_t ip,size_t addr,bool write)
 			} else { 
 				page.fromPinnedThread = (numa != -1);
 			}
-			
-			//if (table->canBeHugePage(addr))
-			//	table->setHugePageNuma(addr,pageNode);
-			//else
-			page.numaNode = pageNode;
-			#ifdef NUMAPROF_HUGE_CHECK
-				if (page.canBeHugePage)
-					if (pageNode != getNumaOfPage(addr & (~NUMAPROG_HUGE_PAGE_MASK)))
-						numaprofWarning("Expect huge page but get different mapping inside !");
-			#endif
-
-			process->onAfterFirstTouch(pageNode);
 		}
+		
+		//if (table->canBeHugePage(addr))
+		//	table->setHugePageNuma(addr,pageNode);
+		//else
+		page.numaNode = pageNode;
+		#ifdef NUMAPROF_HUGE_CHECK
+			if (page.canBeHugePage)
+				if (pageNode != getNumaOfPage(addr & (~NUMAPROG_HUGE_PAGE_MASK)))
+					numaprofWarning("Expect huge page but get different mapping inside !");
+		#endif
+
+		process->onAfterFirstTouch(pageNode);
 	} 
 	
 	//extrct mini stack

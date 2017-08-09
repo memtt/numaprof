@@ -57,7 +57,7 @@ struct AllocPointerPageMap
 /********************  STRUCT  **********************/
 struct Page
 {
-	Page(void) {numaNode = NUMAPROF_DEFAULT_NUMA_NODE; fromPinnedThread = NUMAPROF_DEFAULT_THREAD_PIN;allocStatus = PAGE_ALLOC_NONE;allocPtr = NULL;fd = NUMAPROF_PAGE_UNMAPPED_FD;canBeHugePage = false;};
+	Page(void) {numaNode = NUMAPROF_DEFAULT_NUMA_NODE; fromPinnedThread = NUMAPROF_DEFAULT_THREAD_PIN;allocStatus = PAGE_ALLOC_NONE;allocPtr = NULL;fd = NUMAPROF_PAGE_UNMAPPED_FD;canBeHugePage = false;alreadySeeReadFirstTouch = false;};
 	~Page(void);
 	inline void remap(const Page & page);
 	void * getAllocPointer(size_t addr);
@@ -67,6 +67,7 @@ struct Page
 	int fd;
 	bool fromPinnedThread;
 	bool canBeHugePage;
+	bool alreadySeeReadFirstTouch;
 	PageAllocStatus allocStatus;
 	void * allocPtr;
 };
