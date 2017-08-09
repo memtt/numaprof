@@ -55,6 +55,9 @@ class ProfileHandler:
 		for topo in self.data["topo"]:
 			cnt += 1
 		return cnt
+	
+	def getNumaPageStats(self):
+		return self.data["process"]["maxAllocatedPages"]
 
 	def getProcessAccessMatrix(self):
 		out = {}

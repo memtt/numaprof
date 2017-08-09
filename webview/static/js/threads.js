@@ -13,7 +13,7 @@ function setupBarChart(svgId,data)
 	var cnt = data[0].values.length
 	
 	//setup height
-	d3.select('#'+svgId+' svg').attr("height",cnt*40);
+	d3.select('#'+svgId+' svg').attr("height",cnt*30);
 	
 	nv.addGraph(function() {
 		var chart = nv.models.multiBarHorizontalChart()

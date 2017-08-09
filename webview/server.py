@@ -63,6 +63,7 @@ def sourcesPage():
 def helpPage():
     return render_template('help.html', file=profile.getFileName(), page = "help")
 
+######################################################
 @app.route('/static/<path:path>')
 @auth.login_required
 @nocache
@@ -75,6 +76,7 @@ def serveStaticFiles(path):
 def jqueryFiles(path):
     return send_from_directory('./bower_components/', path)
 
+######################################################
 @app.route('/api/index/infos.json')
 @auth.login_required
 @nocache
@@ -107,6 +109,15 @@ def apiIndexProcessAccessMatrix():
 	jsonData = json.dumps(data)
 	return Response(jsonData, mimetype='application/json')
 
+@app.route('/api/index/numa-page-stats.json')
+@auth.login_required
+@nocache
+def apiIndexNumaPageStats():
+	data = profile.getNumaPageStats()
+	jsonData = json.dumps(data)
+	return Response(jsonData, mimetype='application/json')
+
+######################################################
 @app.route('/api/threads/infos.json')
 @auth.login_required
 @nocache

@@ -7,6 +7,46 @@
 *****************************************************/
 
 /*******************  FUNCTION  *********************/
+function setupNumaPageStats(data)
+{
+	//reformat data
+	var formattedData = [{
+		key: "Numa pages",
+		values: []
+    }];
+	
+	for (var i in data)
+		formattedData[0].values.push({x:i,y:data[i]});
+
+	console.log(formattedData);
+	
+	//plot
+	nv.addGraph(function() {
+		var chart = nv.models.multiBarChart()
+			//.transitionDuration(350)
+			//.reduceXTicks(true)   //If 'false', every single x-axis tick label will be rendered.
+			//.rotateLabels(0)      //Angle to rotate x-axis labels.
+			.showControls(false)   //Allow user to switch between 'Grouped' and 'Stacked' mode.
+			//.groupSpacing(0.1)    //Distance between each group of bars.
+		;
+
+		// 	chart.xAxis
+		// 		.tickFormat(d3.format(',f'));
+		// 
+		// 	chart.yAxis
+		// 		.tickFormat(d3.format(',.1f'));
+
+		d3.select('#peakNumaPages svg')
+			.datum(formattedData)
+			.call(chart);
+
+		nv.utils.windowResize(chart.update);
+
+		return chart;
+	});
+}
+
+/*******************  FUNCTION  *********************/
 function setupPieChart(divName,data)
 {
 	//Donut chart example
@@ -108,7 +148,7 @@ function setupHeadMap(svgId,data)
 		.attr('height', cellSize)
 		.attr('y', function(d) { return yScale(d.source); })
 		.attr('x', function(d) { return xScale(d.dest); })
-		.attr('fill', function(d) { return heatmapColor(d.value); })
+		.attr('fill', function(d) { return d.value == 0 ? "#CCCCCC" : heatmapColor(d.value); })
 		.on('mouseover',tip.show)
 		.on('mouseout',tip.hige);
 
@@ -226,9 +266,21 @@ function loadAccessMatrix()
 }
 
 /*******************  FUNCTION  *********************/
+function loadNumaPageStats()
+{
+	$.getJSON( "/api/index/numa-page-stats.json", function(data) {
+		setupNumaPageStats(data);
+	})
+	.fail(function(data) {
+		logError("Fail to load process summary");
+	})
+}
+
+/*******************  FUNCTION  *********************/
 $(function() {
 	loadInfos();
 	loadNumaTopo();
 	loadProcessSummary();
 	loadAccessMatrix();
+	loadNumaPageStats();
 });
