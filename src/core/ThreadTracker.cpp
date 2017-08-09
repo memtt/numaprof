@@ -78,6 +78,12 @@ void ThreadTracker::onSetAffinity(cpu_set_t * mask,int size)
 }
 
 /*******************  FUNCTION  *********************/
+char getAddrValue(char * ptr)
+{
+	return *ptr;
+}
+
+/*******************  FUNCTION  *********************/
 void ThreadTracker::onAccess(size_t ip,size_t addr,bool write)
 {
 	//printf("Access %p => %p\n",(void*)ip,(void*)addr);
@@ -86,14 +92,38 @@ void ThreadTracker::onAccess(size_t ip,size_t addr,bool write)
 
 	//extract
 	int pageNode = page.numaNode;
+	bool isWriteFirstTouch = false;
+	size_t touchedPages = 1;
 
 	//if not defined use move pages
 	if (pageNode == NUMAPROF_DEFAULT_NUMA_NODE)
 	{
 		pageNode = getNumaOfPage(addr);
 		//printf("Page on %d, write = %d\n",pageNode,write);
-		if (write && pageNode != NUMAPROF_DEFAULT_NUMA_NODE)
+		if (write && pageNode <= NUMAPROF_DEFAULT_NUMA_NODE)
 		{
+			isWriteFirstTouch = true;
+			
+			//touch
+			//do first touch to ask where is the page
+			//we use a function to avoir compiler optim which
+			//would remove. Do not write a 0 in case our
+			//detection was wrong to not break data, se we read then write
+			*(char*)addr = getAddrValue((char*)addr);
+			pageNode = getNumaOfPage(addr);
+			assert(pageNode >= 0);
+			
+			//check
+			if (page.canBeHugePage) {
+				//nothing to do, already done
+				//CAUTION it rely on the fact that table->canBeHugePage() is called ONLY HERE.
+			} else if (table->canBeHugePage(addr)) {
+				table->setHugePageFromPinnedThread(addr,numa != -1);
+				touchedPages = NUMAPROG_HUGE_PAGE_SIZE / NUMAPROF_PAGE_SIZE;
+			} else { 
+				page.fromPinnedThread = (numa != -1);
+			}
+			
 			//if (table->canBeHugePage(addr))
 			//	table->setHugePageNuma(addr,pageNode);
 			//else
@@ -140,24 +170,8 @@ void ThreadTracker::onAccess(size_t ip,size_t addr,bool write)
 	}
 
 	//cases
-	if (pageNode <= NUMAPROF_DEFAULT_NUMA_NODE)
+	if (pageNode <= NUMAPROF_DEFAULT_NUMA_NODE || isWriteFirstTouch)
 	{
-		size_t touchedPages = 1;
-		//if write, consider that we create the page so
-		//check if we are pinned to remember status for latter access
-		if (write)
-		{
-			if (page.canBeHugePage) {
-				//nothing to do, already done
-				//CAUTION it rely on the fact that table->canBeHugePage() is called ONLY HERE.
-			} else if (table->canBeHugePage(addr)) {
-				table->setHugePageFromPinnedThread(addr,numa != -1);
-				touchedPages = NUMAPROG_HUGE_PAGE_SIZE / NUMAPROF_PAGE_SIZE;
-			} else { 
-				page.fromPinnedThread = (numa != -1);
-			}
-		}
-		
 		//check unpinned first access
 		if (numa == -1)
 		{
