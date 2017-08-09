@@ -33,7 +33,7 @@ using namespace std;
 
 //HUm finally I'm not totaly sure we can do this with pintool
 //See : https://github.com/wapiflapi/villoc/issues/3
-#define TRACK_MALLOC true
+#define TRACK_MALLOC false
 
 using namespace numaprof;
 
