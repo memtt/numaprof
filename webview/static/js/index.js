@@ -219,7 +219,7 @@ function loadInfos()
 		$("#summaryDate").text(data.date);
 	})
 	.fail(function(data) {
-		logError("Fail to load infos");
+		numaprofHelper.logError("Fail to load infos");
 	})
 }
 
@@ -233,12 +233,12 @@ function loadNumaTopo()
 			if (data[node].isMcdram)
 				entry = $("<tr><th>"+node+"</th><td>MCDRAM</td>");
 			else
-				entry = $("<tr><th>"+node+"</th><td>"+listToRange(data[node].cpus)+"</td>");
+				entry = $("<tr><th>"+node+"</th><td>"+numaprofHelper.listToRange(data[node].cpus)+"</td>");
 			$("#numaTopology").append(entry);
 		}
 	})
 	.fail(function(data) {
-		logError("Fail to load NUMA topology");
+		numaprofHelper.logError("Fail to load NUMA topology");
 	})
 }
 
@@ -250,7 +250,7 @@ function loadProcessSummary()
 		setupPieChart("processAccess",genPieDataAccess(data));
 	})
 	.fail(function(data) {
-		logError("Fail to load process summary");
+		numaprofHelper.logError("Fail to load process summary");
 	})
 }
 
@@ -261,7 +261,7 @@ function loadAccessMatrix()
 		setupHeadMap("accessMatrix",data);
 	})
 	.fail(function(data) {
-		logError("Fail to load process summary");
+		numaprofHelper.logError("Fail to load process summary");
 	})
 }
 
@@ -272,7 +272,7 @@ function loadNumaPageStats()
 		setupNumaPageStats(data);
 	})
 	.fail(function(data) {
-		logError("Fail to load process summary");
+		numaprofHelper.logError("Fail to load process summary");
 	})
 }
 

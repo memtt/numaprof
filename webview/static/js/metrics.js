@@ -139,8 +139,15 @@ NumaprofFuncMetrics.prototype.getMetricNames = function()
 NumaprofFuncMetrics.prototype.getValue = function(dataElement,metricName,inclusive)
 {
 	var metric = this.metrics[metricName];
-
+	
 	if (dataElement == undefined)
+	{
+		return 0;
+	} else {
+		return metric.extractor(dataElement);
+	}
+
+	/*if (dataElement == undefined)
 	{
 		return 0;
 	} else if (inclusive) {
@@ -149,7 +156,7 @@ NumaprofFuncMetrics.prototype.getValue = function(dataElement,metricName,inclusi
 		return 0;
 	} else {
 		return metric.extractor(dataElement.own);
-	}
+	}*/
 }
 
 NumaprofFuncMetrics.prototype.getFormattedValue = function(dataElement,metricName,inclusive)

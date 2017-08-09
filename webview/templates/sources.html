@@ -12,7 +12,7 @@
 {% endblock %}
 {% block content %}
 	<div class="row">
-		<div id='numaprof-func-list-selector'>
+		<div class="col-sm-5 col-md-4 col-lg-3 sidebar">
 			<div class="btn-group">
 				<button type="button" class="btn btn-default" id="numaprof-ratio-select" title='Show ratio to reference (max or sum) or absolute value.'><b>%</b></button>
 				<!--<button type="button" class="btn btn-default" title='Show inclusive or exclusive costs.'><b>I</b></button>-->
@@ -29,10 +29,6 @@
 			<div class="input-group">
 				<input class="form-control col-lg-8" type="text" placeholder="Search" id="numaprof-input-search"></input>
 			</div>
-		</div>
-
-	
-		<div class="col-sm-5 col-md-4 col-lg-3 sidebar">
 			<ul class='nav nav-sidebar' id='numaprof-func-list' class="compact">
 				<li id='numaprof-func-list-entry'>
 					<a href='' data-toggle='popover' data-content='{{ longName }}'>

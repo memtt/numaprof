@@ -55,8 +55,8 @@ function genFirstTouchData(data)
 	for (var i in data)
 	{
 		var stats = data[i].stats;
-		out[0].values.push({label:"Thread "+i,value:valOfDefault(stats.firstTouch,0)});
-		out[1].values.push({label:"Thread "+i,value:valOfDefault(stats.unpinnedFirstTouch,0)});
+		out[0].values.push({label:"Thread "+i,value:numaprofHelper.valOfDefault(stats.firstTouch,0)});
+		out[1].values.push({label:"Thread "+i,value:numaprofHelper.valOfDefault(stats.unpinnedFirstTouch,0)});
 	}
 	
 	return out;
@@ -116,9 +116,9 @@ function printThreadBinding(data)
 	{
 		var entry;
 		if (i == -1)
-			entry = $("<tr><th>Not binded</th><td>"+listToRange(nodes[i])+"</td>");
+			entry = $("<tr><th>Not binded</th><td>"+numaprofHelper.listToRange(nodes[i])+"</td>");
 		else
-			entry = $("<tr><th>"+i+"</th><td>"+listToRange(nodes[i])+"</td>");
+			entry = $("<tr><th>"+i+"</th><td>"+numaprofHelper.listToRange(nodes[i])+"</td>");
 		$("#numaTopology").append(entry);
 	}
 }
@@ -132,7 +132,7 @@ function loadThreadInfos()
 		printThreadBinding(data);
 	})
 	.fail(function(data) {
-		logError("Fail to load process summary");
+		numaprofHelper.logError("Fail to load process summary");
 	})
 }
 

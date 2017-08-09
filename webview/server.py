@@ -126,6 +126,15 @@ def apiThreadsInfos():
 	jsonData = json.dumps(data)
 	return Response(jsonData, mimetype='application/json')
 
+######################################################
+@app.route('/api/sources/functions.json')
+@auth.login_required
+@nocache
+def apiSourcesFuncions():
+	data = profile.getFuncList()
+	jsonData = json.dumps(data)
+	return Response(jsonData, mimetype='application/json')
+
 @app.route('/api/sources/file/<path:path>')
 @auth.login_required
 @nocache

@@ -8,6 +8,10 @@
 
 function NumaprofHelper()
 {
+	this.POWER_PS  = ['&nbsp;','K','M','G','T','P'];
+	this.POWER_NPS = [' ','K','M','G','T','P'];
+	this.SUBPOWER_PS  = ['&nbsp;','m','u','n'];
+	this.SUBPOWER_NPS = [' ','m','u','n','p'];
 }
 
 /*******************  FUNCTION  *********************/
@@ -83,9 +87,9 @@ NumaprofHelper.prototype.humanReadable = function(value,decimals,unit,protectedS
 
 		var res;
 		if (protectedSpace)
-			res = value.toFixed(decimals) + " " + this.MALT_POWER_PS[power] + unit;
+			res = value.toFixed(decimals) + " " + this.POWER_PS[power] + unit;
 		else
-			res = value.toFixed(decimals) + " " + this.MALT_POWER_NPS[power] + unit;
+			res = value.toFixed(decimals) + " " + this.POWER_NPS[power] + unit;
 	} else {
 		var power = 0;
 		while (value < 0.1 && power < 4)
@@ -96,9 +100,9 @@ NumaprofHelper.prototype.humanReadable = function(value,decimals,unit,protectedS
 
 		var res;
 		if (protectedSpace)
-			res = value.toFixed(decimals) + " " + this.MALT_SUBPOWER_PS[power] + unit;
+			res = value.toFixed(decimals) + " " + this.SUBPOWER_PS[power] + unit;
 		else
-			res = value.toFixed(decimals) + " " + this.MALT_SUBPOWER_NPS[power] + unit;
+			res = value.toFixed(decimals) + " " + this.SUBPOWER_NPS[power] + unit;
 	}
 
 	return res;
