@@ -11,6 +11,7 @@
 #include "ThreadTracker.hpp"
 #include "../common/Helper.hpp"
 #include "../portability/OS.hpp"
+#include "../portability/Clock.hpp"
 #include <sys/types.h>
 #include <unistd.h>
 #include <fstream>
@@ -31,6 +32,9 @@ ProcessTracker::ProcessTracker(void)
 		currentAllocatedPages.push_back(0);
 		maxAllocatedPages.push_back(0);
 	}
+
+	//to be sure clock is init
+	Clock::get();
 }
 
 /*******************  FUNCTION  *********************/
@@ -126,6 +130,9 @@ void ProcessTracker::onMunmap(size_t baseAddr,size_t size)
 /*******************  FUNCTION  *********************/
 void ProcessTracker::onExit(void)
 {
+	//get clock
+	clockAtEnd = Clock::get();
+
 	//flush local data
 	for (ThreadTrackerMap::iterator it = threads.begin() ; it != threads.end() ; ++it)
 		it->second->flush();

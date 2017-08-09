@@ -16,6 +16,7 @@ OBJS=$(OBJDIR)numaprof-debug$(OBJ_SUFFIX)\
 	 $(OBJDIR)numaprof-json-state$(OBJ_SUFFIX)\
 	 $(OBJDIR)numaprof-json-convert$(OBJ_SUFFIX)\
 	 $(OBJDIR)numaprof-stats$(OBJ_SUFFIX)\
+	 $(OBJDIR)numaprof-clock$(OBJ_SUFFIX)\
 	 $(OBJDIR)numaprof-stack$(OBJ_SUFFIX)\
 	 $(OBJDIR)numaprof-os$(OBJ_SUFFIX)\
 	 $(OBJDIR)numaprof-access-matrix$(OBJ_SUFFIX)\
@@ -49,6 +50,9 @@ $(OBJDIR)numaprof-process-tracker$(OBJ_SUFFIX): $(SRCDIR)/../../src/core/Process
 	$(CXX) $(TOOL_CXXFLAGS_NOOPT) $(COMP_OBJ)$@ $< $(CST_CFLAGS)
 
 $(OBJDIR)numaprof-thread-tracker$(OBJ_SUFFIX): $(SRCDIR)/../../src/core/ThreadTracker.cpp 
+	$(CXX) $(TOOL_CXXFLAGS_NOOPT) $(COMP_OBJ)$@ $< $(CST_CFLAGS)
+
+$(OBJDIR)numaprof-clock$(OBJ_SUFFIX): $(SRCDIR)/../../src/portability/Clock.cpp 
 	$(CXX) $(TOOL_CXXFLAGS_NOOPT) $(COMP_OBJ)$@ $< $(CST_CFLAGS)
 
 $(OBJDIR)numaprof-numa-topo$(OBJ_SUFFIX): $(SRCDIR)/../../src/portability/NumaTopo.cpp 

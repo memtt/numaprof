@@ -14,6 +14,9 @@
 namespace numaprof
 {
 
+/********************  MACROS  **********************/
+//#define NUMAPROF_TRACE_ALLOCS	
+
 /*******************  STRUCT  ***********************/
 struct MallocInfos
 {

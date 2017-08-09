@@ -27,8 +27,24 @@ ThreadTracker::ThreadTracker(ProcessTracker * process)
 	this->numa = process->getNumaAffinity(&cpuBindList);
 	this->table = process->getPageTable();
 	this->topo = &process->getNumaTopo();
-	this->bindingLog.push_back(this->numa);
+	this->clockStart = Clock::get();
+	logBinding(this->numa);
 	printf("Numa initial mapping : %d\n",numa);
+}
+
+/*******************  FUNCTION  *********************/
+void ThreadTracker::logBinding(int numa)
+{
+	int last = -3;
+	if (this->bindingLog.empty() == false)
+		last = this->bindingLog.back().numa;
+	if (numa != last)
+	{
+		ThreadBindingLogEntry entry;
+		entry.at = Clock::get();
+		entry.numa = numa;
+		this->bindingLog.push_back(entry);
+	}
 }
 
 /*******************  FUNCTION  *********************/
@@ -48,7 +64,7 @@ void ThreadTracker::flush(void)
 void ThreadTracker::onSetAffinity(cpu_set_t * mask)
 {
 	this->numa = process->getNumaAffinity(mask,&cpuBindList);
-	this->bindingLog.push_back(this->numa);
+	this->logBinding(this->numa);
 }
 
 /*******************  FUNCTION  *********************/
@@ -204,6 +220,7 @@ void ThreadTracker::onStop(void)
 {
 	this->process->mergeInstruction(instructions);
 	instructions.clear();
+	this->clockEnd = Clock::get();
 }
 
 /*******************  FUNCTION  *********************/
@@ -281,6 +298,17 @@ void convertToJson(htopml::JsonState& json, const ThreadTracker& value)
 		json.printField("binding",value.cpuBindList);
 		json.printField("accessMatrix",value.accessMatrix);
 		json.printField("bindingLog",value.bindingLog);
+		json.printField("clockStart",value.clockStart);
+		json.printField("clockEnd",value.clockEnd);
+	json.closeStruct();
+}
+
+/*******************  FUNCTION  *********************/
+void convertToJson(htopml::JsonState& json, const ThreadBindingLogEntry& value)
+{
+	json.openStruct();
+		json.printField("at",value.at);
+		json.printField("numa",value.numa);
 	json.closeStruct();
 }
 

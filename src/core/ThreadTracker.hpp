@@ -17,14 +17,22 @@
 #include "MallocTracker.hpp"
 #include "Stack.hpp"
 #include "AccessMatrix.hpp"
+#include "../portability/Clock.hpp"
 
 /*******************  NAMESPACE  ********************/
 namespace numaprof
 {
 
+/*********************  STRUCT  *********************/
+struct ThreadBindingLogEntry
+{
+	ClockValue at;
+	int numa;
+};
+
 /*********************  TYPES  **********************/
 typedef std::map<Stats *,Stats> AllocCacheMap;
-typedef std::list<int> ThreadBindingLog;
+typedef std::list<ThreadBindingLogEntry> ThreadBindingLog;
 
 /*********************  CLASS  **********************/
 class ThreadTracker
@@ -45,6 +53,8 @@ class ThreadTracker
 		void onExitFunction(void);
 		friend void convertToJson(htopml::JsonState& json, const ThreadTracker& value);
 	private:
+		void logBinding(int numa);
+	private:
 		ProcessTracker * process;
 		InstrInfoMap instructions;
 		AllocCacheMap allocCache;
@@ -58,7 +68,12 @@ class ThreadTracker
 		AccessMatrix accessMatrix;
 		CpuBindList cpuBindList;
 		ThreadBindingLog bindingLog;
+		ClockValue clockStart;
+		ClockValue clockEnd;
 };
+
+/*******************  FUNCTION  *********************/
+void convertToJson(htopml::JsonState& json, const ThreadBindingLogEntry& value);
 
 }
 

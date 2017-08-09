@@ -7,7 +7,7 @@
 ######################################################
 
 ######################################################
-add_library(numaprof-portability OBJECT NumaTopo.cpp OS.cpp)
+add_library(numaprof-portability OBJECT NumaTopo.cpp OS.cpp Clock.cpp)
 SET_TARGET_PROPERTIES(numaprof-portability PROPERTIES COMPILE_FLAGS -fPIC)
 
 ######################################################

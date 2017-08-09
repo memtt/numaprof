@@ -14,6 +14,7 @@
 #include "PageTable.hpp"
 #include "../portability/Mutex.hpp"
 #include "../portability/NumaTopo.hpp"
+#include "../portability/Clock.hpp"
 #include "Stats.hpp"
 #include "../../extern-deps/from-htopml/json/ConvertToJson.h"
 #include "../../extern-deps/from-malt-v2/SymbolRegistry.hpp"
@@ -56,6 +57,7 @@ class ProcessTracker
 		MATT::SymbolRegistry registry;
 		AllocatedPageCounter currentAllocatedPages;
 		AllocatedPageCounter maxAllocatedPages;
+		ClockValue clockAtEnd;
 };
 
 }
