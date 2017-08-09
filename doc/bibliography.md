@@ -23,3 +23,5 @@ Biblio
  * https://github.com/chabbimilind/cctlib
  * http://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=5452060
  * http://www.dynamorio.org/
+ * https://github.com/wapiflapi/villoc/issues/3
+ * http://optumsoft.com/dangers-of-using-dlsym-with-rtld_next/

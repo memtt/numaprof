@@ -236,7 +236,9 @@ void PageTable::regAllocPointerSmall(size_t baseAddr,size_t size,void * value)
 	size_t end = start + (size/ NUMAPROF_ALLOC_GRAIN);
 	
 	//mark
-	printf("setup map %p from %lu => %lu => %p\n",map,start,end,value);
+	#ifdef NUMAPROF_TRACE_PAGE_TABLE_ALLOCS
+		printf("setup map %p from %lu => %lu => %p\n",map,start,end,value);
+	#endif
 	for (size_t i = start ; i < end ;  i++)
 	{
 		//#ifndef NDEBUG
@@ -250,6 +252,10 @@ void PageTable::regAllocPointerSmall(size_t baseAddr,size_t size,void * value)
 /*******************  FUNCTION  *********************/
 void PageTable::regAllocPointer(size_t baseAddr,size_t size,void * value)
 {
+	//null
+	if (baseAddr == 0)
+		return;
+
 	//check
 	if (baseAddr % NUMAPROF_ALLOC_GRAIN != 0)
 		numaprofWarning("WARNING : allocated bloc not aligned on grain size : %d (get %lu)\n",NUMAPROF_ALLOC_GRAIN,baseAddr % NUMAPROF_ALLOC_GRAIN);
@@ -272,8 +278,10 @@ void PageTable::regAllocPointer(size_t baseAddr,size_t size,void * value)
 		regAllocPointerSmall(baseAddr,firstPageEnd - baseAddr,value);
 		
 		//middle full pages
-		if (firstPageEnd < endPageStart)
-			printf("Setup full page %p\n",value);
+		#ifdef NUMAPROF_TRACE_PAGE_TABLE_ALLOCS
+			if (firstPageEnd < endPageStart)
+				printf("Setup full page %p\n",value);
+		#endif
 		for (size_t addr = firstPageEnd ; addr < endPageStart ; addr += NUMAPROF_PAGE_SIZE)
 		{
 			//get page

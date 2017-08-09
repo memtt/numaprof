@@ -29,9 +29,11 @@ using namespace std;
 #define REALLOC "realloc"
 #endif
 
+//#define NUMAPROF_TRACE_ALLOCS
+
 //HUm finally I'm not totaly sure we can do this with pintool
 //See : https://github.com/wapiflapi/villoc/issues/3
-#define TRACK_MALLOC false
+#define TRACK_MALLOC true
 
 using namespace numaprof;
 
@@ -58,7 +60,7 @@ struct ThreadData
 
 /*******************  GLOBALS  **********************/
 ProcessTracker * gblProcessTracker = NULL;
-bool gblHasSeenMain = false;
+bool gblHasSeenMain = true;
 
 // key for accessing TLS storage in the threads. initialized once in main()
 static  TLS_KEY tls_key = INVALID_TLS_KEY;
@@ -131,7 +133,9 @@ static VOID beforeRealloc(VOID* ptr,ADDRINT size, VOID * retIp,THREADID threadid
 		data.allocSize = size;
 		data.allocCallsite = retIp;
 		data.reallocPtr = ptr;
-		printf("realloc %p %lu (from %p)\n",ptr,size,retIp);
+		#ifdef NUMAPROF_TRACE_ALLOCS
+			printf("realloc %p %lu (from %p)\n",ptr,size,retIp);
+		#endif
 		data.tracker->onFree((ADDRINT)ptr);
 	}
 }
@@ -141,7 +145,9 @@ static VOID afterRealloc(ADDRINT ret,THREADID threadid)
 {
 	if (gblHasSeenMain)
 	{
-		printf("    => %p\n",(void*)ret);
+		#ifdef NUMAPROF_TRACE_ALLOCS
+			printf("    => %p\n",(void*)ret);
+		#endif
 		ThreadData & data = getTls(threadid);
 		//data.tracker->onRealloc((size_t)data.allocCallsite,(size_t)data.reallocPtr,ret,data.allocSize);
 		data.tracker->onAlloc((size_t)data.allocCallsite,ret,data.allocSize);
@@ -157,7 +163,9 @@ static VOID beforeMalloc(ADDRINT size, VOID * retIp,THREADID threadid)
 		ThreadData & data = getTls(threadid);
 		data.allocSize = size;
 		data.allocCallsite = retIp;
-		printf("malloc %lu (from %p)\n",size,retIp);
+		#ifdef NUMAPROF_TRACE_ALLOCS
+			printf("malloc %lu (from %p)\n",size,retIp);
+		#endif
 	}
 }
 
@@ -166,7 +174,9 @@ static VOID afterMalloc(ADDRINT ret,THREADID threadid)
 {
 	if (gblHasSeenMain)
 	{
-		printf("    => %p\n",(void*)ret);
+		#ifdef NUMAPROF_TRACE_ALLOCS
+			printf("    => %p\n",(void*)ret);
+		#endif
 		ThreadData & data = getTls(threadid);
 		if (data.newCallsite == NULL)
 		{
@@ -185,7 +195,9 @@ static VOID beforeNew(ADDRINT size, VOID * retIp,THREADID threadid)
 		ThreadData & data = getTls(threadid);
 		if (data.newCallsite == NULL)
 			data.newCallsite = retIp;
-		printf("before new %lu (from %p)\n",size,retIp);
+		#ifdef NUMAPROF_TRACE_ALLOCS
+			printf("before new %lu (from %p)\n",size,retIp);
+		#endif
 	}
 }
 
@@ -194,7 +206,9 @@ static VOID afterNew(ADDRINT ret,THREADID threadid)
 {
 	if (gblHasSeenMain)
 	{
-		printf("    => %p\n",(void*)ret);
+		#ifdef NUMAPROF_TRACE_ALLOCS
+			printf("    => %p\n",(void*)ret);
+		#endif
 		ThreadData & data = getTls(threadid);
 		data.newCallsite = NULL;
 	}
@@ -208,7 +222,9 @@ static VOID beforeCalloc(ADDRINT nmemb,ADDRINT size,VOID * retIp,THREADID thread
 		ThreadData & data = getTls(threadid);
 		data.allocSize = size * nmemb;
 		data.allocCallsite = retIp;
-		printf("calloc %lu %lu (from %p)\n",nmemb,size,retIp);
+		#ifdef NUMAPROF_TRACE_ALLOCS
+			printf("calloc %lu %lu (from %p)\n",nmemb,size,retIp);
+		#endif
 	}
 }
 
@@ -217,7 +233,9 @@ static VOID beforeFree(ADDRINT ptr,THREADID threadid)
 {
 	if (gblHasSeenMain)
 	{
-		printf("free %p\n",(void*)ptr);
+		#ifdef NUMAPROF_TRACE_ALLOCS
+			printf("free %p\n",(void*)ptr);
+		#endif
 		ThreadData & data = getTls(threadid);
 		data.tracker->onFree(ptr);
 	}
@@ -452,6 +470,7 @@ static VOID instrImageMalloc(IMG img, VOID *v)
 	RTN mallocRtn = RTN_FindByName(img, MALLOC);
 	if (RTN_Valid(mallocRtn))
 	{
+		printf("-------- INSTR MALLOC FROM %s -----------\n",IMG_Name(img).c_str());
 		RTN_Open(mallocRtn);
 		
 		// Instrument malloc() to print the input argument value and the return value.
@@ -506,7 +525,7 @@ static VOID instrImageCalloc(IMG img, VOID *v)
 		RTN_Open(callocRtn);
 		
 		// Instrument malloc() to print the input argument value and the return value.
-		RTN_InsertCall(callocRtn, IPOINT_AFTER, (AFUNPTR)beforeCalloc,
+		RTN_InsertCall(callocRtn, IPOINT_BEFORE, (AFUNPTR)beforeCalloc,
 					   IARG_FUNCARG_ENTRYPOINT_VALUE, 0,
 					   IARG_FUNCARG_ENTRYPOINT_VALUE, 1,
 					   IARG_RETURN_IP, IARG_THREAD_ID,IARG_END);
@@ -532,7 +551,7 @@ static VOID instrImageMmap(IMG img, VOID *v)
 		RTN_Open(mmapRtn);
 		
 		// Instrument malloc() to print the input argument value and the return value.
-		RTN_InsertCall(mmapRtn, IPOINT_AFTER, (AFUNPTR)beforeMmap,
+		RTN_InsertCall(mmapRtn, IPOINT_BEFORE, (AFUNPTR)beforeMmap,
 					   IARG_FUNCARG_ENTRYPOINT_VALUE, 1,
 					   IARG_FUNCARG_ENTRYPOINT_VALUE, 3,
 					   IARG_FUNCARG_ENTRYPOINT_VALUE, 4,
@@ -563,7 +582,7 @@ static VOID instrImageMmap(IMG img, VOID *v)
 		RTN_Open(mremapRtn);
 		
 		// Instrument malloc() to print the input argument value and the return value.
-		RTN_InsertCall(mremapRtn, IPOINT_AFTER, (AFUNPTR)beforeMremap,
+		RTN_InsertCall(mremapRtn, IPOINT_BEFORE, (AFUNPTR)beforeMremap,
 					   IARG_FUNCARG_ENTRYPOINT_VALUE, 0,
 					   IARG_FUNCARG_ENTRYPOINT_VALUE, 1,
 					   IARG_FUNCARG_ENTRYPOINT_VALUE, 2,
@@ -798,12 +817,17 @@ static VOID instrImage(IMG img, VOID *v)
 	instrImageMmap(img,v);
 	if (TRACK_MALLOC)
 	{
-		instrImageMalloc(img,v);
-		instrImageNew(img,v);
-		instrImageRealloc(img,v);
-		instrImageCalloc(img,v);
-		instrImageFree(img,v);
-		instrImageMain(img,v);
+		//we do not instrument ld-linux mallocs
+		if (strncmp(IMG_Name(img).c_str(),"ld-linux",8) != 0)
+		{
+			instrImageMalloc(img,v);
+			instrImageNew(img,v);
+			instrImageRealloc(img,v);
+			instrImageCalloc(img,v);
+			instrImageFree(img,v);
+		}
+		if (false) 
+			instrImageMain(img,v);
 	}
 	instrImageSetSchedAffinity(img,v);
 }

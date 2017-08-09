@@ -37,6 +37,7 @@ namespace numaprof
 #define NUMAPROF_PAGE_UNMAPPED_FD -200
 #define NUMAPROF_PAGE_ANON_FD -1
 #define NUMAPROF_FRAG_MUTEX_CNT 32
+//#define NUMAPROF_TRACE_PAGE_TABLE_ALLOCS
 
 /********************  ENUM  ************************/
 enum PageAllocStatus
