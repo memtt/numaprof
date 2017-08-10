@@ -25,7 +25,7 @@ set(NUMACTL_INCLUDE_DIRS ${NUMACTL_INCLUDE_DIR} )
 include(FindPackageHandleStandardArgs)
 # handle the QUIETLY and REQUIRED arguments and set NUMACTL_FOUND to TRUE
 # if all listed variables are TRUE
-find_package_handle_standard_args(Hwloc  DEFAULT_MSG
+find_package_handle_standard_args(Numactl  DEFAULT_MSG
 	NUMACTL_LIBRARY NUMACTL_INCLUDE_DIR)
 
 ######################################################
