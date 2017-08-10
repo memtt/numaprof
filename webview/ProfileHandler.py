@@ -21,6 +21,10 @@ class ProfileHandler:
 	def load(self):
 		json_data=open(self.filepath).read()
 		self.data = json.loads(json_data)
+		self.prepare()
+
+	def prepare(self):
+		self.prepareFileFilter();
 	
 	def getFileName(self):
 		return self.filepath.split('/')[-1]
@@ -76,10 +80,28 @@ class ProfileHandler:
 		#ret
 		return out
 	
+	def prepareFileFilter(self):
+		out = {}
+		for instr in self.data["symbols"]["instr"]:
+			fid = self.data["symbols"]["instr"][instr]["file"]
+			fname = self.data["symbols"]["strings"][fid]
+			out[fname] = True
+		self.fileFilter = out
+	
+	def hasFile(self,fname):
+		return fname in self.fileFilter
+	
 	def getFuncName(self,instr):
 		id = self.data["symbols"]["instr"][instr]["function"]
 		return self.data["symbols"]["strings"][id]
 	
+	def getFuncFileName(self,instr):
+		id = self.data["symbols"]["instr"][instr]["file"]
+		return self.data["symbols"]["strings"][id]
+
+	def getLine(self,instr):
+		return self.data["symbols"]["instr"][instr]["line"]
+
 	def merge(self,out,inData):
 		for entry in inData:
 			if entry in out:
@@ -102,6 +124,7 @@ class ProfileHandler:
 			fname = self.getFuncName(instr)
 			if not fname in out:
 				out[fname] = self.getDefault()
+				out[fname]["file"] = self.getFuncFileName(instr)
 			if not "access" in out[fname]:
 				out[fname]["access"] = {}
 			self.merge(out[fname]["access"],self.data["instructions"][instr])
@@ -111,7 +134,35 @@ class ProfileHandler:
 			fname = self.getFuncName(instr)
 			if not fname in out:
 				out[fname] = self.getDefault()
+				out[fname]["file"] = self.getFuncFileName(instr)
 			if not "alloc" in out[fname]:
 				out[fname]["alloc"] = {}
 			self.merge(out[fname]["alloc"],self.data["allocs"][instr])
+		return out;
+
+	def getFileStats(self,path):
+		out = {}
+		#do it for instructions
+		for instr in self.data["instructions"]:
+			fname = self.getFuncFileName(instr)
+			if fname == path:
+				line = self.getLine(instr)
+				if not line in out:
+					out[line] = self.getDefault()
+					out[line]["func"] = self.getFuncName(instr)
+				if not "access" in out[line]:
+					out[line]["access"] = {}
+				self.merge(out[line]["access"],self.data["instructions"][instr])
+		
+		#do it for allocs
+		for instr in self.data["allocs"]:
+			fname = self.getFuncFileName(instr)
+			if fname == path:
+				line = self.getLine(instr)
+				if not line in out:
+					out[line] = self.getDefault()
+					out[line]["func"] = self.getFuncName(instr)
+				if not "alloc" in out[line]:
+					out[line]["alloc"] = {}
+				self.merge(out[line]["alloc"],self.data["allocs"][instr])
 		return out;

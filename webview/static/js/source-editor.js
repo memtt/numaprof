@@ -35,6 +35,8 @@ MaltSourceEditor.prototype.onClick = function(infos)
 /********************************************************************/
 MaltSourceEditor.prototype.doPostMove = function()
 {
+	if (this.postMove == null)
+		return;
 	if (this.postMove.type == 'line' && this.postMove.line != -1)
 	{
 		// this.editor.setCursor(this.postMove.line-1);
@@ -133,7 +135,17 @@ MaltSourceEditor.prototype.moveToFile = function(file)
 	
 	//load the new file in editor
 	if(file == '??' || file == '' || file == undefined) {
-		return;
+		// XHR fails to load file, show error message
+		cur.container.innerHTML = 
+			'<pre class="line-numbers"><code>No source file to load</code></pre>';
+		cur.syntaxHighlighterEle = cur.container.getElementsByTagName("code")[0];
+		Prism.highlightElement(cur.syntaxHighlighterEle);
+		Prism.plugins.codeAnnotator.add(cur.syntaxHighlighterEle, {
+			line: 1, 
+			text: "Error", 
+			class: "line-annotate-large"
+		});
+		cur.file = "";
 	} else {
 		var cur = this;
 		this.loadSourceFile(file,function(data){
@@ -145,7 +157,7 @@ MaltSourceEditor.prototype.moveToFile = function(file)
 			cur.syntaxHighlighterEle = cur.container.getElementsByTagName("code")[0];
 			Prism.highlightElement(cur.syntaxHighlighterEle);
 			cur.file = file;
-			//cur.updateAnotations();
+			cur.updateAnotations();
 		}, function() {
 			// XHR fails to load file, show error message
 			cur.container.innerHTML = 
@@ -158,6 +170,7 @@ MaltSourceEditor.prototype.moveToFile = function(file)
 				text: "Error", 
 				class: "line-annotate-large"
 			});
+			cur.file = "--";
 		});
 	}
 }
@@ -173,12 +186,12 @@ MaltSourceEditor.prototype.findLargestAnnot = function(file,func)
 		//var value = this.data[i][mode];
 		var value = this.selector.getValue(this.data[i]);
 
-		if (value != undefined && this.data[i].file == file && this.data[i].function == func)
+		if (value != undefined && this.data[i].file == file && this.data[i].func == func)
 		{
 			if (value > max)
 			{
 				max = value;
-				line = this.data[i].line;
+				line = i;
 			}
 		}
 	}
@@ -260,15 +273,14 @@ MaltSourceEditor.prototype.extractMax = function(data)
 
 /********************************************************************/
 //update anotations
-MaltSourceEditor.prototype.updateAnotations = function()
+MaltSourceEditor.prototype.updateAnotations = function(move)
 {
 	//keep track of current this
 	var cur = this;
 	var file = this.file;
 	
 	//fetch flat profile of current file
-	maltDataSource.loadSourceFileAnnotations(file,function(data) {
-
+	$.get( "/api/sources/file-stats"+file, function(data) {
 		//update data with more info than provided by server
 		cur.data = data;
 		for (var i in data)
@@ -281,8 +293,28 @@ MaltSourceEditor.prototype.updateAnotations = function()
 		cur.redrawAnnotations();
 		
 		//move
-		cur.doPostMove();
+		if (move != false)
+			cur.doPostMove();
+	})
+	.fail(function(data) {
+		fail();
 	});
+// 	maltDataSource.loadSourceFileAnnotations(file,function(data) {
+// 
+// 		//update data with more info than provided by server
+// 		cur.data = data;
+// 		for (var i in data)
+// 		{
+// 			data[i].file = cur.file;
+// 			cur.internalComputeTotal(data[i]);
+// 		}
+// 		
+// 		//draw annotations
+// 		cur.redrawAnnotations();
+// 		
+// 		//move
+// 		cur.doPostMove();
+// 	});
 }
 
 /********************************************************************/
@@ -304,7 +336,7 @@ MaltSourceEditor.prototype.redrawAnnotations = function()
 	for (var i in this.data) {
 		if (this.selector.getValue(this.data[i]) != 0)
 		Prism.plugins.codeAnnotator.add(this.syntaxHighlighterEle, {
-			line: this.data[i].line, 
+			line: i, 
 			text: this.selector.getFormattedValue(this.data[i]), 
 			// class: "line-annotate-small",
 			color: colorScale(this.selector.getValue(this.data[i])),

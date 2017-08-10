@@ -1,7 +1,7 @@
 function NumaprofSelector()
 {
 	this.metrics = new NumaprofFuncMetrics();
-	this.metric = 'access.firstTouch';
+	this.metric = 'access.allAccess';
 	this.inclusive = true;
 	this.limit = 10;
 	this.ratio = false;

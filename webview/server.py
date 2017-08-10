@@ -8,7 +8,7 @@
 ######################################################
 
 ######################################################
-from flask import Flask, render_template, send_from_directory, Response, send_file
+from flask import Flask, render_template, send_from_directory, Response, send_file, abort
 from ProfileHandler import ProfileHandler
 import os
 import json
@@ -135,11 +135,25 @@ def apiSourcesFuncions():
 	jsonData = json.dumps(data)
 	return Response(jsonData, mimetype='application/json')
 
+######################################################
+@app.route('/api/sources/file-stats/<path:path>')
+@auth.login_required
+@nocache
+def apiSourcesFileStats(path):
+	path = "/"+path
+	data = profile.getFileStats(path)
+	jsonData = json.dumps(data)
+	return Response(jsonData, mimetype='application/json')
+
 @app.route('/api/sources/file/<path:path>')
 @auth.login_required
 @nocache
 def sourceFiles(path):
-	data=open("/"+path).read()
-	return data
+	path = "/"+path
+	if profile.hasFile(path):
+		data=open(path).read()
+		return data
+	else:
+		abort(404)
 
 app.run(host="127.0.0.1", port=8080, threaded=False)

@@ -4,6 +4,34 @@ function NumaprofFuncMetrics()
 }
 
 NumaprofFuncMetrics.prototype.metrics = {
+	'access.allFirstTouch': {
+		name: 'All access first touch',
+		extractor: function(x) {return x.access.firstTouch + x.access.unpinnedFirstTouch;},
+		formalter: function(x) {return numaprofHelper.humanReadable(x,1,'',false);},
+		defaultOrder: 'desc',
+		ref: 'sum'
+	},
+	'access.allAccess': {
+		name: 'All access',
+		extractor: function(x) {return x.access.unpinnedPageAccess + x.access.unpinnedThreadAccess + x.access.unpinnedBothAccess + x.access.localAccess+x.access.remoteAccess+x.access.mcdramAccess;},
+		formalter: function(x) {return numaprofHelper.humanReadable(x,1,'',false);},
+		defaultOrder: 'desc',
+		ref: 'sum'
+	},
+	'alloc.allFirstTouch': {
+		name: 'Alloc all access first touch',
+		extractor: function(x) {return x.alloc.firstTouch + x.alloc.unpinnedFirstTouch;},
+		formalter: function(x) {return numaprofHelper.humanReadable(x,1,'',false);},
+		defaultOrder: 'desc',
+		ref: 'sum'
+	},
+	'alloc.allAccess': {
+		name: 'Alloc all access',
+		extractor: function(x) {return x.alloc.unpinnedPageAccess + x.alloc.unpinnedThreadAccess + x.alloc.unpinnedBothAccess + x.alloc.localAccess+x.alloc.remoteAccess+x.alloc.mcdramAccess;},
+		formalter: function(x) {return numaprofHelper.humanReadable(x,1,'',false);},
+		defaultOrder: 'desc',
+		ref: 'sum'
+	},
 	'access.firstTouch': {
 		name: 'First touch',
 		extractor: function(x) {return x.access.firstTouch;},

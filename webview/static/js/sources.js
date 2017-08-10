@@ -7,10 +7,11 @@
 *****************************************************/
 
 /********************  GLOBALS  *********************/
+var gblSourceEditor = null;
 var selector = new NumaprofSelector();
 var functions = {};
 var template = "<li id='numaprof-func-list-entry'>\
-					<a href='javascript:' data-toggle='popover' data-content='{{ longName }}'>\
+					<a href='javascript:' data-toggle='popover' data-content='{{ longName }}' id='func-{{id}}'>\
 						<span class='size'>\
 							{{fvalue}}\
 							<div class='progress-fg' style='width: {{ ratio }}%;'></div>\
@@ -28,6 +29,7 @@ function selectMetric(name)
 	selector.selectMetric(name);
 	$("#numaprof-selected-metric").text(selector.getMetricName());
 	updateFuncList();
+	updateAnotations();
 }
 
 /*******************  FUNCTION  *********************/
@@ -42,6 +44,13 @@ function selectRatio()
 		$("#numaprof-ratio-select").addClass("active");
 	}
 	updateFuncList();
+	updateAnotations();
+}
+
+/*******************  FUNCTION  *********************/
+function updateAnotations()
+{
+	gblSourceEditor.updateAnotations(false);
 }
 
 /*******************  FUNCTION  *********************/
@@ -81,6 +90,7 @@ function updateFuncList()
 			out.push({
 				shortName: i,
 				longName: i,
+				file: functions[i].file,
 				value: selector.getValue(functions[i]),
 				fvalue: selector.getFormattedValue(functions[i]),
 				ratio: selector.getValueRatio(functions[i])
@@ -98,12 +108,26 @@ function updateFuncList()
 	$('#numaprof-func-list').html("")
 	
 	//put
+	var firstFile = null;
 	for (var i in out)
 	{
+		out[i].id = i;
 		var rendered = Mustache.render(template, out[i]);
-		$('#numaprof-func-list').append(rendered);
+		$('#numaprof-func-list').append(rendered)
+		$('#func-'+i).on('click',{value:out[i]},function(event) {
+			console.log(event.data.value.file);
+			gblSourceEditor.moveToFileFunction(event.data.value.file,event.data.value.longName);
+		});;
+		
+		if (out[i].file != "??" && firstFile == null)
+			firstFile = out[i].file;
 	}
 	$('[data-toggle="popover"]').popover({ trigger: "hover" });  
+	
+	if (gblSourceEditor.file == null && firstFile != null)
+		gblSourceEditor.moveToFile(firstFile);
+	else if (gblSourceEditor.file == null)
+		gblSourceEditor.moveToFile(null);
 }
 
 /*******************  FUNCTION  *********************/
@@ -122,40 +146,10 @@ function loadFunctions()
 }
 
 /*******************  FUNCTION  *********************/
-function exampleMenu()
-{
-	lst = [
-		{value:"60%", ratio:"60",shortName:"shortName",longName:"lllllooooooonnnnnngggg_naaaammme"},
-		{value:"60%", ratio:"60",shortName:"shortName2",longName:"lllllooooooonnnnnnggggnaaaammme"},
-		{value:"60%", ratio:"60",shortName:"shortName3",longName:"aaa"},
-	];
-	
-	var template = "<li id='numaprof-func-list-entry'>\
-					<a href='javascript:' data-toggle='popover' data-content='{{ longName }}'>\
-						<span class='size'>\
-							{{value}}\
-							<div class='progress-fg' style='width: {{ ratio }}%;'></div>\
-							<div class='progress-bg'></div>\
-						</span>\
-						<span class='func' ng-hide='compact'>{{ shortName }}</span>\
-					</a>\
-				</li>";
-	Mustache.parse(template);   // optional, speeds up future uses
-	$('#numaprof-func-list-entry').html("")
-	
-	for (var i in lst)
-	{
-		var rendered = Mustache.render(template, lst[i]);
-		$('#numaprof-func-list').append(rendered);
-	}
-	$('[data-toggle="popover"]').popover({ trigger: "hover" });  
-}
-
-/*******************  FUNCTION  *********************/
 $(function() {
-	exampleMenu();
-	var sourceEditor = new MaltSourceEditor('numaprof-source-editor',undefined);
-	sourceEditor.moveToFile("/home/sebv/Projects/numaprof/src/core/ProcessTracker.cpp");
+	//exampleMenu();
+	gblSourceEditor = new MaltSourceEditor('numaprof-source-editor',selector);
+	//sourceEditor.moveToFile("/home/sebv/Projects/numaprof/src/core/ProcessTracker.cpp");
 	setupSelectorList();
 	Mustache.parse(template);   // optional, speeds up future uses
 	loadFunctions();
