@@ -12,7 +12,6 @@
 #include "ThreadTracker.hpp"
 #include "../common/Debug.hpp"
 #include "../portability/OS.hpp"
-#include "../../extern-deps/from-numactl/MovePages.hpp"
 
 /*******************  NAMESPACE  ********************/
 namespace numaprof
@@ -98,7 +97,7 @@ void ThreadTracker::onAccess(size_t ip,size_t addr,bool write)
 	//if not defined use move pages
 	if (pageNode == NUMAPROF_DEFAULT_NUMA_NODE)
 	{
-		pageNode = getNumaOfPage(addr);
+		pageNode = OS::getNumaOfPage(addr);
 		//printf("Page on %d, write = %d\n",pageNode,write);
 		if (write && pageNode <= NUMAPROF_DEFAULT_NUMA_NODE)
 		{
@@ -110,7 +109,7 @@ void ThreadTracker::onAccess(size_t ip,size_t addr,bool write)
 			//would remove. Do not write a 0 in case our
 			//detection was wrong to not break data, se we read then write
 			*(char*)addr = getAddrValue((char*)addr);
-			pageNode = getNumaOfPage(addr);
+			pageNode = OS::getNumaOfPage(addr);
 			assert(pageNode >= 0);
 			
 			//check

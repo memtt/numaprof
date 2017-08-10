@@ -27,6 +27,7 @@ struct OS
 	static std::string getDateTime(void);
 	static int getPID(void);
 	static int getTID(void);
+	static int getNumaOfPage(size_t addr);
 };
 
 }

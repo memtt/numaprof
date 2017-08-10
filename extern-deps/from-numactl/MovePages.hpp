@@ -18,8 +18,7 @@ namespace numaprof
 {
 
 /*******************  FUNCTION  *********************/
-extern long move_pages(int pid, unsigned long count,void **pages, const int *nodes, int *status, int flags);
-int getNumaOfPage(size_t addr);
+extern long numa_move_pages(int pid, unsigned long count,void **pages, const int *nodes, int *status, int flags);
 
 }
 

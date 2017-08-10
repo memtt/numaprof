@@ -13,6 +13,11 @@
 #include "../common/Debug.hpp"
 #include "OS.hpp"
 #include <sys/types.h>
+#ifdef __PIN__
+	#include "../../extern-deps/from-numactl/MovePages.hpp"
+#else
+	#include "numa.h"
+#endif
 #ifndef gettid
 	#include <sys/syscall.h>
 #endif
@@ -128,6 +133,34 @@ int OS::getPID(void)
 int OS::getTID(void)
 {
 	return gettid();
+}
+
+/*******************  FUNCTION  *********************/
+int OS::getNumaOfPage(size_t addr)
+{
+	static bool hasMovePages = true;
+
+	//go fast
+	if (hasMovePages == false)
+		return 0;
+
+	//4k align
+	unsigned long page = (unsigned long)addr;
+	page = page & (~4095);
+	void * pages[1] = {(void*)page};
+	int status;
+	long ret = numa_move_pages(0,1,pages,NULL,&status,0);
+	if (ret == 0)
+	{
+		return status;
+	} else {
+		if (errno == ENOSYS)
+		{
+			printf("\033[31mCAUTION, move_pages not implemented, you might be running on a non NUMA system !\nAll accesses will be considered local !\033[0m\n");
+			hasMovePages = false;
+		}
+		return 0;
+	}
 }
 
 }

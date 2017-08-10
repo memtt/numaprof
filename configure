@@ -36,6 +36,7 @@ LIB_SUFFIX=''
 #prefix
 HLWOC_PREFIX=''
 PINTOOL_PREFIX=''
+NUMACTL_PREFIX=''
 #select transport
 TRANSPORT=''
 
@@ -80,6 +81,7 @@ To find libs and commands :
    --with-cmake={command}    Define the cmake command to use [cmake].
    --with-mpicxx={cmd}       Define the MPI compiler to use [mpicxx].
    --with-hwloc={prefix}     Define prefix to find hwloc [/usr].
+   --with-numactl={perfix}   Define prefix of numactl/libnuma [/usr]
    --with-pintool={prefix}   Define prefix of pintool (REQUIRED).
 
 To get the generated cmake command :
@@ -154,6 +156,9 @@ do
 			;;
 		--with-pintool=*)
 			PINTOOL_PREFIX="`get_arg_value \"$arg\" --with-pintool`"
+			;;
+		--with-numactl=*)
+			NUMACTL_PREFIX="`get_arg_value \"$arg\" --with-numactl`"
 			;;
 		--enable-debug)
 			BUILD_TYPE='Debug'
@@ -305,7 +310,7 @@ cd build
 COMMAND="`gen_clean_command "${CMAKE}" "-DCMAKE_BUILD_TYPE=${BUILD_TYPE}" "${PREFIX}" "${EXTRA_CXX}" \
 	"${EXTRA_CXXFLAGS}" "${EXTRA_LDFLAGS}" "${EXTRA_CC}" "${EXTRA_CFLAGS}" \
 	"${ENABLE_SELF_TEST}" "${ENABLE_JUNIT_OUT}" "${ENABLE_VALGRIND}" "${ENABLE_GCC_COVERAGE}" "${DISABLE_TESTS}" \
-	"${LIB_SUFFIX}" "${HWLOC_PREFIX}" "${SOURCE_DIR}" "${MPI_CXX_COMPILER}"`" 
+	"${LIB_SUFFIX}" "${HWLOC_PREFIX}" "${NUMACTL_PREFIX}" "${MPI_CXX_COMPILER}" "${SOURCE_DIR}"`" 
 
 ######################################################
 #execute or display

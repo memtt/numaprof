@@ -180,37 +180,9 @@ long syscall6(long call, long a, long b, long c, long d, long e, long f)
 #endif
 
 /*******************  FUNCTION  *********************/
-long WEAK move_pages(int pid, unsigned long count,void **pages, const int *nodes, int *status, int flags)
+long numa_move_pages(int pid, unsigned long count,void **pages, const int *nodes, int *status, int flags)
 {
 	return syscall6(__NR_move_pages, (long)pid, (long)count,(long) pages,(long) nodes, (long)status, flags);
-}
-
-/*******************  FUNCTION  *********************/
-int getNumaOfPage(size_t addr)
-{
-	static bool hasMovePages = true;
-
-	//go fast
-	if (hasMovePages == false)
-		return 0;
-
-	//4k align
-	unsigned long page = (unsigned long)addr;
-	page = page & (~4095);
-	void * pages[1] = {(void*)page};
-	int status;
-	long ret = move_pages(0,1,pages,NULL,&status,0);
-	if (ret == 0)
-	{
-		return status;
-	} else {
-		if (errno == ENOSYS)
-		{
-			printf("\033[31mCAUTION, move_pages not implemented, you might be running on a non NUMA system !\nAll accesses will be considered local !\033[0m\n");
-			hasMovePages = false;
-		}
-		return 0;
-	}
 }
 
 }
