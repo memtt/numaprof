@@ -57,6 +57,7 @@ class NumaTopo
 	private:
 		void loadCpuNb(void);
 		void loadNumaMap(void);
+		size_t findMemPolicyKernelSize(void);
 	private:
 		int cpus;
 		int numaNodes;

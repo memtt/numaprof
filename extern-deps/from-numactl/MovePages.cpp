@@ -11,7 +11,7 @@
 #include <sys/syscall.h> 
 #include "MovePages.hpp"
 //#include "numa.h"
-#include "numaif.h"
+//#include "numaif.h"
 //#include "numaint.h"
 
 namespace numaprof

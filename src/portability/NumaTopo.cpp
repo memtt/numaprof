@@ -38,6 +38,8 @@
 	#define numactl_sched_getaffinity sched_getaffinity
 #endif
 
+#define HWLOC_BITS_PER_LONG (sizeof(unsigned long)*8)
+
 /*******************  NAMESPACE  ********************/
 namespace numaprof
 {
@@ -232,21 +234,63 @@ int NumaTopo::getCurrentNumaAffinity(cpu_set_t * mask, int size,CpuBindList * cp
 }
 
 /*******************  FUNCTION  *********************/
+//copied from hwloc topology-linux.c
+/*
+ * On some kernels, get_mempolicy requires the output size to be larger
+ * than the kernel MAX_NUMNODES (defined by CONFIG_NODES_SHIFT).
+ * Try get_mempolicy on ourself until we find a max_os_index value that
+ * makes the kernel happy.
+ */
+size_t NumaTopo::findMemPolicyKernelSize(void)
+{
+	static int _max_numnodes = -1, max_numnodes;
+	int linuxpolicy;
+
+	if (_max_numnodes != -1)
+		/* already computed */
+		return _max_numnodes;
+
+	/* start with a single ulong, it's the minimal and it's enough for most machines */
+	max_numnodes = HWLOC_BITS_PER_LONG;
+	while (1) {
+		unsigned long *mask =(unsigned long*) malloc(max_numnodes / HWLOC_BITS_PER_LONG * sizeof(long));
+		int err = get_mempolicy(&linuxpolicy, mask, max_numnodes, 0, 0);
+		free(mask);
+		if (!err || errno != EINVAL)
+			/* Found it. Only update the static value with the final one,
+			* to avoid sharing intermediate values that we modify,
+			* in case there's ever multiple concurrent calls.
+			*/
+			return _max_numnodes = max_numnodes;
+		max_numnodes *= 2;
+	}
+}
+
+/*******************  FUNCTION  *********************/
 MemPolicy NumaTopo::getCurrentMemPolicy()
 {
 	static bool hasMemPolicy = true;
+	static int size = 0;
+	
+	if (size == 0)
+		size = findMemPolicyKernelSize();
 
 	MemPolicy policy;
 	int status = 1;
 	
 	if (hasMemPolicy)
 	{
-		status = get_mempolicy(&policy.mode,policy.mask,8*sizeof(policy.mask),NULL,0);
+		unsigned long *mask = (unsigned long*)malloc(size / HWLOC_BITS_PER_LONG * sizeof(long));
+		status = get_mempolicy(&policy.mode,mask,size,NULL,0);
 		if (status != 0)
 		{
 			printf("\033[31mCAUTION, get_mempolicy not implemented, you might be running on a non NUMA system !\nAll accesses will be considered local !\033[0m\n");
 			hasMemPolicy = false;
+		} else {
+			for (int i = 0 ; i < 4 ; i++)
+				policy.mask[i] = mask[i];
 		}
+		free(mask);
 	}
 
 	if (status != 0)
