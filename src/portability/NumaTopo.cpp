@@ -42,6 +42,14 @@
 namespace numaprof
 {
 
+/********************  GLOBALS  *********************/
+static const char * gblBindingNames[] = {
+	"NO_BIND",
+	"INTERLEAVE",
+	"BIND_ONE",
+	"BIND_MULTIPLE"
+};
+
 /*******************  FUNCTION  *********************/
 NumaTopo::NumaTopo(void)
 {
@@ -245,7 +253,7 @@ MemPolicy NumaTopo::getCurrentMemPolicy()
 	{
 		policy.mode = MPOL_BIND;
 		for (int i = 0 ; i < numaNodes ; i++)
-			policy.mask[i/64] |= 1 << (i%64);
+			policy.mask[i/64] |= 1lu << (i%64);
 	}
 	
 	staticComputeBindType(policy);
@@ -255,9 +263,30 @@ MemPolicy NumaTopo::getCurrentMemPolicy()
 /*******************  FUNCTION  *********************/
 void NumaTopo::staticComputeBindType(MemPolicy & policy)
 {
+	//default
+	policy.type = MEMBIND_NO_BIND;
+	
+	//check numa
+	int numa = -2;
+	for (int i = 0 ; i < numaNodes ; i++)
+	{
+		if (policy.mask[i/64] & (1lu << (i%64)))
+		{
+			if (numa == -2)
+				numa = numaMap[i];
+			if (numa != numaMap[i])
+				numa = -1;
+		}
+	}
+	
 	//no binding
 	if (policy.mode == MPOL_DEFAULT || policy.mode == MPOL_LOCAL)
-		policy.type = MEMBIND_NO_BIND;
+	{
+		if (numa >= 0)
+			policy.type = MEMBIND_BIND_ONE;
+		else
+			policy.type = MEMBIND_NO_BIND;
+	}
 	
 	//consider as bind but give an undefined value
 	if (policy.mode == MPOL_INTERLEAVE)
@@ -266,25 +295,11 @@ void NumaTopo::staticComputeBindType(MemPolicy & policy)
 	//binding, check which node is prefered.
 	if (policy.mode == MPOL_PREFERRED || policy.mode == MPOL_BIND)
 	{
-		int numa = -2;
-		for (size_t i = 0 ; i < sizeof (policy.mask) * 8 ; i++)
-		{
-			if (policy.mask[i/64] & (1 << (i%64)))
-			{
-				if (numa == -2)
-					numa = numaMap[i];
-				if (numa != numaMap[i])
-					numa = -1;
-			}
-		}
-		
 		if (numa == -2 || numa >= 0)
 			policy.type = MEMBIND_BIND_ONE;
 		if (numa == -1)
 			policy.type = MEMBIND_BIND_MULTIPLE;
 	}
-	
-	policy.type = MEMBIND_NO_BIND;
 }
 
 /*******************  FUNCTION  *********************/
@@ -315,6 +330,12 @@ void convertToJson(htopml::JsonState& json, const NumaTopo& value)
 			json.closeFieldStruct(nodeName);
 		}
 	json.closeStruct();
+}
+
+/*******************  FUNCTION  *********************/
+const char * getMemBindTypeName(MemBindType type)
+{
+	return gblBindingNames[type];
 }
 
 }

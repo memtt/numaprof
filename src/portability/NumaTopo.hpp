@@ -35,7 +35,7 @@ enum MemBindType
 /*********************  STRUCT  *********************/
 struct MemPolicy
 {
-	MemPolicy(void) {mask[0] = 0;mask[1]=0;mask[2]=0;mask[3]=0;};
+	MemPolicy(void) {mask[0] = mask[1]= mask[2] = mask[3] = 0; type = MEMBIND_NO_BIND;mode = 0;};
 	int mode;
 	unsigned long mask[4];
 	MemBindType type;
@@ -64,6 +64,9 @@ class NumaTopo
 		bool * isMcdram;
 
 };
+
+/*******************  FUNCTION  *********************/
+const char * getMemBindTypeName(MemBindType type);
 
 }
 

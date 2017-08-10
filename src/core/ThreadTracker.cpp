@@ -34,6 +34,7 @@ ThreadTracker::ThreadTracker(ProcessTracker * process)
 	logBinding(memPolicy);
 	logBinding(this->numa);
 	printf("Numa initial mapping : %d\n",numa);
+	printf("Numa initial mem mapping : %s\n",getMemBindTypeName(memPolicy.type));
 }
 
 /*******************  FUNCTION  *********************/
@@ -349,9 +350,11 @@ void convertToJson(htopml::JsonState& json, const ThreadTracker& value)
 	json.openStruct();
 		json.printField("stats",value.stats);
 		json.printField("numa",value.numa);
+		json.printField("memPolicy",value.memPolicy);
 		json.printField("binding",value.cpuBindList);
 		json.printField("accessMatrix",value.accessMatrix);
 		json.printField("bindingLog",value.bindingLog);
+		json.printField("memPolicyLog",value.memPolicyLog);
 		json.printField("clockStart",value.clockStart);
 		json.printField("clockEnd",value.clockEnd);
 	json.closeStruct();
@@ -400,10 +403,12 @@ void convertToJson(htopml::JsonState& json, const MemPolicy& value)
 				json.printField("mode",value.mode);
 				break;
 		}
+
+		json.printField("type",getMemBindTypeName(value.type));
 		
 		json.openFieldArray("mask");
 			for (size_t i = 0 ; i < sizeof (value.mask) * 8 ; i++)
-				if (value.mask[i/64] & (1 << (i%64)))
+				if (value.mask[i/64] & (1lu << (i%64)))
 					json.printValue(i);
 		json.closeFieldArray("mask");
 	json.closeStruct();
