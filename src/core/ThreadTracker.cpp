@@ -95,7 +95,10 @@ void ThreadTracker::onMemBind(int mode,const unsigned long * mask,unsigned long 
 	memPolicy.mode = mode;
 	if (maxNodes % 8 != 0)
 		maxNodes += 8 - maxNodes%8;
-	for (unsigned long i = 0 ; i < maxNodes / 8 ; i++)
+	size_t cnt = maxNodes / 8;
+	if (cnt > 4)
+			cnt = 4;
+	for (unsigned long i = 0 ; i < cnt ; i++)
 		memPolicy.mask[i] = mask[i];
 	topo->staticComputeBindType(memPolicy);
 	logBinding(memPolicy);
@@ -204,7 +207,7 @@ void ThreadTracker::onAccess(size_t ip,size_t addr,bool write)
 	if (pageNode <= NUMAPROF_DEFAULT_NUMA_NODE || isWriteFirstTouch)
 	{
 		//check unpinned first access
-		if (isMemBind())
+		if (isMemBind() == false)
 		{
 			stats.unpinnedFirstTouch += touchedPages;
 			instr.unpinnedFirstTouch += touchedPages;
