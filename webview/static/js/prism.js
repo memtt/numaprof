@@ -912,7 +912,7 @@ Prism.plugins.codeAnnotator = {
 		var line = document.createElement('a');
 		line.href = "javascript:;";
 		line.innerHTML = "<span>" + data.text + "</span>";
-		line.className = (data.class || '') + ' line-annotate';
+		line.className = (data.class || '') + ' line-annotate' + ' first last';
 		line.style.top = (data.line - offset - 1) * lineHeight + 'px';
 		data.color && (line.style.backgroundColor = data.color);
 		data.onClick && line.addEventListener("click", this.__clickEventHandler);

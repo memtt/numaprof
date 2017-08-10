@@ -233,12 +233,21 @@ pre.line-numbers > code {
     left: 0;
     width: 4.5em;
     background-color: rgba(0,0,0,0.7);
-    border-radius: 1em;
     margin-top: 1.1em;
     margin-left:0.5em;
     color: #ffffff;
     text-align: right;
     line-height: 1.2em;
+}
+
+.line-annotate.first {
+	border-top-left-radius: 1em;
+	border-bottom-left-radius: 1em;
+}
+
+.line-annotate.last {
+	border-top-right-radius: 1em;
+	border-bottom-right-radius: 1em;
 }
 
 .line-annotate:hover, .line-annotate:focus {

@@ -26,10 +26,13 @@ var template = "<li id='numaprof-func-list-entry'>\
 function selectMetric(name)
 {
 	console.log("Select metric: "+ name);
-	selector.selectMetric(name);
-	$("#numaprof-selected-metric").text(selector.getMetricName());
-	updateFuncList();
-	updateAnotations();
+	if (name.indexOf('separator') != 0)
+	{
+		selector.selectMetric(name);
+		$("#numaprof-selected-metric").text(selector.getMetricName());
+		updateFuncList();
+		updateAnotations();
+	}
 }
 
 /*******************  FUNCTION  *********************/
@@ -74,6 +77,7 @@ function setupSelectorList()
 	}
 	$("#numaprof-ratio-select").on("click",function() {selectRatio();});
 	$("#numaprof-input-search").on("keypress",function() {selectSearch($("#numaprof-input-search").val());});
+	selectRatio();
 	selectRatio();
 	selectMetric(selector.metric);
 }

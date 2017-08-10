@@ -13,7 +13,9 @@ function setupBarChart(svgId,data)
 	var cnt = data[0].values.length
 	
 	//setup height
-	d3.select('#'+svgId+' svg').attr("height",cnt*30);
+	svg = d3.select('#'+svgId+' svg').attr("height",cnt*30);
+	
+	console.log(data);
 	
 	nv.addGraph(function() {
 		var chart = nv.models.multiBarHorizontalChart()
@@ -34,6 +36,15 @@ function setupBarChart(svgId,data)
 			.call(chart);
 
 		nv.utils.windowResize(chart.update);
+		
+		chart.multibar.dispatch.on("elementDblClick", function(e) {
+			//remove
+			for (var i in data)
+				data[i].values[e.index].value = 0;
+			//update
+			d3.select('#'+svgId+' svg').datum(data).transition().duration(500).call(chart);
+			nv.utils.windowResize(chart.update);
+		});
 
 		return chart;
 	});

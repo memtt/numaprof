@@ -83,9 +83,10 @@ class ProfileHandler:
 	def prepareFileFilter(self):
 		out = {}
 		for instr in self.data["symbols"]["instr"]:
-			fid = self.data["symbols"]["instr"][instr]["file"]
-			fname = self.data["symbols"]["strings"][fid]
-			out[fname] = True
+			if instr in self.data["symbols"]["instr"] and "file" in self.data["symbols"]["instr"][instr]:
+				fid = self.data["symbols"]["instr"][instr]["file"]
+				fname = self.data["symbols"]["strings"][fid]
+				out[fname] = True
 		self.fileFilter = out
 	
 	def hasFile(self,fname):

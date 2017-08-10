@@ -5,32 +5,42 @@ function NumaprofFuncMetrics()
 
 NumaprofFuncMetrics.prototype.metrics = {
 	'access.allFirstTouch': {
-		name: 'All access first touch',
+		name: 'All first touch',
 		extractor: function(x) {return x.access.firstTouch + x.access.unpinnedFirstTouch;},
 		formalter: function(x) {return numaprofHelper.humanReadable(x,1,'',false);},
 		defaultOrder: 'desc',
-		ref: 'sum'
+		ref: 'sum',
+		subMetrics: ['access.firstTouch','access.unpinnedFirstTouch']
 	},
 	'access.allAccess': {
 		name: 'All access',
 		extractor: function(x) {return x.access.unpinnedPageAccess + x.access.unpinnedThreadAccess + x.access.unpinnedBothAccess + x.access.localAccess+x.access.remoteAccess+x.access.mcdramAccess;},
 		formalter: function(x) {return numaprofHelper.humanReadable(x,1,'',false);},
 		defaultOrder: 'desc',
-		ref: 'sum'
+		ref: 'sum',
+		subMetrics: ['access.unpinnedPageAccess','access.unpinnedThreadAccess','access.unpinnedBothAccess','access.localAccess','access.remoteAccess','access.mcdramAccess']
+	},
+	'separator1': {
+		name: '----------------------------------',
 	},
 	'alloc.allFirstTouch': {
-		name: 'Alloc all access first touch',
+		name: 'All alloc first touch',
 		extractor: function(x) {return x.alloc.firstTouch + x.alloc.unpinnedFirstTouch;},
 		formalter: function(x) {return numaprofHelper.humanReadable(x,1,'',false);},
 		defaultOrder: 'desc',
-		ref: 'sum'
+		ref: 'sum',
+		subMetrics: ['alloc.firstTouch','alloc.unpinnedFirstTouch']
 	},
 	'alloc.allAccess': {
-		name: 'Alloc all access',
+		name: 'All alloc access',
 		extractor: function(x) {return x.alloc.unpinnedPageAccess + x.alloc.unpinnedThreadAccess + x.alloc.unpinnedBothAccess + x.alloc.localAccess+x.alloc.remoteAccess+x.alloc.mcdramAccess;},
 		formalter: function(x) {return numaprofHelper.humanReadable(x,1,'',false);},
 		defaultOrder: 'desc',
-		ref: 'sum'
+		ref: 'sum',
+		subMetrics: ['alloc.unpinnedPageAccess','alloc.unpinnedThreadAccess','alloc.unpinnedBothAccess','alloc.localAccess','alloc.remoteAccess','alloc.mcdramAccess']
+	},
+	'separator2': {
+		name: '----------------------------------',
 	},
 	'access.firstTouch': {
 		name: 'First touch',
@@ -87,6 +97,9 @@ NumaprofFuncMetrics.prototype.metrics = {
 		formalter: function(x) {return numaprofHelper.humanReadable(x,1,'',false);},
 		defaultOrder: 'desc',
 		ref: 'sum'
+	},
+	'separator3': {
+		name: '----------------------------------',
 	},
 	'alloc.firstTouch': {
 		name: 'Alloc first touch',
