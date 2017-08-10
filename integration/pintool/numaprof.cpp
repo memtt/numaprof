@@ -259,6 +259,14 @@ static VOID beforeSchedGetAffinity(ADDRINT pid, ADDRINT size,ADDRINT mask,THREAD
 }
 
 /*******************  FUNCTION  *********************/
+static VOID beforeSetMemPolicy(ADDRINT mode, ADDRINT nodemask,ADDRINT maxnode,THREADID threadid)
+{
+	printf("--> Intercept thread membind!\n");
+
+	getTls(threadid).tracker->onMemBind(mode,(const unsigned long*)nodemask,maxnode);
+}
+
+/*******************  FUNCTION  *********************/
 const string& Target2RtnName(ADDRINT target)
 {
 	const string & name = RTN_FindNameByAddress(target);
@@ -645,6 +653,29 @@ static VOID instrImageMain(IMG img, VOID *v)
 }
 
 /*******************  FUNCTION  *********************/
+static VOID instrImageSetMempolicy(IMG img, VOID *v)
+{
+	// Instrument the sched_setaffinity function to intercept thread pinning.  
+
+	//search by name
+	RTN setMemPolicyRtn = RTN_FindByName(img, "set_mempolicy");
+	
+	//printf(FREE " out\n");
+	if (RTN_Valid(setMemPolicyRtn))
+	{
+		RTN_Open(setMemPolicyRtn);
+
+		// Instrument malloc() to print the input argument value and the return value.
+		RTN_InsertCall(setMemPolicyRtn, IPOINT_BEFORE, (AFUNPTR)beforeSetMemPolicy,
+					   IARG_FUNCARG_ENTRYPOINT_VALUE, 0,
+					   IARG_FUNCARG_ENTRYPOINT_VALUE, 1,
+					   IARG_FUNCARG_ENTRYPOINT_VALUE, 2,
+					   IARG_THREAD_ID,IARG_END);
+		RTN_Close(setMemPolicyRtn);
+	}
+}
+
+/*******************  FUNCTION  *********************/
 static VOID instrImageSetSchedAffinity(IMG img, VOID *v)
 {
 	// Instrument the sched_setaffinity function to intercept thread pinning.  
@@ -840,6 +871,7 @@ static VOID instrImage(IMG img, VOID *v)
 			instrImageMain(img,v);
 	}
 	instrImageSetSchedAffinity(img,v);
+	instrImageSetMempolicy(img,v);
 }
 
 /*******************  FUNCTION  *********************/

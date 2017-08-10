@@ -12,6 +12,7 @@
 #include "ThreadTracker.hpp"
 #include "../common/Debug.hpp"
 #include "../portability/OS.hpp"
+#include "linux/mempolicy.h"
 
 /*******************  NAMESPACE  ********************/
 namespace numaprof
@@ -29,6 +30,8 @@ ThreadTracker::ThreadTracker(ProcessTracker * process)
 	this->topo = &process->getNumaTopo();
 	this->clockStart = Clock::get();
 	this->tid = OS::getTID();
+	this->memPolicy = topo->getCurrentMemPolicy();
+	logBinding(memPolicy);
 	logBinding(this->numa);
 	printf("Numa initial mapping : %d\n",numa);
 }
@@ -37,6 +40,15 @@ ThreadTracker::ThreadTracker(ProcessTracker * process)
 int ThreadTracker::getTID(void)
 {
 	return this->tid;
+}
+
+/*******************  FUNCTION  *********************/
+void ThreadTracker::logBinding(MemPolicy & policy)
+{
+	ThreadMemBindingLogEntry entry;
+	entry.at = Clock::get();
+	entry.policy = policy;
+	memPolicyLog.push_back(entry);
 }
 
 /*******************  FUNCTION  *********************/
@@ -77,9 +89,27 @@ void ThreadTracker::onSetAffinity(cpu_set_t * mask,int size)
 }
 
 /*******************  FUNCTION  *********************/
+void ThreadTracker::onMemBind(int mode,const unsigned long * mask,unsigned long maxNodes)
+{
+	memPolicy.mode = mode;
+	if (maxNodes % 8 != 0)
+		maxNodes += 8 - maxNodes%8;
+	for (unsigned long i = 0 ; i < maxNodes / 8 ; i++)
+		memPolicy.mask[i] = mask[i];
+	topo->staticComputeBindType(memPolicy);
+	logBinding(memPolicy);
+}
+
+/*******************  FUNCTION  *********************/
 char getAddrValue(char * ptr)
 {
 	return *ptr;
+}
+
+/*******************  FUNCTION  *********************/
+inline bool ThreadTracker::isMemBind(void)
+{
+	return (numa != -1 || memPolicy.type != MEMBIND_NO_BIND);
 }
 
 /*******************  FUNCTION  *********************/
@@ -117,10 +147,10 @@ void ThreadTracker::onAccess(size_t ip,size_t addr,bool write)
 				//nothing to do, already done
 				//CAUTION it rely on the fact that table->canBeHugePage() is called ONLY HERE.
 			} else if (table->canBeHugePage(addr)) {
-				table->setHugePageFromPinnedThread(addr,numa != -1);
+				table->setHugePageFromPinnedThread(addr,isMemBind());
 				touchedPages = NUMAPROG_HUGE_PAGE_SIZE / NUMAPROF_PAGE_SIZE;
 			} else { 
-				page.fromPinnedThread = (numa != -1);
+				page.fromPinnedThread = isMemBind();
 			}
 		}
 		
@@ -173,7 +203,7 @@ void ThreadTracker::onAccess(size_t ip,size_t addr,bool write)
 	if (pageNode <= NUMAPROF_DEFAULT_NUMA_NODE || isWriteFirstTouch)
 	{
 		//check unpinned first access
-		if (numa == -1)
+		if (isMemBind())
 		{
 			stats.unpinnedFirstTouch += touchedPages;
 			instr.unpinnedFirstTouch += touchedPages;
@@ -333,6 +363,49 @@ void convertToJson(htopml::JsonState& json, const ThreadBindingLogEntry& value)
 	json.openStruct();
 		json.printField("at",value.at);
 		json.printField("numa",value.numa);
+	json.closeStruct();
+}
+
+/*******************  FUNCTION  *********************/
+void convertToJson(htopml::JsonState& json, const ThreadMemBindingLogEntry& value)
+{
+	json.openStruct();
+		json.printField("at",value.at);
+		json.printField("policy",value.policy);
+	json.closeStruct();
+}
+
+/*******************  FUNCTION  *********************/
+void convertToJson(htopml::JsonState& json, const MemPolicy& value)
+{
+	json.openStruct();
+		switch (value.mode)
+		{
+			case MPOL_DEFAULT:
+				json.printField("mode","MPOL_DEFAULT");
+				break;
+			case MPOL_BIND:
+				json.printField("mode","MPOL_BIND");
+				break;
+			case MPOL_INTERLEAVE:
+				json.printField("mode","MPOL_INTERLEAVE");
+				break;
+			case MPOL_PREFERRED:
+				json.printField("mode","MPOL_PREFERRED");
+				break;
+			case MPOL_LOCAL:
+				json.printField("mode","MPOL_LOCAL");
+				break;
+			default:
+				json.printField("mode",value.mode);
+				break;
+		}
+		
+		json.openFieldArray("mask");
+			for (size_t i = 0 ; i < sizeof (value.mask) * 8 ; i++)
+				if (value.mask[i/64] & (1 << (i%64)))
+					json.printValue(i);
+		json.closeFieldArray("mask");
 	json.closeStruct();
 }
 

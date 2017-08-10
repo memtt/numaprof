@@ -16,7 +16,7 @@
 #ifdef __PIN__
 	#include "../../extern-deps/from-numactl/MovePages.hpp"
 #else
-	#include "numa.h"
+	#include "numaif.h"
 #endif
 #ifndef gettid
 	#include <sys/syscall.h>
@@ -149,7 +149,7 @@ int OS::getNumaOfPage(size_t addr)
 	page = page & (~4095);
 	void * pages[1] = {(void*)page};
 	int status;
-	long ret = numa_move_pages(0,1,pages,NULL,&status,0);
+	long ret = move_pages(0,1,pages,NULL,&status,0);
 	if (ret == 0)
 	{
 		return status;

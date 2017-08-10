@@ -11,7 +11,7 @@
 #include <sys/syscall.h> 
 #include "MovePages.hpp"
 //#include "numa.h"
-//#include "numaif.h"
+#include "numaif.h"
 //#include "numaint.h"
 
 namespace numaprof
@@ -180,9 +180,24 @@ long syscall6(long call, long a, long b, long c, long d, long e, long f)
 #endif
 
 /*******************  FUNCTION  *********************/
-long numa_move_pages(int pid, unsigned long count,void **pages, const int *nodes, int *status, int flags)
+long move_pages(int pid, unsigned long count,void **pages, const int *nodes, int *status, int flags)
 {
 	return syscall6(__NR_move_pages, (long)pid, (long)count,(long) pages,(long) nodes, (long)status, flags);
+}
+
+/*******************  FUNCTION  *********************/
+long set_mempolicy(int mode, const unsigned long *nmask,unsigned long maxnode)
+{
+	long i;
+	i = syscall(__NR_set_mempolicy,mode,nmask,maxnode);
+	return i;
+}
+
+/*******************  FUNCTION  *********************/
+long get_mempolicy(int *policy, unsigned long *nmask,unsigned long maxnode, void *addr,unsigned flags)
+{
+	return syscall(__NR_get_mempolicy, policy, nmask,
+					maxnode, addr, flags);
 }
 
 }

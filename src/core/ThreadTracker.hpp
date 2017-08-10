@@ -18,6 +18,7 @@
 #include "Stack.hpp"
 #include "AccessMatrix.hpp"
 #include "../portability/Clock.hpp"
+#include "../portability/OS.hpp"
 
 /*******************  NAMESPACE  ********************/
 namespace numaprof
@@ -30,9 +31,17 @@ struct ThreadBindingLogEntry
 	int numa;
 };
 
+/*********************  STRUCT  *********************/
+struct ThreadMemBindingLogEntry
+{
+	ClockValue at;
+	MemPolicy policy;
+};
+
 /*********************  TYPES  **********************/
 typedef std::map<Stats *,Stats> AllocCacheMap;
 typedef std::list<ThreadBindingLogEntry> ThreadBindingLog;
+typedef std::list<ThreadMemBindingLogEntry> MemPolicyLog;
 
 /*********************  CLASS  **********************/
 class ThreadTracker
@@ -51,10 +60,13 @@ class ThreadTracker
 		void onRealloc(size_t ip, size_t oldPtr, size_t newPtr, size_t newSize);
 		void onEnterFunction(void * addr);
 		void onExitFunction(void);
+		void onMemBind(int mode,const unsigned long * mask,unsigned long maxNodes);
 		int getTID(void);
 		friend void convertToJson(htopml::JsonState& json, const ThreadTracker& value);
 	private:
 		void logBinding(int numa);
+		void logBinding(MemPolicy & policy);
+		bool isMemBind(void);
 	private:
 		int tid;
 		ProcessTracker * process;
@@ -73,10 +85,14 @@ class ThreadTracker
 		ThreadBindingLog bindingLog;
 		ClockValue clockStart;
 		ClockValue clockEnd;
+		MemPolicy memPolicy;
+		MemPolicyLog memPolicyLog;
 };
 
 /*******************  FUNCTION  *********************/
 void convertToJson(htopml::JsonState& json, const ThreadBindingLogEntry& value);
+void convertToJson(htopml::JsonState& json, const ThreadMemBindingLogEntry& value);
+void convertToJson(htopml::JsonState& json, const MemPolicy& value);
 
 }
 

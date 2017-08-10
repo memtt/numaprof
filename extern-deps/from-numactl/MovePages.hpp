@@ -18,7 +18,9 @@ namespace numaprof
 {
 
 /*******************  FUNCTION  *********************/
-extern long numa_move_pages(int pid, unsigned long count,void **pages, const int *nodes, int *status, int flags);
+long move_pages(int pid, unsigned long count,void **pages, const int *nodes, int *status, int flags);
+long get_mempolicy(int *policy, unsigned long *nmask,unsigned long maxnode, void *addr,unsigned flags);
+long set_mempolicy(int mode, const unsigned long *nmask,unsigned long maxnode);
 
 }
 

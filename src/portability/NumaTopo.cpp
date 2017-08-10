@@ -16,6 +16,12 @@
 #include "../common/Helper.hpp"
 #include "../portability/NumaTopo.hpp"
 #include "../portability/OS.hpp"
+#include "linux/mempolicy.h"
+#ifdef __PIN__
+	#include "../../extern-deps/from-numactl/MovePages.hpp"
+#else
+	#include "numaif.h"
+#endif
 
 //we cannot use the standard sched_get_affinity function in pin :(
 #ifdef USE_PIN_LOCKS
@@ -188,6 +194,7 @@ int NumaTopo::getCurrentNumaAffinity(CpuBindList * cpuBindList)
 int NumaTopo::getCurrentNumaAffinity(cpu_set_t * mask, int size,CpuBindList * cpuBindList)
 {
 	int numa = -2;
+	numaprofAssume(sizeof(*mask) * 8 >= (size_t)cpus,"Size issue with CPU mask from CPUSET !");
 
 	//clear
 	if (cpuBindList != NULL)
@@ -214,6 +221,70 @@ int NumaTopo::getCurrentNumaAffinity(cpu_set_t * mask, int size,CpuBindList * cp
 
 	printf("Thread is binded on NUMA %d\n",numa);
 	return numa;
+}
+
+/*******************  FUNCTION  *********************/
+MemPolicy NumaTopo::getCurrentMemPolicy()
+{
+	static bool hasMemPolicy = true;
+
+	MemPolicy policy;
+	int status = 1;
+	
+	if (hasMemPolicy)
+	{
+		status = get_mempolicy(&policy.mode,policy.mask,8*sizeof(policy.mask),NULL,0);
+		if (status != 0)
+		{
+			printf("\033[31mCAUTION, get_mempolicy not implemented, you might be running on a non NUMA system !\nAll accesses will be considered local !\033[0m\n");
+			hasMemPolicy = false;
+		}
+	}
+
+	if (status != 0)
+	{
+		policy.mode = MPOL_BIND;
+		for (int i = 0 ; i < numaNodes ; i++)
+			policy.mask[i/64] |= 1 << (i%64);
+	}
+	
+	staticComputeBindType(policy);
+	return policy;
+}
+
+/*******************  FUNCTION  *********************/
+void NumaTopo::staticComputeBindType(MemPolicy & policy)
+{
+	//no binding
+	if (policy.mode == MPOL_DEFAULT || policy.mode == MPOL_LOCAL)
+		policy.type = MEMBIND_NO_BIND;
+	
+	//consider as bind but give an undefined value
+	if (policy.mode == MPOL_INTERLEAVE)
+		policy.type = MEMBIND_INTERLEAVE;
+
+	//binding, check which node is prefered.
+	if (policy.mode == MPOL_PREFERRED || policy.mode == MPOL_BIND)
+	{
+		int numa = -2;
+		for (size_t i = 0 ; i < sizeof (policy.mask) * 8 ; i++)
+		{
+			if (policy.mask[i/64] & (1 << (i%64)))
+			{
+				if (numa == -2)
+					numa = numaMap[i];
+				if (numa != numaMap[i])
+					numa = -1;
+			}
+		}
+		
+		if (numa == -2 || numa >= 0)
+			policy.type = MEMBIND_BIND_ONE;
+		if (numa == -1)
+			policy.type = MEMBIND_BIND_MULTIPLE;
+	}
+	
+	policy.type = MEMBIND_NO_BIND;
 }
 
 /*******************  FUNCTION  *********************/
