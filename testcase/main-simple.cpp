@@ -11,7 +11,7 @@
 #include <cstdlib>
 #include <unistd.h>
 
-#define CNT 100
+#define CNT 5
 
 /*******************  FUNCTION  *********************/
 int func()

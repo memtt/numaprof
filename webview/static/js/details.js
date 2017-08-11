@@ -366,7 +366,7 @@ function setupInitial(data)
 	//setup paging
 	$('#paging').bootpag({
 		total: pages,
-		page: 1,
+		page: 0,
 		maxVisible: 10,
 		leaps: false,
 		firstLastUse: true,
