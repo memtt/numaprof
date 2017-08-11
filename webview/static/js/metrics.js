@@ -145,8 +145,8 @@ NumaprofFuncMetrics.prototype.metrics = {
 	},
 	'alloc.remoteAccess': {
 		name: 'Alloc remote access',
-		extractor: function(x) {return x.access.remoteAccess;},
-		formalter: function(x) {return alloc.humanReadable(x,1,'',false);},
+		extractor: function(x) {return x.alloc.remoteAccess;},
+		formalter: function(x) {return numaprofHelper.humanReadable(x,1,'',false);},
 		defaultOrder: 'desc',
 		ref: 'sum'
 	},

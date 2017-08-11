@@ -171,4 +171,4 @@ def sourceFiles(path):
 	else:
 		abort(404)
 
-app.run(host="127.0.0.1", port=8080, threaded=False)
+app.run(host="127.0.0.1", port=8080, threaded=True)

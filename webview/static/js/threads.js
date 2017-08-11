@@ -13,7 +13,7 @@ function setupBarChart(svgId,data)
 	var cnt = data[0].values.length
 	
 	//setup height
-	svg = d3.select('#'+svgId+' svg').attr("height",cnt*30);
+	svg = d3.select('#'+svgId+' svg').attr("height",100+cnt*30);
 	
 	console.log(data);
 	

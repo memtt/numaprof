@@ -11,6 +11,8 @@
 #include <cstdlib>
 #include <unistd.h>
 
+#define CNT 100
+
 /*******************  FUNCTION  *********************/
 int func()
 {
@@ -19,10 +21,14 @@ int func()
 	printf("%s\n",buffer);
 	free(buffer);
 
-	buffer = new char[20*1024*1024];
-	for (int i = 0 ; i < 20*1024*1024 ; i++)
-		buffer[i] = 0;
-	delete [] buffer;
+	char * lst[CNT];
+	for (int i = 0 ; i < CNT ; i++)
+		lst[i] = new char[20*1024*1024];
+	for (int j = 0 ; j < CNT ; j++)
+		for (int i = 0 ; i < 20*1024*1024 ; i++)
+			lst[j][i] = 0;
+	for (int i = 0 ; i < CNT ; i++)
+		delete [] lst[i];
 }
 
 /*******************  FUNCTION  *********************/

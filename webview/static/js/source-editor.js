@@ -105,7 +105,7 @@ MaltSourceEditor.prototype.loadSourceFile = function(file,success,fail)
 		success(data);
 	})
 	.fail(function(data) {
-		fail();
+		
 	});
 }
 
@@ -297,7 +297,7 @@ MaltSourceEditor.prototype.updateAnotations = function(move)
 			cur.doPostMove();
 	})
 	.fail(function(data) {
-		fail();
+		
 	});
 // 	maltDataSource.loadSourceFileAnnotations(file,function(data) {
 // 
