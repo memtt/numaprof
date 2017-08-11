@@ -141,6 +141,8 @@ NumaprofSourceEditor.prototype.moveToFile = function(file)
 	    return str.replace(/[&<>]/g, replaceTag);
 	}
 	
+	var margin = 150;
+	
 	//load the new file in editor
 	console.log(file);
 	if(file == '??' || file == '' || file == undefined) {
@@ -167,6 +169,7 @@ NumaprofSourceEditor.prototype.moveToFile = function(file)
 			Prism.highlightElement(cur.syntaxHighlighterEle);
 			cur.file = file;
 			cur.updateAnotations();
+			$("#"+cur.containerId+" pre").height($( window ).height() - margin);
 		}, function() {
 			// XHR fails to load file, show error message
 			cur.container.innerHTML = 
@@ -180,8 +183,14 @@ NumaprofSourceEditor.prototype.moveToFile = function(file)
 				class: "line-annotate-large"
 			});
 			cur.file = "--";
+			$("#"+cur.containerId+" pre").height($( window ).height() - margin);
 		});
 	}
+	
+	var cur = this;
+	$( window ).resize(function() {
+		$("#"+cur.containerId+" pre").height($( window ).height() - margin);
+	});
 }
 
 /********************************************************************/
