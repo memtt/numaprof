@@ -301,6 +301,9 @@ NumaprofSourceEditor.prototype.updateAnotations = function(move)
 	var cur = this;
 	var file = this.file;
 	
+	if (file == "??" || file == null || file == "")
+		return;
+	
 	//fetch flat profile of current file
 	$.get( "/api/sources/file-stats"+file, function(data) {
 		//update data with more info than provided by server
@@ -319,7 +322,7 @@ NumaprofSourceEditor.prototype.updateAnotations = function(move)
 			cur.doPostMove();
 	})
 	.fail(function(data) {
-		
+		numaprofHelper.logErrorRepl("Failed to load annotations for "+file);
 	});
 // 	maltDataSource.loadSourceFileAnnotations(file,function(data) {
 // 

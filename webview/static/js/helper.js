@@ -21,6 +21,13 @@ NumaprofHelper.prototype.logError = function(message)
 }
 
 /*******************  FUNCTION  *********************/
+NumaprofHelper.prototype.logErrorRepl = function(message)
+{
+	$("#errors").html("");
+	$( "<div>" ).text(message).appendTo( "#errors" );
+}
+
+/*******************  FUNCTION  *********************/
 NumaprofHelper.prototype.valOrDefault = function(value,defaultValue)
 {
 	if (value == undefined)
