@@ -287,8 +287,8 @@ MemPolicy NumaTopo::getCurrentMemPolicy()
 			printf("\033[31mCAUTION, get_mempolicy not implemented, you might be running on a non NUMA system !\nAll accesses will be considered local !\033[0m\n");
 			hasMemPolicy = false;
 		} else {
-			for (int i = 0 ; i < 4 ; i++)
-				policy.mask[i] = mask[i];
+			for (int i = 0 ; i < numaNodes ; i++)
+				policy.mask[i/64] |= (mask[i/64] & (1lu << (i%64)));
 		}
 		free(mask);
 	}
