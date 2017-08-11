@@ -1,10 +1,18 @@
+/*****************************************************
+             PROJECT  : numaprof
+             VERSION  : 2.3.0
+             DATE     : 05/2017
+             AUTHOR   : Valat Sébastien - CERN
+             LICENSE  : CeCILL-C
+*****************************************************/
+
 /********************************************************************/
 /**
  * Provide a source code editor to annotate sources with profiled values.
  * @param containerId Provide the ID of the div in which to setup the code editor.
  * @param selector Define a metric selector to extract call sites infos for annotations
 **/
-function MaltSourceEditor(containerId,selector)
+function NumaprofSourceEditor(containerId,selector)
 {
 	//errors
 	//maltHelper.assert(selector != undefined && selector instanceof MaltSelector);
@@ -27,13 +35,13 @@ function MaltSourceEditor(containerId,selector)
 
 /********************************************************************/
 //To be override by user to capture events
-MaltSourceEditor.prototype.onClick = function(infos)
+NumaprofSourceEditor.prototype.onClick = function(infos)
 {
 	alert(JSON.stringify(infos,null,'\t'));
 }
 
 /********************************************************************/
-MaltSourceEditor.prototype.doPostMove = function()
+NumaprofSourceEditor.prototype.doPostMove = function()
 {
 	if (this.postMove == null)
 		return;
@@ -52,7 +60,7 @@ MaltSourceEditor.prototype.doPostMove = function()
 }
 
 /********************************************************************/
-MaltSourceEditor.prototype.getLanguage = function(filename)
+NumaprofSourceEditor.prototype.getLanguage = function(filename)
 {
 	//set mode
 	var ext = (/[.]/.exec(filename)) ? /[^.]+$/.exec(filename) : undefined;
@@ -82,7 +90,7 @@ MaltSourceEditor.prototype.getLanguage = function(filename)
 }
 
 /********************************************************************/
-MaltSourceEditor.prototype.getLanguageClassForHighlighter = function(name) {
+NumaprofSourceEditor.prototype.getLanguageClassForHighlighter = function(name) {
 	name = name.toLowerCase();
 	switch(name) 
 	{
@@ -99,7 +107,7 @@ MaltSourceEditor.prototype.getLanguageClassForHighlighter = function(name) {
 }
 
 /********************************************************************/
-MaltSourceEditor.prototype.loadSourceFile = function(file,success,fail)
+NumaprofSourceEditor.prototype.loadSourceFile = function(file,success,fail)
 {
 	$.get( "/api/sources/file"+file, function(data) {
 		success(data);
@@ -110,7 +118,7 @@ MaltSourceEditor.prototype.loadSourceFile = function(file,success,fail)
 }
 
 /********************************************************************/
-MaltSourceEditor.prototype.moveToFile = function(file)
+NumaprofSourceEditor.prototype.moveToFile = function(file)
 {
 	//nothing to do
 	if (this.file == file)
@@ -176,7 +184,7 @@ MaltSourceEditor.prototype.moveToFile = function(file)
 }
 
 /********************************************************************/
-MaltSourceEditor.prototype.findLargestAnnot = function(file,func)
+NumaprofSourceEditor.prototype.findLargestAnnot = function(file,func)
 {
 	var line = -1;
 	var max = 0;
@@ -200,7 +208,7 @@ MaltSourceEditor.prototype.findLargestAnnot = function(file,func)
 }
 
 /********************************************************************/
-MaltSourceEditor.prototype.moveToFileFunction = function(file,func)
+NumaprofSourceEditor.prototype.moveToFileFunction = function(file,func)
 {
 	if (func != -1 && func != '' && func != '??')
 		this.postMove = {type:'func',func:func};
@@ -210,7 +218,7 @@ MaltSourceEditor.prototype.moveToFileFunction = function(file,func)
 }
 
 /****************************************************/
-MaltSourceEditor.prototype.internalMergeStackMinMaxInfo = function(onto,value)
+NumaprofSourceEditor.prototype.internalMergeStackMinMaxInfo = function(onto,value)
 {
 	onto.count += value.count;
 	onto.sum += value.sum;
@@ -221,7 +229,7 @@ MaltSourceEditor.prototype.internalMergeStackMinMaxInfo = function(onto,value)
 }
 
 /****************************************************/
-MaltSourceEditor.prototype.internalMergeStackInfoDatas = function(onto,value)
+NumaprofSourceEditor.prototype.internalMergeStackInfoDatas = function(onto,value)
 {
 	onto.countZeros += value.countZeros;
 	onto.maxAliveReq += value.maxAliveReq;
@@ -232,7 +240,7 @@ MaltSourceEditor.prototype.internalMergeStackInfoDatas = function(onto,value)
 }
 
 /********************************************************************/
-MaltSourceEditor.prototype.internalComputeTotal = function(value)
+NumaprofSourceEditor.prototype.internalComputeTotal = function(value)
 {
 	//already done
 	if (value.total != undefined)
@@ -251,7 +259,7 @@ MaltSourceEditor.prototype.internalComputeTotal = function(value)
 
 /********************************************************************/
 //extract max
-MaltSourceEditor.prototype.extractMax = function(data)
+NumaprofSourceEditor.prototype.extractMax = function(data)
 {
 	//setup some vars
 	var max = 0;
@@ -273,7 +281,7 @@ MaltSourceEditor.prototype.extractMax = function(data)
 
 /********************************************************************/
 //update anotations
-MaltSourceEditor.prototype.updateAnotations = function(move)
+NumaprofSourceEditor.prototype.updateAnotations = function(move)
 {
 	//keep track of current this
 	var cur = this;
@@ -318,7 +326,33 @@ MaltSourceEditor.prototype.updateAnotations = function(move)
 }
 
 /********************************************************************/
-MaltSourceEditor.prototype.redrawAnnotations = function()
+NumaprofSourceEditor.prototype.genPieDataTouch = function(data)
+{
+	var mode = this.selector.metric.split('.')[0];
+	var dataset = [
+		{legend:"Pinned", value:data.data[mode]["firstTouch"], color:"rgb(44, 160, 44)"},
+		{legend:"Unpinned", value:data.data[mode]["unpinnedFirstTouch"], color:"rgb(255, 127, 14)"},
+		];
+	return dataset;
+}
+
+/********************************************************************/
+NumaprofSourceEditor.prototype.genPieDataAccess = function(data)
+{
+	var mode = this.selector.metric.split('.')[0];
+	var dataset = [
+		{legend:"MCDRAM", value:data.data[mode]["mcdramAccess"], color:"#FF79DE"},
+		{legend:"Remote", value:data.data[mode]["remoteAccess"], color:"red"},
+		{legend:"Loca", value:data.data[mode]["localAccess"], color:"rgb(44, 160, 44)"},
+		{legend:"Un. Both", value:data.data[mode]["unpinnedBothAccess"], color:"rgb(31, 119, 180)"},
+		{legend:"Un. Thread", value:data.data[mode]["unpinnedThreadAccess"], color:"rgb(255, 127, 14)"},
+		{legend:"Un. Page", value:data.data[mode]["unpinnedPageAccess"], color: "rgb(255, 187, 120)"},
+		];
+	return dataset;
+}
+
+/********************************************************************/
+NumaprofSourceEditor.prototype.redrawAnnotations = function()
 {
 	//search max to compute color gradiant
 	var max = this.extractMax(this.data);
@@ -338,6 +372,10 @@ MaltSourceEditor.prototype.redrawAnnotations = function()
 		Prism.plugins.codeAnnotator.add(this.syntaxHighlighterEle, {
 			line: i, 
 			text: this.selector.getFormattedValue(this.data[i]), 
+			data: this.data[i],
+			onPopover: function(data) {
+				return "<table class='annotation-details'><tr><th>Touch</th><th>Access</th></tr><tr><td>"+cur.genD3Pie(cur.genPieDataTouch(data))+"</td><td>"+cur.genD3Pie(cur.genPieDataAccess(data))+"</td></tr></table>";
+			},
 			// class: "line-annotate-small",
 			color: colorScale(this.selector.getValue(this.data[i])),
 			onClick: function(ele, data) {
@@ -346,4 +384,66 @@ MaltSourceEditor.prototype.redrawAnnotations = function()
 			data: this.data[i],
 		});
 	}
+}
+
+/*******************  FUNCTION  *********************/
+NumaprofSourceEditor.prototype.genD3Pie = function(dataset)
+{
+// 		var dataset = [
+// 		{legend:"apple", value:10, color:"red"},
+// 		{legend:"orange", value:45, color:"orangered"},
+// 		{legend:"banana", value:25, color:"yellow"},
+// 		{legend:"peach", value:70, color:"pink"},
+// 		{legend:"grape", value:20, color:"purple"}
+// 		];
+
+	var sum = 0;
+	for (var i in dataset)
+		sum += dataset[i].value;
+	
+	var width = 100;
+	var height = width;
+	var radius = width/2;
+	
+	$("#svg-buffer").html("<svg/>");
+
+	var svg = d3.select("#svg-buffer svg")
+		.attr("width", width)
+		.attr("height", height)
+		.append("g")
+		.attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+
+	if (sum > 0)
+	{
+		var arc = d3.svg.arc()
+			.outerRadius(radius)
+			.innerRadius(00);
+
+		var pie = d3.layout.pie()
+			.sort(null)
+			.value(function(d){ return d.value; });
+
+		var g = svg.selectAll(".fan")
+			.data(pie(dataset))
+			.enter()
+			.append("g")
+			.attr("class", "fan")
+
+		g.append("path")
+			.attr("d", arc)
+			.attr("fill", function(d){ return d.data.color; })
+		
+		g.append("text")
+			.attr("transform", function(d) { return "translate(" + arc.centroid(d) + ")"; })
+			.style("text-anchor", "middle")
+			.style("font-size","12")
+			.text(function(d) { return (d.data.value / sum > 0.5)?d.data.legend:""; });
+	} else {
+		svg.append("text")
+			.attr("transform", function(d) { return "translate(0,0)"; })
+			.style("text-anchor", "middle")
+			.text(function(d) { return "NONE"; });
+	}
+	
+	return $("#svg-buffer").html();
 }

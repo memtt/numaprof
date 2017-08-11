@@ -363,10 +363,14 @@ function setupInitial(data)
 	if (pages * gblThreadPerPage != data.length)
 		pages++;
 	
+	var defaultPage = 1;
+	if (data.length == 1)
+		defaultPage = 0;
+	
 	//setup paging
 	$('#paging').bootpag({
 		total: pages,
-		page: 0,
+		page: defaultPage,
 		maxVisible: 10,
 		leaps: false,
 		firstLastUse: true,

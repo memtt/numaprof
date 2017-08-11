@@ -910,6 +910,7 @@ Prism.plugins.codeAnnotator = {
 		var lineHeight = parseMethod(getComputedStyle(element).lineHeight);
 
 		var line = document.createElement('a');
+		line.id = "prism-annot-line-"+data.line;
 		line.href = "javascript:;";
 		line.innerHTML = "<span>" + data.text + "</span>";
 		line.className = (data.class || '') + ' line-annotate' + ' first last';
@@ -917,6 +918,13 @@ Prism.plugins.codeAnnotator = {
 		data.color && (line.style.backgroundColor = data.color);
 		data.onClick && line.addEventListener("click", this.__clickEventHandler);
 	    element.appendChild(line);
+		
+		$('#'+line.id).popover({
+			trigger: "hover",
+			title: "Line "+data.line,
+			html : true,
+			content: function() {return data.onPopover(data);}
+		});
 
 	    if(!this.__annotations[element]) {
 	    	this.__annotations[element] = [];

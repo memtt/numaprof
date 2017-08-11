@@ -152,9 +152,10 @@ function loadFunctions()
 /*******************  FUNCTION  *********************/
 $(function() {
 	//exampleMenu();
-	gblSourceEditor = new MaltSourceEditor('numaprof-source-editor',selector);
+	gblSourceEditor = new NumaprofSourceEditor('numaprof-source-editor',selector);
 	//sourceEditor.moveToFile("/home/sebv/Projects/numaprof/src/core/ProcessTracker.cpp");
 	setupSelectorList();
 	Mustache.parse(template);   // optional, speeds up future uses
 	loadFunctions();
+	genD3Pie();
 });
