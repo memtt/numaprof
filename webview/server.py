@@ -47,7 +47,6 @@ args = parser.parse_args()
 
 ######################################################
 gblPathReplace = {};
-print args
 if args.override != None:
 	lst = args.override.split(",")
 	for over in lst:
@@ -62,7 +61,9 @@ def replaceInPath(path):
 	return path
 
 ######################################################
+print " * Loading file..."
 profile = ProfileHandler(args.profileFile)
+print " * Done"
 
 ######################################################
 @app.route('/')

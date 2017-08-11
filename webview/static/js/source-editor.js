@@ -142,9 +142,10 @@ NumaprofSourceEditor.prototype.moveToFile = function(file)
 	}
 	
 	//load the new file in editor
+	console.log(file);
 	if(file == '??' || file == '' || file == undefined) {
 		// XHR fails to load file, show error message
-		cur.container.innerHTML = 
+		this.container.innerHTML = 
 			'<pre class="line-numbers"><code>No source file to load</code></pre>';
 		cur.syntaxHighlighterEle = cur.container.getElementsByTagName("code")[0];
 		Prism.highlightElement(cur.syntaxHighlighterEle);
@@ -153,7 +154,7 @@ NumaprofSourceEditor.prototype.moveToFile = function(file)
 			text: "Error", 
 			class: "line-annotate-large"
 		});
-		cur.file = "";
+		this.file = "";
 	} else {
 		var cur = this;
 		this.loadSourceFile(file,function(data){

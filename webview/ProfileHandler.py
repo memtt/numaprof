@@ -25,6 +25,26 @@ class ProfileHandler:
 
 	def prepare(self):
 		self.prepareFileFilter();
+		self.prepareFileNameAndLine();
+	
+	def prepareFileNameAndLine(self):
+		#do it for instructions
+		for instr in self.data["instructions"]:
+			fname = self.getFuncFileName(instr)
+			func = self.getFuncName(instr)
+			line = self.getLine(instr)
+			self.data["instructions"][instr]["fname"] = fname
+			self.data["instructions"][instr]["func"] = func
+			self.data["instructions"][instr]["line"] = line
+		
+		#do it for allocs
+		for instr in self.data["allocs"]:
+			fname = self.getFuncFileName(instr)
+			func = self.getFuncName(instr)
+			line = self.getLine(instr)
+			self.data["allocs"][instr]["fname"] = fname
+			self.data["allocs"][instr]["func"] = func
+			self.data["allocs"][instr]["line"] = line
 	
 	def getFileName(self):
 		return self.filepath.split('/')[-1]
@@ -104,7 +124,10 @@ class ProfileHandler:
 			return "??"
 
 	def getLine(self,instr):
-		return self.data["symbols"]["instr"][instr]["line"]
+		if "line" in self.data["symbols"]["instr"][instr]:
+			return self.data["symbols"]["instr"][instr]["line"]
+		else:
+			return "??"
 
 	def merge(self,out,inData):
 		for entry in inData:
@@ -125,7 +148,8 @@ class ProfileHandler:
 	
 		#do it for instructions
 		for instr in self.data["instructions"]:
-			fname = self.getFuncName(instr)
+			#fname = self.getFuncName(instr)
+			fname = self.data["instructions"][instr]["func"]
 			if not fname in out:
 				out[fname] = self.getDefault()
 				out[fname]["file"] = self.getFuncFileName(instr)
@@ -135,10 +159,11 @@ class ProfileHandler:
 		
 		#do it for allocs
 		for instr in self.data["allocs"]:
-			fname = self.getFuncName(instr)
+			#fname = self.getFuncName(instr)
+			fname = self.data["allocs"][instr]["func"]
 			if not fname in out:
 				out[fname] = self.getDefault()
-				out[fname]["file"] = self.getFuncFileName(instr)
+				out[fname]["file"] = fname
 			if not "alloc" in out[fname]:
 				out[fname]["alloc"] = {}
 			self.merge(out[fname]["alloc"],self.data["allocs"][instr])
@@ -148,9 +173,11 @@ class ProfileHandler:
 		out = {}
 		#do it for instructions
 		for instr in self.data["instructions"]:
-			fname = self.getFuncFileName(instr)
+			#fname = self.getFuncFileName(instr)
+			fname = self.data["instructions"][instr]["fname"]
 			if fname == path:
-				line = self.getLine(instr)
+				#line = self.getLine(instr)
+				line = self.data["instructions"][instr]["line"]
 				if not line in out:
 					out[line] = self.getDefault()
 					out[line]["func"] = self.getFuncName(instr)
@@ -160,9 +187,11 @@ class ProfileHandler:
 		
 		#do it for allocs
 		for instr in self.data["allocs"]:
-			fname = self.getFuncFileName(instr)
+			#fname = self.getFuncFileName(instr)
+			fname = self.data["allocs"][instr]["fname"]
 			if fname == path:
-				line = self.getLine(instr)
+				#line = self.getLine(instr)
+				line = self.data["allocs"][instr]["line"]
 				if not line in out:
 					out[line] = self.getDefault()
 					out[line]["func"] = self.getFuncName(instr)
