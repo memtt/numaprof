@@ -142,7 +142,7 @@ void ThreadTracker::onAccess(size_t ip,size_t addr,bool write)
 			//we use a function to avoir compiler optim which
 			//would remove. Do not write a 0 in case our
 			//detection was wrong to not break data, se we read then write
-			*(char*)addr = getAddrValue((char*)addr);
+			__sync_fetch_and_add((char*)addr,0);
 			pageNode = OS::getNumaOfPage(addr);
 			assert(pageNode >= 0);
 			
