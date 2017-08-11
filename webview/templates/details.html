@@ -19,47 +19,58 @@
 {% endblock %}
 {% block content %}
 	<div id="paging"></div>
+	<div class="form-group">
+		<input type="text" class="form-control" id="jump" placeholder="5">
+	</div>
 
 	<div id='content'>
-		<div class="col-md-6" id="infosThreadOne">
+		<div class="col-md-6" id="infosThread0">
 			<div class="panel panel-default">
-				<div class="panel-heading">Thread 0</div>
+				<div class="panel-heading">Thread <span class="threadId"></span></div>
 				<table class='table table-bordered'>
 					<tbody id="numaTopology">
 						<tr>
 							<th>Lifetime</th>
-							<td id="lifetime"></td>
+							<td class="lifetime"></td>
+						</tr>
+						<tr>
+							<th>CPU thread binding</th>
+							<td class="cpuBinding"></td>
 						</tr>
 						<tr>
 							<th>Numa thread binding</th>
-							<td id="numaBinding"></td>
+							<td class="numaBinding"></td>
 						</tr>
 						<tr>
 							<th>Numa mem. policy</th>
-							<td id="numaMemPolicy"></td>
+							<td class="numaMemPolicy"></td>
 						</tr>
 						<tr>
-							<th>Stats</th>
-							<td id="threadFirstTouch">
+							<th>First touch</th>
+							<td class="threadFirstTouch">
 								<svg height="150px"></svg>
 							</td>
 						</tr>
 						<tr>
 							<th>Accsses</th>
-							<td id="threadAccesses">
+							<td class="threadAccesses">
 								<svg height="150px"></svg>
 							</td>
 						</tr>
 						<tr>
 							<th>Accsses</th>
 							<td>
-								<div id="accessMatrix" align="center"></div>
+								<div class="accessMatrix" align="center"></div>
 							</td>
 						</tr>
 						<tr>
 							<th>Pinning log</th>
 							<td>
-								<ul id="pinningLog" align="center"></ul>
+								<table class="table table-bordered">
+									<tbody class="pinningLog">
+									</tbody>
+								</table>
+								<!--<div class="pinningLog"></div>-->
 							</td>
 						</tr>
 					<tbody>

@@ -244,7 +244,7 @@ static VOID beforeFree(ADDRINT ptr,THREADID threadid)
 }
 
 /*******************  FUNCTION  *********************/
-static VOID beforeSchedGetAffinity(ADDRINT pid, ADDRINT size,ADDRINT mask,THREADID threadid)
+static VOID beforeSchedSetAffinity(ADDRINT pid, ADDRINT size,ADDRINT mask,THREADID threadid)
 {
 	printf("--> Intercept thread affinity of %lu (%d) (%p)!\n",pid,OS::getTID(),(void*)mask);
 
@@ -254,6 +254,7 @@ static VOID beforeSchedGetAffinity(ADDRINT pid, ADDRINT size,ADDRINT mask,THREAD
 	{
 		getTls(threadid).tracker->onSetAffinity((cpu_set_t*)mask,size);
 	} else {
+		printf("----> set affinity of remote thread\n");
 		gblProcessTracker->onThreadSetAffinity(pid,(cpu_set_t*)mask,size);
 	}
 }
@@ -261,9 +262,9 @@ static VOID beforeSchedGetAffinity(ADDRINT pid, ADDRINT size,ADDRINT mask,THREAD
 /*******************  FUNCTION  *********************/
 static VOID beforeSetMemPolicy(ADDRINT mode, ADDRINT nodemask,ADDRINT maxnode,THREADID threadid)
 {
-	printf("--> Intercept thread membind!\n");
+	printf("--> Intercept thread set mem policy!\n");
 
-	getTls(threadid).tracker->onMemBind(mode,(const unsigned long*)nodemask,maxnode);
+	getTls(threadid).tracker->onSetMemPolicy(mode,(const unsigned long*)nodemask,maxnode);
 }
 
 /*******************  FUNCTION  *********************/
@@ -689,7 +690,7 @@ static VOID instrImageSetSchedAffinity(IMG img, VOID *v)
 		RTN_Open(schedRtn);
 
 		// Instrument malloc() to print the input argument value and the return value.
-		RTN_InsertCall(schedRtn, IPOINT_BEFORE, (AFUNPTR)beforeSchedGetAffinity,
+		RTN_InsertCall(schedRtn, IPOINT_BEFORE, (AFUNPTR)beforeSchedSetAffinity,
 					   IARG_FUNCARG_ENTRYPOINT_VALUE, 0,
 					   IARG_FUNCARG_ENTRYPOINT_VALUE, 1,
 					   IARG_FUNCARG_ENTRYPOINT_VALUE, 2,

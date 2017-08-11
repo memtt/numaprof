@@ -56,10 +56,12 @@ function genFirstTouchData(data)
 	//base
 	out = [{
 		"key": "Pinned",
-		"values": []
+		"values": [],
+		"color": "rgb(44, 160, 44)",
 	},{
 		"key": "Unpinned",
-		"values": []
+		"values": [],
+		"color": "rgb(255, 127, 14)",
 	}];
 	
 	//for all threads
@@ -79,22 +81,28 @@ function genFirstAccess(data)
 	//base
 	out = [{
 		"key": "unpinnedPageAccess",
-		"values": []
+		"values": [],
+		"color": "rgb(255, 187, 120)",
 	},{
 		"key": "unpinnedThreadAccess",
-		"values": []
+		"values": [],
+		"color": "rgb(255, 127, 14)",
 	},{
 		"key": "unpinnedBothAccess",
-		"values": []
+		"values": [],
+		"color": "rgb(31, 119, 180)",
 	},{
 		"key": "localAccess",
-		"values": []
+		"values": [],
+		"color": "rgb(44, 160, 44)"
 	},{
 		"key": "remoteAccess",
-		"values": []
+		"values": [],
+		"color": "red"
 	},{
 		"key": "mcdramAccess",
-		"values": []
+		"values": [],
+		"color": "#FF79DE"
 	}];
 	
 	//for all threads

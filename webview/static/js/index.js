@@ -177,10 +177,12 @@ function genPieDataFirstTouch(data)
 	return [
 		{
 			"label": "Pinned",
-			"value": data.metrics.firstTouch
+			"value": data.metrics.firstTouch,
+			"color": "rgb(44, 160, 44)",
 		},{
 			"label": "Unpinned",
-			"value": data.metrics.unpinnedFirstTouch
+			"value": data.metrics.unpinnedFirstTouch,
+			"color": "rgb(255, 127, 14)",
 		}
 	];
 }
@@ -191,22 +193,28 @@ function genPieDataAccess(data)
 	return [
 		{
 			"label": "Local",
-			"value": data.metrics.localAccess
+			"value": data.metrics.localAccess,
+			"color": "rgb(44, 160, 44)"
 		},{
 			"label": "Remote",
-			"value": data.metrics.remoteAccess
+			"value": data.metrics.remoteAccess,
+			"color": "red"
 		},{
 			"label": "Unpinned page",
-			"value": data.metrics.unpinnedPageAccess
+			"value": data.metrics.unpinnedPageAccess,
+			"color": "rgb(255, 187, 120)",
 		},{
 			"label": "Unpinned thread",
-			"value": data.metrics.unpinnedThreadAccess
+			"value": data.metrics.unpinnedThreadAccess,
+			"color": "rgb(255, 127, 14)",
 		},{
 			"label": "Unpinned both",
-			"value": data.metrics.unpinnedBothAccess
+			"value": data.metrics.unpinnedBothAccess,
+			"color": "rgb(31, 119, 180)",
 		},{
 			"label": "MCDRAM",
-			"value": data.metrics.mcdramAccess
+			"value": data.metrics.mcdramAccess,
+			"color": "#FF79DE"
 		}
 	];
 }

@@ -60,7 +60,7 @@ class ThreadTracker
 		void onRealloc(size_t ip, size_t oldPtr, size_t newPtr, size_t newSize);
 		void onEnterFunction(void * addr);
 		void onExitFunction(void);
-		void onMemBind(int mode,const unsigned long * mask,unsigned long maxNodes);
+		void onSetMemPolicy(int mode,const unsigned long * mask,unsigned long maxNodes);
 		int getTID(void);
 		friend void convertToJson(htopml::JsonState& json, const ThreadTracker& value);
 	private:
@@ -87,6 +87,7 @@ class ThreadTracker
 		ClockValue clockEnd;
 		MemPolicy memPolicy;
 		MemPolicyLog memPolicyLog;
+		size_t * cntTouchedPages;
 };
 
 /*******************  FUNCTION  *********************/

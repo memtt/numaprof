@@ -97,8 +97,11 @@ class ProfileHandler:
 		return self.data["symbols"]["strings"][id]
 	
 	def getFuncFileName(self,instr):
-		id = self.data["symbols"]["instr"][instr]["file"]
-		return self.data["symbols"]["strings"][id]
+		if "file" in self.data["symbols"]["instr"][instr]:
+			id = self.data["symbols"]["instr"][instr]["file"]
+			return self.data["symbols"]["strings"][id]
+		else:
+			return "??"
 
 	def getLine(self,instr):
 		return self.data["symbols"]["instr"][instr]["line"]

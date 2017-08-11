@@ -35,6 +35,11 @@ ThreadTracker::ThreadTracker(ProcessTracker * process)
 	logBinding(this->numa);
 	printf("Numa initial mapping : %d\n",numa);
 	printf("Numa initial mem mapping : %s\n",getMemBindTypeName(memPolicy.type));
+	
+	int numaNodes = topo->getNumaNodes();
+	this->cntTouchedPages = new size_t[numaNodes];
+	for (int i = 0 ; i < numaNodes ; i++)
+		this->cntTouchedPages[i] = 0;
 }
 
 /*******************  FUNCTION  *********************/
@@ -83,14 +88,14 @@ void ThreadTracker::flush(void)
 /*******************  FUNCTION  *********************/
 void ThreadTracker::onSetAffinity(cpu_set_t * mask,int size)
 {
-	this->numa = process->getNumaAffinity(mask,size,&cpuBindList);
 	bindingLogMutex.lock();
+	this->numa = process->getNumaAffinity(mask,size,&cpuBindList);
 	this->logBinding(this->numa);
 	bindingLogMutex.unlock();
 }
 
 /*******************  FUNCTION  *********************/
-void ThreadTracker::onMemBind(int mode,const unsigned long * mask,unsigned long maxNodes)
+void ThreadTracker::onSetMemPolicy(int mode,const unsigned long * mask,unsigned long maxNodes)
 {
 	memPolicy.mode = mode;
 	if (maxNodes % 8 != 0)
@@ -206,6 +211,10 @@ void ThreadTracker::onAccess(size_t ip,size_t addr,bool write)
 	//cases
 	if (pageNode <= NUMAPROF_DEFAULT_NUMA_NODE || isWriteFirstTouch)
 	{
+		//cound first touch pages
+		if (pageNode >= 0)
+			this->cntTouchedPages[pageNode]++;
+		
 		//check unpinned first access
 		if (isMemBind() == false)
 		{
@@ -360,6 +369,7 @@ void convertToJson(htopml::JsonState& json, const ThreadTracker& value)
 		json.printField("memPolicyLog",value.memPolicyLog);
 		json.printField("clockStart",value.clockStart);
 		json.printField("clockEnd",value.clockEnd);
+		json.printFieldArray("touchedPages",value.cntTouchedPages,value.topo->getNumaNodes());
 	json.closeStruct();
 }
 

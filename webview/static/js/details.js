@@ -9,6 +9,7 @@
 /********************  GLOBALS  *********************/
 var gblTotalTime = 1;
 var gblCharts = {};
+var gblThreadPerPage = 2;
 
 /*******************  FUNCTION  *********************/
 function updateHeadMap(divId,data)
@@ -139,10 +140,12 @@ function genPieDataFirstTouch(datas)
 	return [
 		{
 			"label": "Pinned",
-			"value": numaprofHelper.valOrDefault(datas.firstTouch,0)
+			"value": numaprofHelper.valOrDefault(datas.firstTouch,0),
+			"color": "rgb(44, 160, 44)",
 		},{
 			"label": "Unpinned",
-			"value": numaprofHelper.valOrDefault(datas.unpinnedFirstTouch,0)
+			"value": numaprofHelper.valOrDefault(datas.unpinnedFirstTouch,0),
+			"color": "rgb(255, 127, 14)",
 		}
 	];
 }
@@ -153,22 +156,28 @@ function genPieDataAccess(datas)
 	return [
 		{
 			"label": "Local",
-			"value": numaprofHelper.valOrDefault(datas.localAccess,0)
+			"value": numaprofHelper.valOrDefault(datas.localAccess,0),
+			"color": "rgb(44, 160, 44)"
 		},{
 			"label": "Remote",
-			"value": numaprofHelper.valOrDefault(datas.remoteAccess,0)
+			"value": numaprofHelper.valOrDefault(datas.remoteAccess,0),
+			"color": "red"
 		},{
 			"label": "Unpinned page",
-			"value": numaprofHelper.valOrDefault(datas.unpinnedPageAccess,0)
+			"value": numaprofHelper.valOrDefault(datas.unpinnedPageAccess,0),
+			"color": "rgb(255, 187, 120)",
 		},{
 			"label": "Unpinned thread",
-			"value": numaprofHelper.valOrDefault(datas.unpinnedThreadAccess,0)
+			"value": numaprofHelper.valOrDefault(datas.unpinnedThreadAccess,0),
+			"color": "rgb(255, 127, 14)",
 		},{
 			"label": "Unpinned both",
-			"value": numaprofHelper.valOrDefault(datas.unpinnedBothAccess,0)
+			"value": numaprofHelper.valOrDefault(datas.unpinnedBothAccess,0),
+			"color": "rgb(31, 119, 180)",
 		},{
 			"label": "MCDRAM",
-			"value": numaprofHelper.valOrDefault(datas.mcdramAccess,0)
+			"value": numaprofHelper.valOrDefault(datas.mcdramAccess,0),
+			"color": "#FF79DE"
 		}
 	];
 }
@@ -265,46 +274,82 @@ function setupPinningLog(divId,threadLog,memLog)
 	//build common log
 	for (var i in memLog)
 	{
-		threadLog[i].type = 1;
-		log[threadLog[i].at] = memLog[i];
+		memLog[i].type = 1;
+		log[memLog[i].at] = memLog[i];
 	}
 	
 	//loop
 	var ul = $(divId);
+	ul.html("");
 	for (var i in log)
 	{
 		if (log[i].type == 0)
 		{
-			ul.append("<li>At "+getRelativeTime(i)+", do thread on node "+log[i].numa+"</li>");
+			var n = $("<tr><td>At "+getRelativeTime(i)+", pin thread on node "+log[i].numa+"</td></tr>");
+			if (log[i].numa == -1)
+				n.addClass("warning");
+			else
+				n.addClass("success");
+			ul.append(n);
 		} else if (log[i].type == 1) {
-			var tmp = getMemPolicy(log[i]);
-			ul.append("<li>At "+getRelativeTime(i)+", do memory binding "+tmp.text+"</li>");
+			var tmp = getMemPolicy(log[i].policy);
+			var n = $("<tr><td>At "+getRelativeTime(i)+", do memory binding "+tmp.text+"</td></tr>").addClass(tmp.class);
+			ul.append(n);
 		}
 	}
 }
 
 /*******************  FUNCTION  *********************/
-function moveToPage(data,pageNum,first)
+function displayThread(divId,data,threadId,first)
 {
-	console.log(data);
 	if (first)
 	{
-		setupPieChart("#threadFirstTouch",genPieDataFirstTouch(data[pageNum].stats));
-		setupPieChart("#threadAccesses",genPieDataAccess(data[pageNum].stats));
-		setupHeadMap("#accessMatrix",data[pageNum].accessMatrix);
+		setupPieChart(divId + " .threadFirstTouch",genPieDataFirstTouch(data.stats));
+		setupPieChart(divId + " .threadAccesses",genPieDataAccess(data.stats));
+		setupHeadMap(divId + " .accessMatrix",data.accessMatrix);
 	} else {
-		updateChartData("#threadFirstTouch",genPieDataFirstTouch(data[pageNum].stats));
-		updateChartData("#threadAccesses",genPieDataAccess(data[pageNum].stats));
-		updateHeadMap("#accessMatrix",data[pageNum].accessMatrix);
+		updateChartData(divId + " .threadFirstTouch",genPieDataFirstTouch(data.stats));
+		updateChartData(divId + " .threadAccesses",genPieDataAccess(data.stats));
+		updateHeadMap(divId + " .accessMatrix",data.accessMatrix);
 	}
-	var numaBinding = data[pageNum].numa;
+	var numaBinding = data.numa;
 	if (numaBinding == -1)
-		$('#numaBinding').text("NOT BINDED").addClass("warning").removeClass("success");
+		$(divId+ ' .numaBinding').text("NOT BINDED").addClass("warning").removeClass("success");
 	else
-		$('#numaBinding').text(numaBinding).addClass("success").removeClass("warning");
-	$('#lifetime').text(getRelativeTime(data[pageNum].clockStart)+" => "+getRelativeTime(data[pageNum].clockEnd));
-	setupMemPolicy("#numaMemPolicy",data[pageNum].memPolicy);
-	setupPinningLog("#pinningLog",data[pageNum].bindingLog,data[pageNum].memPolicyLog);
+		$(divId + ' .numaBinding').text(numaBinding).addClass("success").removeClass("warning");
+	$(divId + ' .cpuBinding').text(numaprofHelper.listToRange(data.binding));
+	$(divId+ ' .lifetime').text(getRelativeTime(data.clockStart)+" => "+getRelativeTime(data.clockEnd));
+	setupMemPolicy(divId + " .numaMemPolicy",data.memPolicy);
+	setupPinningLog(divId + " .pinningLog",data.bindingLog,data.memPolicyLog);
+	$(divId+" .threadId").text(threadId);
+}
+
+/*******************  FUNCTION  *********************/
+function moveToPage(data,pageNum,first)
+{
+	pageNum -= 1;
+	threads = gblThreadPerPage;
+	
+	if (first)
+	{
+		var template = $("#content").html();
+		for (var i = 1 ; i < threads ; i++)
+		{
+			var n = $(template).attr('id',"infosThread"+i);
+			$("#content").append(n);
+		}
+	}
+	
+	var threadId = [];
+	for (var i = 0 ; i < threads ; i++)
+	{
+		threadId[i] = pageNum * 2 + i;
+		if (threadId[i] >= data.length)
+			threadId[i] = 0;
+	}
+	
+	for (var i = 0 ; i < threads ; i++)
+		displayThread("#infosThread"+i, data[threadId[i]],threadId[i],first);
 }
 
 /*******************  FUNCTION  *********************/
@@ -314,19 +359,16 @@ function setupInitial(data)
 	gblDetails = data;
 	
 	//compute pages
-	var pages = data.length / 10;
-	if (pages * 10 != data.length)
+	var pages = data.length / gblThreadPerPage;
+	if (pages * gblThreadPerPage != data.length)
 		pages++;
-	
-	//tmp
-	pages = data.length;
 	
 	//setup paging
 	$('#paging').bootpag({
 		total: pages,
 		page: 1,
 		maxVisible: 10,
-		leaps: true,
+		leaps: false,
 		firstLastUse: true,
 		first: '←',
 		last: '→',
@@ -340,6 +382,17 @@ function setupInitial(data)
 	}).on("page", function(event, num){
 		moveToPage(data,num,false);
 	}); 
+	
+	$("#jump").on("change",function(cur) {
+		var threadId = $("#jump").val();
+		var page = 1+threadId / 2;
+		if (page > pages)
+			numaprofHelper.logError("Invalid thread number : "+threadId);
+		$('#paging').bootpag({
+			page:page
+		});
+		moveToPage(data,page,false);
+	});
 	
 	moveToPage(data,1,true);
 }
