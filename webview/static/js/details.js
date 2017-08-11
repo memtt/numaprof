@@ -318,7 +318,7 @@ function displayThread(divId,data,threadId,first)
 	else
 		$(divId + ' .numaBinding').text(numaBinding).addClass("success").removeClass("warning");
 	$(divId + ' .cpuBinding').text(numaprofHelper.listToRange(data.binding));
-	$(divId+ ' .lifetime').text(getRelativeTime(data.clockStart)+" => "+getRelativeTime(data.clockEnd));
+	$(divId+ ' .lifetime').text(getRelativeTime(data.clockStart)+" → "+getRelativeTime(data.clockEnd));
 	setupMemPolicy(divId + " .numaMemPolicy",data.memPolicy);
 	setupPinningLog(divId + " .pinningLog",data.bindingLog,data.memPolicyLog);
 	$(divId+" .threadId").text(threadId);
@@ -404,9 +404,8 @@ function setupInitial(data)
 /*******************  FUNCTION  *********************/
 function loadDetails()
 {
-	$.getJSON( "/api/details/threads.json", function(dataInfos) {
-		if (dataInfos.duration != undefined)
-			gblTotalTime = dataInfos.duration;
+	$.getJSON( "/api/index/infos.json", function(dataInfos) {
+		gblTotalTime = dataInfos.duration;
 		$.getJSON( "/api/details/threads.json", function(data) {
 			setupInitial(data);
 		})

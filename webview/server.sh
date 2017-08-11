@@ -8,16 +8,7 @@
 ######################################################
 
 ######################################################
-if [ -z "$1" ]; then
-	echo "You need to provide a file as parameter !"
-	exit 1
-fi
-
-######################################################
-export NUMAPROF_FILE="$1" 
-
-######################################################
 #export FLASK_APP=server.py
 export PYTHONPATH=$PWD/deps/:$PYTHONPATH
-python server.py
+python server.py "$@"
 exit $?

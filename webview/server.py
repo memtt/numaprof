@@ -14,7 +14,9 @@ import os
 import json
 from flask_httpauth import HTTPBasicAuth
 from nocache import nocache
-from flask.ext.cache import Cache
+from flask_cache import Cache
+import argparse
+import sys
 
 ######################################################
 app = Flask(__name__, static_url_path='')
@@ -35,7 +37,32 @@ def get_pw(username):
 	return None
 
 ######################################################
-profile = ProfileHandler(os.environ["NUMAPROF_FILE"])
+parser = argparse.ArgumentParser(description='Numaprof web server.')
+parser.add_argument('profileFile', metavar='FILE', type=str,
+                    help='Numaprof profile files to display')
+parser.add_argument('--override', '-O', dest='override',
+                    help='Override file path, format: "/orig/:/new/,/orig2/:/new2/"')
+
+args = parser.parse_args()
+
+######################################################
+gblPathReplace = {};
+print args
+if args.override != None:
+	lst = args.override.split(",")
+	for over in lst:
+		tmp = over.split(':')
+		gblPathReplace[tmp[0]] = tmp[1]
+
+######################################################
+def replaceInPath(path):
+	for repl in gblPathReplace:
+		if repl in path:
+			path = path.replace(repl,gblPathReplace[repl])
+	return path
+
+######################################################
+profile = ProfileHandler(args.profileFile)
 
 ######################################################
 @app.route('/')
@@ -166,6 +193,8 @@ def apiSourcesFileStats(path):
 def sourceFiles(path):
 	path = "/"+path
 	if profile.hasFile(path):
+		path = replaceInPath(path)
+		print path
 		data=open(path).read()
 		return data
 	else:

@@ -113,7 +113,7 @@ NumaprofSourceEditor.prototype.loadSourceFile = function(file,success,fail)
 		success(data);
 	})
 	.fail(function(data) {
-		
+		fail();
 	});
 }
 
