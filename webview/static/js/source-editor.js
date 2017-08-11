@@ -211,9 +211,13 @@ NumaprofSourceEditor.prototype.findLargestAnnot = function(file,func)
 NumaprofSourceEditor.prototype.moveToFileFunction = function(file,func)
 {
 	if (func != -1 && func != '' && func != '??')
+	{
 		this.postMove = {type:'func',func:func};
-	else
+		$("#numaprof-source-filename").text(file+" | "+func);
+	} else {
+		$("#numaprof-source-filename").text(file);
 		this.postMove = {};
+	}
 	this.moveToFile(file);
 }
 

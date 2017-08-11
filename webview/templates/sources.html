@@ -18,6 +18,19 @@
 		padding:5px;
 	}
 	
+	#numaprof-source-filename {
+		border:solid 1px lightgray;
+		width:fit-content;
+		margin:0px;
+		border-top-right-radius: 9px;
+		border-top-left-radius: 9px;
+		padding:3px;
+		padding-left:10px;
+		padding-right:10px;
+		background-color:#F7F7F7;
+	}
+
+	
 </style>
 {% endblock %}
 {% block content %}
@@ -59,6 +72,7 @@
 			</ul>
 		</div>
 		
+		<span id='numaprof-source-filename'></span>
 		<div id='numaprof-source-editor'></div></div>
 	</div>
 {% endblock %}
