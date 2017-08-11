@@ -21,7 +21,7 @@ NumaprofHelper.prototype.logError = function(message)
 }
 
 /*******************  FUNCTION  *********************/
-NumaprofHelper.prototype.valOfDefault = function(value,defaultValue)
+NumaprofHelper.prototype.valOrDefault = function(value,defaultValue)
 {
 	if (value == undefined)
 		return defaultValue;

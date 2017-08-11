@@ -1,0 +1,79 @@
+{% extends "layout.html" %}
+{% block title %}Index{% endblock %}
+{% block import %}
+<script language="javascript" src="/static/bower/jquery-bootpag/lib/jquery.bootpag.min.js"></script>
+<script language="javascript" src="/static/js/details.js"></script>
+<style>
+	.axis path,
+	.axis line {
+		fill: none;
+		stroke: black;
+		shape-rendering: crispEdges;
+	}
+
+	.axis text {
+		font-family: sans-serif;
+		font-size: 11px;
+	}
+</style>
+{% endblock %}
+{% block content %}
+	<div id="paging"></div>
+
+	<div id='content'>
+		<div class="col-md-6" id="infosThreadOne">
+			<div class="panel panel-default">
+				<div class="panel-heading">Thread 0</div>
+				<table class='table table-bordered'>
+					<tbody id="numaTopology">
+						<tr>
+							<th>Lifetime</th>
+							<td id="lifetime"></td>
+						</tr>
+						<tr>
+							<th>Numa thread binding</th>
+							<td id="numaBinding"></td>
+						</tr>
+						<tr>
+							<th>Numa mem. policy</th>
+							<td id="numaMemPolicy"></td>
+						</tr>
+						<tr>
+							<th>Stats</th>
+							<td id="threadFirstTouch">
+								<svg height="150px"></svg>
+							</td>
+						</tr>
+						<tr>
+							<th>Accsses</th>
+							<td id="threadAccesses">
+								<svg height="150px"></svg>
+							</td>
+						</tr>
+						<tr>
+							<th>Accsses</th>
+							<td>
+								<div id="accessMatrix" align="center"></div>
+							</td>
+						</tr>
+						<tr>
+							<th>Pinning log</th>
+							<td>
+								<ul id="pinningLog" align="center"></ul>
+							</td>
+						</tr>
+					<tbody>
+				</table>
+				<!--<div class="row">
+					<div class="col-xs-8 col-sm-6">
+						Level 2: .col-xs-8 .col-sm-6
+					</div>
+					<div class="col-xs-4 col-sm-6">
+						Level 2: .col-xs-4 .col-sm-6
+					</div>
+				</div>-->
+			</div>
+		</div>
+	</div>
+
+{% endblock %}

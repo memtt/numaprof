@@ -57,6 +57,12 @@ def threadPage():
 def sourcesPage():
     return render_template('sources.html', file=profile.getFileName(), page = "sources")
 
+@app.route('/details.html')
+@auth.login_required
+@nocache
+def detailsPage():
+    return render_template('details.html', file=profile.getFileName(), page = "details")
+
 @app.route('/help.html')
 @auth.login_required
 @nocache
@@ -132,6 +138,15 @@ def apiThreadsInfos():
 @nocache
 def apiSourcesFuncions():
 	data = profile.getFuncList()
+	jsonData = json.dumps(data)
+	return Response(jsonData, mimetype='application/json')
+
+######################################################
+@app.route('/api/details/threads.json')
+@auth.login_required
+@nocache
+def apiDetailsThreads():
+	data = profile.getThreadInfos()
 	jsonData = json.dumps(data)
 	return Response(jsonData, mimetype='application/json')
 

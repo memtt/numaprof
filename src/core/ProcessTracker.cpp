@@ -198,6 +198,7 @@ void convertToJson(htopml::JsonState& json, const ProcessTracker& value)
 			json.printField("command",OS::getCmdLine());
 			json.printField("hostname",OS::getHostname());
 			json.printField("date",OS::getDateTime());
+			json.printField("duration",value.clockAtEnd);
 		json.closeFieldStruct("infos");
 		json.openFieldStruct("process");
 			json.printField("maxAllocatedPages",value.maxAllocatedPages);
