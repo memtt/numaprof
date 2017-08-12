@@ -157,5 +157,4 @@ $(function() {
 	setupSelectorList();
 	Mustache.parse(template);   // optional, speeds up future uses
 	loadFunctions();
-	genD3Pie();
 });

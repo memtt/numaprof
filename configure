@@ -249,10 +249,17 @@ gen_clean_command()
 if [ ! -d ${SOURCE_DIR}/webview/bower_components ] || [ ! -d ${SOURCE_DIR}/webview/deps ]
 then
 	echo "You cloned the master branch, need to download GUI dependencies !"
-	current=$PWD
-	cd ${SOURCE_DIR}/webview
-	./prepare.sh || exit 1
-	cd $current
+	echo "....checking deps..."
+	if ! which pip
+	then
+		echo "Python 'pip' command required to fetch the webview server dependencies, please install before proceeding or download a release archive instead of using master branch"
+		exit 1
+	fi
+	if ! which npm
+	then
+		echo "Nodejs 'npm' command required to fetch the webview client dependencies, please install 'nodejs' before proceeding or download a release archive instead of using master branch"
+		exit 1
+	fi
 fi
 
 ######################################################
