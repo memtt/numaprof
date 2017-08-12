@@ -28,6 +28,7 @@ struct OS
 	static int getPID(void);
 	static int getTID(void);
 	static int getNumaOfPage(size_t addr);
+	static int getNumaOfHugePage(size_t addr,bool * isHugePage);
 };
 
 }

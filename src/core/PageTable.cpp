@@ -62,7 +62,10 @@ void PageTable::setHugePageFromPinnedThread(size_t addr,bool value)
 	addr &= ~NUMAPROG_HUGE_PAGE_MASK;
 	Page * page = &getPage(addr);
 	for (size_t i = 0 ; i < NUMAPROF_PAGE_LEVEL_ENTRIES ; i++)
+	{
 		page[i].fromPinnedThread = value;
+		page[i].canBeHugePage = true;
+	}
 }
 
 /*******************  FUNCTION  *********************/
@@ -76,6 +79,25 @@ void PageTable::setHugePageNuma(size_t addr,int numa)
 	Page * page = &getPage(addr);
 	for (size_t i = 0 ; i < NUMAPROF_PAGE_LEVEL_ENTRIES ; i++)
 		page[i].numaNode = numa;
+}
+
+/*******************  FUNCTION  *********************/
+void PageTable::markHugePage(size_t addr)
+{
+	//check
+	assert(NUMAPROF_PAGE_LEVEL_ENTRIES * NUMAPROF_PAGE_SIZE == NUMAPROG_HUGE_PAGE_SIZE);
+	
+	//align on huge pahes
+	addr &= ~NUMAPROG_HUGE_PAGE_MASK;
+	assert(addr % NUMAPROF_PAGE_SIZE == 0);
+	
+	//get first page
+	Page * page = &getPage(addr);
+	int fd = page->fd;
+	
+	//mark
+	for (size_t i = 1 ; i < NUMAPROF_PAGE_LEVEL_ENTRIES ; i++)
+		page[i].canBeHugePage = true;
 }
 
 /*******************  FUNCTION  *********************/
@@ -100,10 +122,6 @@ bool PageTable::canBeHugePage(size_t addr)
 	for (size_t i = 1 ; i < NUMAPROF_PAGE_LEVEL_ENTRIES ; i++)
 		if (page[i].fd != fd)
 			return false;
-	
-	//mark
-	for (size_t i = 1 ; i < NUMAPROF_PAGE_LEVEL_ENTRIES ; i++)
-		page[i].canBeHugePage = true;
 	
 	return true;
 }

@@ -101,6 +101,7 @@ class PageTable
 	public:
 		Page & getPage(size_t addr);
 		bool canBeHugePage(size_t addr);
+		void markHugePage(size_t addr);
 		void trackMMap(size_t base,size_t size,int fd);
 		void clear(size_t baseAddr,size_t size);
 		void mremap(size_t oldAddr,size_t oldSize,size_t newAddr, size_t newSize);

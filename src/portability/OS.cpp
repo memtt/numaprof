@@ -31,6 +31,9 @@ namespace numaprof
 #ifndef gettid
 	#define gettid() syscall(__NR_gettid)
 #endif
+#define HUGE_PAGE_SIZE (2*1024*1024)
+#define PAGE_SIZE 4096
+#define HUGE_PAGE_SUB_PAGES (HUGE_PAGE_SIZE / PAGE_SIZE)
 
 /********************  GLOBALS  *********************/
 static const char * cstExeFile = "/proc/self/exe";
@@ -146,7 +149,7 @@ int OS::getNumaOfPage(size_t addr)
 
 	//4k align
 	unsigned long page = (unsigned long)addr;
-	page = page & (~4095);
+	page = page & (~(PAGE_SIZE-1));
 	void * pages[1] = {(void*)page};
 	int status;
 	long ret = move_pages(0,1,pages,NULL,&status,0);
@@ -160,6 +163,66 @@ int OS::getNumaOfPage(size_t addr)
 			hasMovePages = false;
 		}
 		return 0;
+	}
+}
+
+/*******************  FUNCTION  *********************/
+int OS::getNumaOfHugePage(size_t addr,bool * isHugePage)
+{
+	//trivial
+	if (isHugePage == NULL)
+		return getNumaOfPage(addr);
+	
+	//remember
+	static bool hasMovePages = true;
+	
+	//default
+	*isHugePage = true;
+
+	//go fast
+	if (hasMovePages == false)
+		return 0;
+
+	//2M align
+	unsigned long page = (unsigned long)addr;
+	
+	//build storate
+	page = page & (~(HUGE_PAGE_SIZE-1));
+	void * pages[HUGE_PAGE_SUB_PAGES];
+	for (int i = 0 ; i < HUGE_PAGE_SUB_PAGES ; i++)
+		pages[i] = (void*)(page+i * PAGE_SIZE);
+	
+	//call
+	int status[HUGE_PAGE_SUB_PAGES];
+	long ret = move_pages(0,HUGE_PAGE_SUB_PAGES,pages,NULL,status,0);
+	
+	if (ret != 0)
+	{
+		if (errno == ENOSYS)
+		{
+			printf("\033[31mCAUTION, move_pages not implemented, you might be running on a non NUMA system !\nAll accesses will be considered local !\033[0m\n");
+			hasMovePages = false;
+		}
+		return 0;
+	}
+	
+	//check if huge page
+	int first = status[0];
+	for (int i = 0 ; i < HUGE_PAGE_SUB_PAGES ; i++)
+	{
+		if (status[i] != first)
+		{
+			*isHugePage = false;
+			break;
+		}
+	}
+	
+	//interpret
+	if (*isHugePage)
+	{
+		return first;
+	} else {
+		return status[(addr - page) / PAGE_SIZE];
 	}
 }
 

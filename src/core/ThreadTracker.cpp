@@ -135,7 +135,7 @@ void ThreadTracker::onAccess(size_t ip,size_t addr,bool write)
 	size_t touchedPages = 1;
 
 	//if not defined use move pages
-	if (pageNode == NUMAPROF_DEFAULT_NUMA_NODE)
+	if (pageNode <= NUMAPROF_DEFAULT_NUMA_NODE)
 	{
 		pageNode = OS::getNumaOfPage(addr);
 		//printf("Page on %d, write = %d\n",pageNode,write);
@@ -145,37 +145,35 @@ void ThreadTracker::onAccess(size_t ip,size_t addr,bool write)
 			
 			//touch
 			//do first touch to ask where is the page
-			//we use a function to avoir compiler optim which
-			//would remove. Do not write a 0 in case our
-			//detection was wrong to not break data, se we read then write
+			//we use atomic to not modify the content in case this is not real first touch
+			//so cannot write 0, just add 0
 			__sync_fetch_and_add((char*)addr,0);
-			pageNode = OS::getNumaOfPage(addr);
-			assert(pageNode >= 0);
 			
 			//check
 			if (page.canBeHugePage) {
-				//nothing to do, already done
-				//CAUTION it rely on the fact that table->canBeHugePage() is called ONLY HERE.
+				//this sould not append
+				assert(false);
 			} else if (table->canBeHugePage(addr)) {
-				table->setHugePageFromPinnedThread(addr,isMemBind());
-				touchedPages = NUMAPROG_HUGE_PAGE_SIZE / NUMAPROF_PAGE_SIZE;
-			} else { 
+				bool isHugePage;
+				pageNode = OS::getNumaOfHugePage(addr,&isHugePage);
+				assert(pageNode >= 0);
+				if (isHugePage)
+				{
+					//mark as hue page and mark pinned status
+					table->setHugePageFromPinnedThread(addr,isMemBind());
+					touchedPages = NUMAPROG_HUGE_PAGE_SIZE / NUMAPROF_PAGE_SIZE;
+				} else {
+					page.fromPinnedThread = isMemBind();
+					page.numaNode = pageNode;
+				}
+			} else {
+				page.numaNode = pageNode;
 				page.fromPinnedThread = isMemBind();
 			}
 		}
-		
-		//if (table->canBeHugePage(addr))
-		//	table->setHugePageNuma(addr,pageNode);
-		//else
-		page.numaNode = pageNode;
-		#ifdef NUMAPROF_HUGE_CHECK
-			if (page.canBeHugePage)
-				if (pageNode != getNumaOfPage(addr & (~NUMAPROG_HUGE_PAGE_MASK)))
-					numaprofWarning("Expect huge page but get different mapping inside !");
-		#endif
 
 		if (pageNode >= 0)
-			process->onAfterFirstTouch(pageNode);
+			process->onAfterFirstTouch(pageNode,touchedPages);
 	} 
 	
 	//extrct mini stack

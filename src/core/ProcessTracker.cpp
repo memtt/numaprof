@@ -101,9 +101,9 @@ PageTable * ProcessTracker::getPageTable(void)
 }
 
 /*******************  FUNCTION  *********************/
-void ProcessTracker::onAfterFirstTouch(int pageNuma)
+void ProcessTracker::onAfterFirstTouch(int pageNuma,size_t pages)
 {
-	size_t res = __sync_add_and_fetch(&currentAllocatedPages[pageNuma],1,__ATOMIC_RELAXED);
+	size_t res = __sync_add_and_fetch(&currentAllocatedPages[pageNuma],pages,__ATOMIC_RELAXED);
 	if (res > maxAllocatedPages[pageNuma])
 		__atomic_store(&maxAllocatedPages[pageNuma],&res,__ATOMIC_RELAXED);
 }
