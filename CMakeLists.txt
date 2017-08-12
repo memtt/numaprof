@@ -25,7 +25,7 @@ include(${CMAKE_SOURCE_DIR}/cmake/macros.cmake)
 include(${CMAKE_SOURCE_DIR}/cmake/unittest-macros.cmake)
 
 ######################################################
-set(TRANSPORT "LOCAL" CACHE STRING "Select the transport to use (LOCAL|MPI|LIBFABRIC|TCP|VERBS).")
+set(ENABLE_WEBVIEW "ON" CACHE BOOL "Enable installation of webview")
 
 ######################################################
 #Some global setup
@@ -46,4 +46,6 @@ add_subdirectory(src)
 add_subdirectory(extern-deps)
 add_subdirectory(tests)
 add_subdirectory(testcase)
-add_subdirectory(webview)
+if (ENABLE_WEBVIEW)
+	add_subdirectory(webview)
+endif (ENABLE_WEBVIEW)

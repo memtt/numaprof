@@ -32,6 +32,7 @@ MPI_CXX_COMPILER=''
 ENABLE_GCC_COVERAGE=''
 ENABLE_JUNIT_OUT=''
 ENABLE_VALGRIND=''
+ENABLE_WEBVIEW=''
 LIB_SUFFIX=''
 #prefix
 HLWOC_PREFIX=''
@@ -76,6 +77,7 @@ Optional Features:
    --enable-valgrind         Enable valgrind on unit tests (-DENABLE_VALGRIND=yes).
    --disable-tests           Disable unit tests of the lib (-DENABLE_TESTS=no).
    --enable-jenkins          Enable all checking modes (unit, valgrind, coverage...).
+   --disable-webview         Disable installation of webview (-DENABLE_WEBVIEW=no).
 
 To find libs and commands :
    --with-cmake={command}    Define the cmake command to use [cmake].
@@ -181,6 +183,12 @@ do
 		--disable-tests | --enable-tests)
 			DISABLE_TESTS="-DENABLE_TESTS=`enabl_disabl_to_yes_no $arg`";
 			;;
+		--enable-webview)
+			ENABLE_WEBVIEW="-DENABLE_WEBVIEW=ON"
+			;;
+		--disable-webview)
+			ENABLE_WEBVIEW="-DENABLE_WEBVIEW=OFF"
+			;;
 		--enable-jenkins)
 			ENABLE_JUNIT_OUT='-DENABLE_JUNIT_OUTPUT=yes'
 			ENABLE_VALGRIND='-DENABLE_VALGRIND=yes'
@@ -246,19 +254,28 @@ gen_clean_command()
 }
 
 ######################################################
-if [ ! -d ${SOURCE_DIR}/webview/bower_components ] || [ ! -d ${SOURCE_DIR}/webview/deps ]
+if [ -z "$ENABLE_WEBVIEW" ] || [ "$ENABLE_WEBVIEW" = "-DENABLE_WEBVIEW=ON" ]
 then
-	echo "You cloned the master branch, need to download GUI dependencies !"
-	echo "....checking deps..."
-	if ! which pip
+	if [ ! -d ${SOURCE_DIR}/webview/bower_components ] || [ ! -d ${SOURCE_DIR}/webview/deps ]
 	then
-		echo "Python 'pip' command required to fetch the webview server dependencies, please install before proceeding or download a release archive instead of using master branch"
-		exit 1
-	fi
-	if ! which npm
-	then
-		echo "Nodejs 'npm' command required to fetch the webview client dependencies, please install 'nodejs' before proceeding or download a release archive instead of using master branch"
-		exit 1
+		echo "You cloned the master branch, need to download GUI dependencies !"
+		echo "....checking deps..."
+		miss=""
+		if ! which pip
+		then
+			echo "MISSING Python 'pip' command required to fetch the webview server dependencies, please install before proceeding or download a release archive instead of using master branch"
+			miss="true"
+		fi
+		if ! which npm
+		then
+			echo "MISSING Nodejs 'npm' command required to fetch the webview client dependencies, please install 'nodejs' before proceeding or download a release archive instead of using master branch"
+			miss="true"
+		fi
+		
+		if [ ! -z "$miss" ]; then
+			echo "If you cannot install them you can disable the webview with --disable-webview"
+			exit 1
+		fi
 	fi
 fi
 
@@ -317,7 +334,7 @@ cd build
 COMMAND="`gen_clean_command "${CMAKE}" "-DCMAKE_BUILD_TYPE=${BUILD_TYPE}" "${PREFIX}" "${EXTRA_CXX}" \
 	"${EXTRA_CXXFLAGS}" "${EXTRA_LDFLAGS}" "${EXTRA_CC}" "${EXTRA_CFLAGS}" \
 	"${ENABLE_SELF_TEST}" "${ENABLE_JUNIT_OUT}" "${ENABLE_VALGRIND}" "${ENABLE_GCC_COVERAGE}" "${DISABLE_TESTS}" \
-	"${LIB_SUFFIX}" "${HWLOC_PREFIX}" "${NUMACTL_PREFIX}" "${MPI_CXX_COMPILER}" "${SOURCE_DIR}"`" 
+	"${LIB_SUFFIX}" "${HWLOC_PREFIX}" "${NUMACTL_PREFIX}" "${ENABLE_WEBVIEW}" "${MPI_CXX_COMPILER}" "${SOURCE_DIR}"`" 
 
 ######################################################
 #execute or display
