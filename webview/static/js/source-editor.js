@@ -6,6 +6,52 @@
              LICENSE  : CeCILL-C
 *****************************************************/
 
+var tpl = "<table class='table table-borders source-popover-details'>\
+			<tbody>\
+				<tr>\
+					<th>Pinned first touch</th>\
+					<td>{{firstTouch}}</td>\
+					<td><div width='20px' height='20px' style='background-color:rgb(44, 160, 44); width:20px; height:20px;'> </div></td>\
+				</tr>\
+				<tr>\
+					<th>Unpinned first touch</th>\
+					<td>{{unpinnedFirstTouch}}</td>\
+					<td><div width='20px' height='20px' style='background-color:rgb(255, 127, 14); width:20px; height:20px;'> </div></td>\
+				</tr>\
+				<tr>\
+					<th>Local</th>\
+					<td>{{localAccess}}</td>\
+					<td><div width='20px' height='20px' style='background-color:rgb(44, 160, 44); width:20px; height:20px;'> </div></td>\
+				</tr>\
+				<tr>\
+					<th>Remote</th>\
+					<td>{{remoteAccess}}</td>\
+					<td><div width='20px' height='20px' style='background-color:red; width:20px; height:20px;'> </div></td>\
+				</tr>\
+				<tr>\
+					<th>Unpinnect page</th>\
+					<td>{{unpinnedPageAccess}}</td>\
+					<td><div width='20px' height='20px' style='background-color:rgb(255, 187, 120); width:20px; height:20px;'> </div></td>\
+				</tr>\
+				<tr>\
+					<th>Unpinnect thread</th>\
+					<td>{{unpinnedThreadAccess}}</td>\
+					<td><div width='20px' height='20px' style='background-color:rgb(255, 127, 14); width:20px; height:20px;'> </div></td>\
+				</tr>\
+				<tr>\
+					<th>Unpinnect both</th>\
+					<td>{{unpinnedBothAccess}}</td>\
+					<td><div width='20px' height='20px' style='background-color:rgb(31, 119, 180); width:20px; height:20px;'> </div></td>\
+				</tr>\
+				<tr>\
+					<th>MCDRAM</th>\
+					<td>{{mcdramAccess}}</td>\
+					<td><div width='20px' height='20px' style='background-color:#FF79DE; width:20px; height:20px;'> </div></td>\
+				</tr>\
+			</tbody>\
+		</table>\
+";
+
 /********************************************************************/
 /**
  * Provide a source code editor to annotate sources with profiled values.
@@ -21,7 +67,8 @@ function NumaprofSourceEditor(containerId,selector)
 	this.containerId = containerId;
 	this.container = document.getElementById(containerId);
 	this.syntaxHighlighterEle = null;
-	
+	this.popoverTemplate = tpl;// $("#source-popover-template").html();
+	Mustache.parse(this.popoverTemplate);
 	//check and link
 	//maltHelper.assert(this.container != undefined);
 	this.container.malt = this;
@@ -391,7 +438,11 @@ NumaprofSourceEditor.prototype.redrawAnnotations = function()
 			text: this.selector.getFormattedValue(this.data[i]), 
 			data: this.data[i],
 			onPopover: function(data) {
-				return "<table class='annotation-details'><tr><th>Touch</th><th>Access</th></tr><tr><td>"+cur.genD3Pie(cur.genPieDataTouch(data))+"</td><td>"+cur.genD3Pie(cur.genPieDataAccess(data))+"</td></tr></table>";
+				var mode = cur.selector.metric.split('.')[0];
+				console.log(data.data[mode]);
+				var table = Mustache.render(cur.popoverTemplate, data.data[mode]);
+				var charts = "<table class='annotation-details'><tr><th>Touch</th><th>Access</th></tr><tr><td>"+cur.genD3Pie(cur.genPieDataTouch(data))+"</td><td>"+cur.genD3Pie(cur.genPieDataAccess(data))+"</td></tr></table>";
+				return "<table><tr><td>"+table+"</td><td>"+charts+"</td></table>";
 			},
 			// class: "line-annotate-small",
 			color: colorScale(this.selector.getValue(this.data[i])),
