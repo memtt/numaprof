@@ -171,6 +171,9 @@ void ThreadTracker::onAccess(size_t ip,size_t addr,bool write)
 				page.fromPinnedThread = isMemBind();
 			}
 		}
+		
+		if (pageNode >= 0)
+			page.numaNode = pageNode;
 
 		if (pageNode >= 0)
 			process->onAfterFirstTouch(pageNode,touchedPages);
