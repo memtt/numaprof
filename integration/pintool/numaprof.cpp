@@ -266,7 +266,7 @@ static VOID beforeMBind(VOID * addr, ADDRINT len,ADDRINT mode,VOID * mask,ADDRIN
 static VOID afterMBind(THREADID threadid)
 {
 	ThreadData & data = getTls(threadid);
-	data.tracker->onMBind(data.mbindAddr,data.mbindLen,data.mbindMode,data.mbindMask,data.mbindNodes,data.mbindFlags);
+	data.tracker->onMBind(data.mbindAddr,data.mbindLen,data.mbindMode,(const unsigned long *)data.mbindMask,data.mbindNodes,data.mbindFlags);
 }
 
 /*******************  FUNCTION  *********************/

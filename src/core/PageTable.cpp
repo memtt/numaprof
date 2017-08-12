@@ -93,7 +93,6 @@ void PageTable::markHugePage(size_t addr)
 	
 	//get first page
 	Page * page = &getPage(addr);
-	int fd = page->fd;
 	
 	//mark
 	for (size_t i = 1 ; i < NUMAPROF_PAGE_LEVEL_ENTRIES ; i++)
