@@ -17,6 +17,7 @@ from nocache import nocache
 from flask_cache import Cache
 import argparse
 import sys
+import subprocess
 
 ######################################################
 app = Flask(__name__, static_url_path='')
@@ -91,6 +92,12 @@ def sourcesPage():
 def detailsPage():
     return render_template('details.html', file=profile.getFileName(), page = "details")
 
+@app.route('/asm.html')
+@auth.login_required
+@nocache
+def asmPage():
+    return render_template('asm.html', file=profile.getFileName(), page = "asm")
+
 @app.route('/help.html')
 @auth.login_required
 @nocache
@@ -161,15 +168,6 @@ def apiThreadsInfos():
 	return Response(jsonData, mimetype='application/json')
 
 ######################################################
-@app.route('/api/sources/functions.json')
-@auth.login_required
-@nocache
-def apiSourcesFuncions():
-	data = profile.getFuncList()
-	jsonData = json.dumps(data)
-	return Response(jsonData, mimetype='application/json')
-
-######################################################
 @app.route('/api/details/threads.json')
 @auth.login_required
 @nocache
@@ -179,6 +177,14 @@ def apiDetailsThreads():
 	return Response(jsonData, mimetype='application/json')
 
 ######################################################
+@app.route('/api/sources/functions.json')
+@auth.login_required
+@nocache
+def apiSourcesFuncions():
+	data = profile.getFuncList()
+	jsonData = json.dumps(data)
+	return Response(jsonData, mimetype='application/json')
+
 @app.route('/api/sources/file-stats/<path:path>')
 @auth.login_required
 @nocache
@@ -195,8 +201,37 @@ def sourceFiles(path):
 	path = "/"+path
 	if profile.hasFile(path):
 		path = replaceInPath(path)
-		print path
 		data=open(path).read()
+		return data
+	else:
+		abort(404)
+
+######################################################
+@app.route('/api/asm/functions.json')
+@auth.login_required
+@nocache
+def apiAsmFuncions():
+	data = profile.getAsmFuncList()
+	jsonData = json.dumps(data)
+	return Response(jsonData, mimetype='application/json')
+
+@app.route('/api/asm/file-stats/<path:path>')
+@auth.login_required
+@nocache
+def apiAsmFileStats(path):
+	path = "/"+path
+	data = profile.getAsmFileStats(path,replaceInPath(path))
+	jsonData = json.dumps(data)
+	return Response(jsonData, mimetype='application/json')
+
+@app.route('/api/asm/file/<path:path>')
+@auth.login_required
+@nocache
+def asmFiles(path):
+	path = "/"+path
+	if profile.hasBinary(path):
+		path = replaceInPath(path)
+		data = subprocess.check_output(['objdump', '-d',path]).decode("utf-8") 
 		return data
 	else:
 		abort(404)

@@ -161,7 +161,11 @@ NumaprofSourceEditor.prototype.getLanguageClassForHighlighter = function(name) {
 /********************************************************************/
 NumaprofSourceEditor.prototype.loadSourceFile = function(file,success,fail)
 {
-	$.get( "/api/sources/file"+file, function(data) {
+	var select = "sources";
+	if (gblIsAsm)
+		select = "asm";
+	
+	$.get( "/api/"+select+"/file"+file, function(data) {
 		success(data);
 	})
 	.fail(function(data) {
@@ -356,8 +360,12 @@ NumaprofSourceEditor.prototype.updateAnotations = function(move)
 	if (file == "??" || file == null || file == "")
 		return;
 	
+	var select = "sources";
+	if (gblIsAsm)
+		select = "asm";
+	
 	//fetch flat profile of current file
-	$.get( "/api/sources/file-stats"+file, function(data) {
+	$.get( "/api/"+select+"/file-stats"+file, function(data) {
 		//update data with more info than provided by server
 		cur.data = data;
 		for (var i in data)
@@ -442,6 +450,10 @@ NumaprofSourceEditor.prototype.redrawAnnotations = function()
 			line: i, 
 			text: this.selector.getFormattedValue(this.data[i]), 
 			data: this.data[i],
+			onPopoverTitle: function(data) {
+				console.log(data);
+				return gblIsAsm?"Line "+data.line+ " Addr 0x" + data.data.addr:"Line "+data.line;
+			},
 			onPopover: function(data) {
 				var mode = cur.selector.metric.split('.')[0];
 				var d = data.data[mode];

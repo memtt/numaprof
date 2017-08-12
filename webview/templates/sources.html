@@ -1,6 +1,11 @@
 {% extends "layout.html" %}
 {% block title %}Sources{% endblock %}
 {% block import %}
+	{% block preset %}
+		<script language="javascript">
+			gblIsAsm = false;
+		</script>
+	{% endblock %}
 <script language="javascript" src="/static/js/prism.js"></script>
 <script language="javascript" src="/static/js/source-editor.js"></script>
 <script language="javascript" src="/static/js/metrics.js"></script>

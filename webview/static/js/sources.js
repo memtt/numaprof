@@ -113,6 +113,7 @@ function updateFuncList()
 	
 	//put
 	var firstFile = null;
+	var firstFunc = null;
 	for (var i in out)
 	{
 		out[i].id = i;
@@ -123,13 +124,16 @@ function updateFuncList()
 			gblSourceEditor.moveToFileFunction(event.data.value.file,event.data.value.longName);
 		});;
 		
-		if (out[i].file != "??" && firstFile == null)
+		if (out[i].file != "??" && out[i].longName && firstFile == null)
 			firstFile = out[i].file;
 	}
 	$('[data-toggle="popover"]').popover({ trigger: "hover" });  
 	
 	if (gblSourceEditor.file == null && firstFile != null)
-		gblSourceEditor.moveToFile(firstFile);
+		if (firstFunc != null)
+			gblSourceEditor.moveToFileFunction(firstFile,firstFunc);
+		else
+			gblSourceEditor.moveToFile(firstFile);
 	else if (gblSourceEditor.file == null)
 		gblSourceEditor.moveToFile(null);
 }
@@ -137,7 +141,12 @@ function updateFuncList()
 /*******************  FUNCTION  *********************/
 function loadFunctions()
 {
-	$.getJSON( "/api/sources/functions.json", function(data) {
+	var select = "sources";
+	if (gblIsAsm)
+		select = "asm";
+	
+	$.getJSON( "/api/"+select+"/functions.json", function(data) {
+		console.log(data);
 		functions = data;
 		for (var i in data)
 			data[i].function = i;

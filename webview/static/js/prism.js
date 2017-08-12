@@ -923,7 +923,7 @@ Prism.plugins.codeAnnotator = {
 		
 		$('#'+line.id).popover({
 			trigger: "hover",
-			title: "Line "+data.line,
+			title: function() {return data.onPopoverTitle(data);},
 			html : true,
 			content: function() {return data.onPopover(data);}
 		});
