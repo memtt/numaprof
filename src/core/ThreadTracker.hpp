@@ -61,6 +61,7 @@ class ThreadTracker
 		void onEnterFunction(void * addr);
 		void onExitFunction(void);
 		void onSetMemPolicy(int mode,const unsigned long * mask,unsigned long maxNodes);
+		void onMBind(void * addr,size_t len,size_t mode,const unsigned long *nodemask,size_t maxnode,size_t flags);
 		int getTID(void);
 		friend void convertToJson(htopml::JsonState& json, const ThreadTracker& value);
 	private:
@@ -88,6 +89,7 @@ class ThreadTracker
 		MemPolicy memPolicy;
 		MemPolicyLog memPolicyLog;
 		size_t * cntTouchedPages;
+		size_t mbindCalls;
 };
 
 /*******************  FUNCTION  *********************/

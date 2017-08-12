@@ -56,6 +56,13 @@ struct ThreadData
 	void * mremapOldAddr;
 	size_t mremapOldSize;
 	size_t mremapNewSize;
+	//keep track between enter/exit of mbind
+	void * mbindAddr;
+	size_t mbindLen;
+	size_t mbindMode;
+	void * mbindMask;
+	size_t mbindNodes;
+	size_t mbindFlags;
 	//pointer to thread tracker
 	ThreadTracker * tracker;
 };
@@ -241,6 +248,25 @@ static VOID beforeFree(ADDRINT ptr,THREADID threadid)
 		ThreadData & data = getTls(threadid);
 		data.tracker->onFree(ptr);
 	}
+}
+
+/*******************  FUNCTION  *********************/
+static VOID beforeMBind(VOID * addr, ADDRINT len,ADDRINT mode,VOID * mask,ADDRINT nodes, ADDRINT flags,THREADID threadid)
+{
+	ThreadData & data = getTls(threadid);
+	data.mbindAddr = addr;
+	data.mbindLen = len;
+	data.mbindMode = mode;
+	data.mbindMask = mask;
+	data.mbindNodes = nodes;
+	data.mbindFlags = flags;
+}
+
+/*******************  FUNCTION  *********************/
+static VOID afterMBind(THREADID threadid)
+{
+	ThreadData & data = getTls(threadid);
+	data.tracker->onMBind(data.mbindAddr,data.mbindLen,data.mbindMode,data.mbindMask,data.mbindNodes,data.mbindFlags);
 }
 
 /*******************  FUNCTION  *********************/
@@ -677,6 +703,35 @@ static VOID instrImageSetMempolicy(IMG img, VOID *v)
 }
 
 /*******************  FUNCTION  *********************/
+static VOID instrImageMBind(IMG img, VOID *v)
+{
+	// Instrument the sched_setaffinity function to intercept thread pinning.  
+
+	//search by name
+	RTN mbindRtn = RTN_FindByName(img, "mbind");
+	
+	//printf(FREE " out\n");
+	if (RTN_Valid(mbindRtn))
+	{
+		RTN_Open(mbindRtn);
+
+		// Instrument malloc() to print the input argument value and the return value.
+		RTN_InsertCall(mbindRtn, IPOINT_BEFORE, (AFUNPTR)beforeMBind,
+					   IARG_FUNCARG_ENTRYPOINT_VALUE, 0,
+					   IARG_FUNCARG_ENTRYPOINT_VALUE, 1,
+					   IARG_FUNCARG_ENTRYPOINT_VALUE, 2,
+					   IARG_FUNCARG_ENTRYPOINT_VALUE, 3,
+					   IARG_FUNCARG_ENTRYPOINT_VALUE, 4,
+					   IARG_FUNCARG_ENTRYPOINT_VALUE, 5,
+					   IARG_THREAD_ID,IARG_END);
+		
+		RTN_InsertCall(mbindRtn, IPOINT_AFTER, (AFUNPTR)afterMBind,
+					   IARG_THREAD_ID,IARG_END);
+		RTN_Close(mbindRtn);
+	}
+}
+
+/*******************  FUNCTION  *********************/
 static VOID instrImageSetSchedAffinity(IMG img, VOID *v)
 {
 	// Instrument the sched_setaffinity function to intercept thread pinning.  
@@ -872,6 +927,7 @@ static VOID instrImage(IMG img, VOID *v)
 			instrImageMain(img,v);
 	}
 	instrImageSetSchedAffinity(img,v);
+	instrImageMBind(img,v);
 	instrImageSetMempolicy(img,v);
 }
 

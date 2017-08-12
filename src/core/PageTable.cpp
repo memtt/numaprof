@@ -12,6 +12,7 @@
 #include <iostream>
 #include "PageTable.hpp"
 #include "../common/Debug.hpp"
+#include "../portability/OS.hpp"
 
 /*******************  NAMESPACE  ********************/
 namespace numaprof
@@ -307,6 +308,27 @@ void PageTable::regAllocPointer(size_t baseAddr,size_t size,void * value)
 		
 		//setup for last page
 		regAllocPointerSmall(endPageStart,endAddr - endPageStart,value);
+	}
+}
+
+/*******************  FUNCTION  *********************/
+void PageTable::onMbind(void * addr,size_t size,bool pinned)
+{
+	//seutp
+	uint64_t end = (uint64_t)addr + size;
+	uint64_t start = ((uint64_t)addr) & (~NUMAPROF_PAGE_MASK);
+	
+	//loop 
+	for (size_t cur = start ; cur < end ; cur += NUMAPROF_PAGE_SIZE)
+	{
+		//get page
+		Page & page = getPage(cur);
+		
+		//update mapping
+		page.numaNode = OS::getNumaOfPage(cur);
+		
+		//update pinning
+		page.fromPinnedThread = pinned;
 	}
 }
 

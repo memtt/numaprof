@@ -30,6 +30,7 @@ ThreadTracker::ThreadTracker(ProcessTracker * process)
 	this->topo = &process->getNumaTopo();
 	this->clockStart = Clock::get();
 	this->tid = OS::getTID();
+	this->mbindCalls = 0;
 	this->memPolicy = topo->getCurrentMemPolicy();
 	logBinding(memPolicy);
 	logBinding(this->numa);
@@ -357,6 +358,32 @@ void ThreadTracker::onExitFunction(void)
 }
 
 /*******************  FUNCTION  *********************/
+void ThreadTracker::onMBind(void * addr,size_t len,size_t mode,const unsigned long *nodemask,size_t maxnode,size_t flags)
+{
+	//basic capture
+	printf("--> Capture mbind usage\n");
+	mbindCalls++;
+	
+	//extarct policy
+	MemPolicy policy;
+	policy.mode = mode;
+	if (maxnode % 8 != 0)
+		maxnode += 8 - maxnode%8;
+	size_t cnt = maxnode / 8;
+	if (cnt > 4)
+			cnt = 4;
+	for (unsigned long i = 0 ; i < cnt ; i++)
+		policy.mask[i] = nodemask[i];
+	topo->staticComputeBindType(policy);
+	
+	//extract binding 
+	bool pinned = (policy.type != MEMBIND_NO_BIND);
+	
+	//update page table
+	table->onMbind(addr,len,pinned);
+}
+
+/*******************  FUNCTION  *********************/
 void convertToJson(htopml::JsonState& json, const ThreadTracker& value)
 {
 	json.openStruct();
@@ -369,6 +396,7 @@ void convertToJson(htopml::JsonState& json, const ThreadTracker& value)
 		json.printField("memPolicyLog",value.memPolicyLog);
 		json.printField("clockStart",value.clockStart);
 		json.printField("clockEnd",value.clockEnd);
+		json.printField("mbindCalls",value.mbindCalls);
 		json.printFieldArray("touchedPages",value.cntTouchedPages,value.topo->getNumaNodes());
 	json.closeStruct();
 }
