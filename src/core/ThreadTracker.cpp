@@ -80,7 +80,7 @@ void ThreadTracker::flush(void)
 
 	//flush to keep smell
 	for (AllocCacheMap::iterator it = allocCache.begin() ; it != allocCache.end() ; ++it)
-		*(it->first) = it->second;
+		(it->first)->merge(it->second);
 	allocCache.clear();
 
 	this->allocTracker.flush(process);
