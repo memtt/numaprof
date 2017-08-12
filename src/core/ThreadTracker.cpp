@@ -206,6 +206,8 @@ void ThreadTracker::onAccess(size_t ip,size_t addr,bool write)
 	if (allocInfos == NULL)
 	{
 		allocStats = &dummyAlloc;
+		stats.nonAlloc++;
+		instr.nonAlloc++;
 	} else {
 		allocStats = allocInfos->stats;
 		//pick from alloc cache, this is a track to keep data local to thread

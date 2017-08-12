@@ -38,6 +38,7 @@ struct Stats
 	size_t localAccess;
 	size_t remoteAccess;
 	size_t mcdramAccess;
+	size_t nonAlloc;
 };
 
 /*********************  TYPES  **********************/

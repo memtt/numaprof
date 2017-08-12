@@ -12,7 +12,7 @@ import json
 
 ######################################################
 class ProfileHandler:
-	metrics = [ "firstTouch", "unpinnedFirstTouch", "unpinnedPageAccess", "unpinnedThreadAccess", "unpinnedBothAccess", "localAccess", "remoteAccess", "mcdramAccess" ]
+	metrics = [ "firstTouch", "unpinnedFirstTouch", "unpinnedPageAccess", "unpinnedThreadAccess", "unpinnedBothAccess", "localAccess", "remoteAccess", "mcdramAccess", "nonAlloc" ]
 	
 	def __init__(self,filepath):
 		self.filepath = filepath

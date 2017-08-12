@@ -48,6 +48,11 @@ var tpl = "<table class='table table-borders source-popover-details'>\
 					<td>{{mcdramAccess}}</td>\
 					<td><div width='20px' height='20px' style='background-color:#FF79DE; width:20px; height:20px;'> </div></td>\
 				</tr>\
+				<tr>\
+					<th>Non allocated</th>\
+					<td>{{nonAlloc}}</td>\
+					<td></td>\
+				</tr>\
 			</tbody>\
 		</table>\
 ";

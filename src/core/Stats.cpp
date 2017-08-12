@@ -24,6 +24,7 @@ Stats::Stats(void)
 	localAccess = 0;
 	remoteAccess = 0;
 	mcdramAccess = 0;
+	nonAlloc = 0;
 }
 
 /*******************  FUNCTION  *********************/
@@ -37,6 +38,7 @@ void Stats::merge(Stats & info)
 	__sync_fetch_and_add(&this->localAccess,info.localAccess,__ATOMIC_RELAXED);
 	__sync_fetch_and_add(&this->remoteAccess,info.remoteAccess,__ATOMIC_RELAXED);
 	__sync_fetch_and_add(&this->mcdramAccess,info.mcdramAccess,__ATOMIC_RELAXED);
+	__sync_fetch_and_add(&this->nonAlloc,info.nonAlloc,__ATOMIC_RELAXED);
 }
 
 /*******************  FUNCTION  *********************/
@@ -59,6 +61,8 @@ void convertToJson(htopml::JsonState& json, const Stats& value)
 			json.printField("remoteAccess",value.remoteAccess);
 		if (value.mcdramAccess > 0)
 			json.printField("mcdramAccess",value.mcdramAccess);
+		if (value.nonAlloc > 0)
+			json.printField("nonAlloc",value.nonAlloc);
 	json.closeStruct();
 }
 
