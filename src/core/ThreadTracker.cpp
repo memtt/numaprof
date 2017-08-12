@@ -279,7 +279,7 @@ void ThreadTracker::onAccess(size_t ip,size_t addr,bool write)
 	if (allocCache.size() >= 200)
 	{
 		for (AllocCacheMap::iterator it = allocCache.begin() ; it != allocCache.end() ; ++it)
-			*(it->first) = it->second;
+			(it->first)->merge(it->second);
 		allocCache.clear();
 	}
 }
