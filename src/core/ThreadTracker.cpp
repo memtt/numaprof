@@ -160,7 +160,7 @@ void ThreadTracker::onAccess(size_t ip,size_t addr,bool write)
 				if (isHugePage)
 				{
 					//mark as hue page and mark pinned status
-					table->setHugePageFromPinnedThread(addr,isMemBind());
+					table->setHugePageFromPinnedThread(addr,pageNode,isMemBind());
 					touchedPages = NUMAPROG_HUGE_PAGE_SIZE / NUMAPROF_PAGE_SIZE;
 				} else {
 					page.fromPinnedThread = isMemBind();

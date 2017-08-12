@@ -107,7 +107,7 @@ class PageTable
 		void mremap(size_t oldAddr,size_t oldSize,size_t newAddr, size_t newSize);
 		void regAllocPointer(size_t baseAddr,size_t size,void * value);
 		void freeAllocPointer(size_t baseAddr,size_t size,void * value);
-		void setHugePageFromPinnedThread(size_t addr,bool value);
+		void setHugePageFromPinnedThread(size_t addr, int numa,bool pinned);
 		void setHugePageNuma(size_t addr,int numa);
 		void onMbind(void * addr,size_t size,bool pinned);
 	private:

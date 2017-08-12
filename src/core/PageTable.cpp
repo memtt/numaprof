@@ -53,7 +53,7 @@ Page & PageTable::getPage(size_t addr)
 }
 
 /*******************  FUNCTION  *********************/
-void PageTable::setHugePageFromPinnedThread(size_t addr,bool value)
+void PageTable::setHugePageFromPinnedThread(size_t addr, int numa,bool pinned)
 {
 	//check
 	assert(NUMAPROF_PAGE_LEVEL_ENTRIES * NUMAPROF_PAGE_SIZE == NUMAPROG_HUGE_PAGE_SIZE);
@@ -63,8 +63,9 @@ void PageTable::setHugePageFromPinnedThread(size_t addr,bool value)
 	Page * page = &getPage(addr);
 	for (size_t i = 0 ; i < NUMAPROF_PAGE_LEVEL_ENTRIES ; i++)
 	{
-		page[i].fromPinnedThread = value;
+		page[i].fromPinnedThread = pinned;
 		page[i].canBeHugePage = true;
+		page[i].numaNode = numa;
 	}
 }
 
