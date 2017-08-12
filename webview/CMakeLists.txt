@@ -8,7 +8,7 @@
 
 ######################################################
 set(WEBVIEW_PATH ${CMAKE_INSTALL_PREFIX}/share/numaprof/webview)
-configure_file(numaprof-webview.sh.in numaprof-webview @ONLY)
+configure_file(webview.sh.in numaprof-webview @ONLY)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/numaprof-webview DESTINATION bin
 	PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_EXECUTE GROUP_READ WORLD_EXECUTE WORLD_READ)
 
