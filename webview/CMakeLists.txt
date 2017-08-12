@@ -21,8 +21,8 @@ if (NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/bower_components/ OR NOT EXISTS ${CMA
 	INSTALL(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/deps DESTINATION share/numaprof/webview)
 	INSTALL(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bower_components DESTINATION share/numaprof/webview)
 else (NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/bower_components/ OR NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/deps)
-	INSTALL(DIRECTORY ${CMAKE_SOURCE_BINARY_DIR}/deps DESTINATION share/numaprof/webview PATTERN "*.pyc" EXCLUDE)
-	INSTALL(DIRECTORY ${CMAKE_SOURCE_BINARY_DIR}/bower_components DESTINATION share/numaprof/webview)
+	INSTALL(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/deps DESTINATION share/numaprof/webview PATTERN "*.pyc" EXCLUDE)
+	INSTALL(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bower_components DESTINATION share/numaprof/webview)
 endif (NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/bower_components/ OR NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/deps)
 
 ######################################################
