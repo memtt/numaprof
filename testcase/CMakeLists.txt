@@ -22,3 +22,12 @@ SET_TARGET_PROPERTIES(main-simple PROPERTIES COMPILE_FLAGS "-g -O0")
 ######################################################
 add_executable(main-1G-small-alloc main-1G-small-alloc.cpp)
 SET_TARGET_PROPERTIES(main-simple PROPERTIES COMPILE_FLAGS "-g -O0")
+
+######################################################
+find_package(OpenMP)
+
+######################################################
+add_executable(case-openmp-loop case-openmp-loop.cpp)
+SET_TARGET_PROPERTIES(case-openmp-loop PROPERTIES COMPILE_FLAGS "-g -O0 ${OpenMP_CXX_FLAGS}")
+SET_TARGET_PROPERTIES(case-openmp-loop PROPERTIES LINK_FLAGS "${OpenMP_CXX_FLAGS}")
+
