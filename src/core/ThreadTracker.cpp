@@ -74,15 +74,19 @@ void ThreadTracker::logBinding(int numa)
 }
 
 /*******************  FUNCTION  *********************/
-void ThreadTracker::flush(void)
+void ThreadTracker::flushAllocCache(void)
 {
-	this->process->mergeInstruction(instructions);
-
 	//flush to keep smell
 	for (AllocCacheMap::iterator it = allocCache.begin() ; it != allocCache.end() ; ++it)
 		(it->first)->merge(it->second);
 	allocCache.clear();
+}
 
+/*******************  FUNCTION  *********************/
+void ThreadTracker::flush(void)
+{
+	assert(allocCache.empty());
+	this->process->mergeInstruction(instructions);
 	this->allocTracker.flush(process);
 }
 

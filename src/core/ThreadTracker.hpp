@@ -48,6 +48,7 @@ class ThreadTracker
 {
 	public:
 		ThreadTracker(ProcessTracker * process);
+		void flushAllocCache(void);
 		void flush(void);
 		void onAccess(size_t ip,size_t addr,bool write);
 		void onSetAffinity(cpu_set_t * mask,int size);

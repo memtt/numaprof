@@ -151,6 +151,12 @@ void ProcessTracker::onExit(void)
 {
 	//get clock
 	clockAtEnd = Clock::get();
+	
+	//flush alloc cache data
+	//this must be done before calling flush because otherwise
+	//we miss some data as this cache point on struct from every threads
+	for (ThreadTrackerMap::iterator it = threads.begin() ; it != threads.end() ; ++it)
+		it->second->flushAllocCache();
 
 	//flush local data
 	for (ThreadTrackerMap::iterator it = threads.begin() ; it != threads.end() ; ++it)
