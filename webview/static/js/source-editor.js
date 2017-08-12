@@ -444,9 +444,12 @@ NumaprofSourceEditor.prototype.redrawAnnotations = function()
 			data: this.data[i],
 			onPopover: function(data) {
 				var mode = cur.selector.metric.split('.')[0];
-				console.log(data.data[mode]);
-				var table = Mustache.render(cur.popoverTemplate, data.data[mode]);
-				var charts = "<table class='annotation-details'><tr><th>Touch</th><th>Access</th></tr><tr><td>"+cur.genD3Pie(cur.genPieDataTouch(data))+"</td><td>"+cur.genD3Pie(cur.genPieDataAccess(data))+"</td></tr></table>";
+				var d = data.data[mode];
+				var out = {};
+				for (var i in d)
+					out[i] = numaprofHelper.formatLongNumber(d[i]);
+				var table = Mustache.render(cur.popoverTemplate, out);
+				var charts = "<table class='annotation-details'><tr><th>Touch</th></tr><tr><td>"+cur.genD3Pie(cur.genPieDataTouch(data))+"</td></tr><tr><th>Access</th></tr><tr><td>"+cur.genD3Pie(cur.genPieDataAccess(data))+"</td></tr></table>";
 				return "<table><tr><td>"+table+"</td><td>"+charts+"</td></table>";
 			},
 			// class: "line-annotate-small",

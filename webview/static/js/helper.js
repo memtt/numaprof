@@ -37,6 +37,22 @@ NumaprofHelper.prototype.valOrDefault = function(value,defaultValue)
 }
 
 /*******************  FUNCTION  *********************/
+NumaprofHelper.prototype.formatLongNumber = function(value)
+{
+	var out = "";
+	var tmp = value.toString();
+	var cnt = 0;
+	for (var i =  tmp.length - 1 ; i >= 0 ; i--)
+	{
+		if (cnt % 3 == 0)
+			out = " " + out;
+		out = tmp[i] + out;
+		cnt++;
+	}
+	return out;
+}
+
+/*******************  FUNCTION  *********************/
 NumaprofHelper.prototype.listToRange = function(elts)
 {
 	var start = -1;
