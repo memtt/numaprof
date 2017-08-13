@@ -57,13 +57,14 @@ class NumaTopo
 	private:
 		void loadCpuNb(void);
 		void loadNumaMap(void);
+		void loadDistanceMap(void);
 		size_t findMemPolicyKernelSize(void);
 	private:
 		int cpus;
 		int numaNodes;
 		int * numaMap;
 		bool * isMcdram;
-
+		int * distanceMap;
 };
 
 /*******************  FUNCTION  *********************/

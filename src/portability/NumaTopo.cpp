@@ -61,6 +61,7 @@ NumaTopo::NumaTopo(void)
 
 	this->loadCpuNb();
 	this->loadNumaMap();
+	this->loadDistanceMap();
 }
 
 /*******************  FUNCTION  *********************/
@@ -95,6 +96,64 @@ void NumaTopo::loadCpuNb()
 
 	//debug
 	printf("Get cpu number : %d\n",cpus);
+}
+
+/*******************  FUNCTION  *********************/
+void NumaTopo::loadDistanceMap(void)
+{
+	//check
+	assert(numaNodes > 0);
+	
+	//allocate
+	distanceMap = new int[numaNodes * numaNodes];
+	memset(distanceMap,0,numaNodes*numaNodes*sizeof(int));
+	
+	//load
+	//loop on all numa nodes (until we do not found one)
+	int node = 0;
+	while (true)
+	{
+		//build file path
+		char fname[128];
+		sprintf(fname,"/sys/devices/system/node/node%d/cpulist",node);
+
+		//load
+		char * list = OS::loadTxtFile(fname,256);
+		if (list == NULL)
+			break;
+		
+		//load line
+		int index = 0;
+		char * cur = list;
+		while (*cur != '\0')
+		{
+			distanceMap[node*numaNodes+index] = atoi(cur);
+			index++;
+			
+			//move to next
+			while (*cur != '\0' && *cur != ' ')
+				cur++;
+			if (*cur == ' ')
+				cur++;
+		}
+		
+		//incr
+		node++;
+	}
+	
+	//get all number
+	std::map<int,int> values;
+	for (int i = 0 ; i <numaNodes * numaNodes ; i++)
+		values[distanceMap[i]] = 0;
+	
+	//renumber
+	int cnt = 0;
+	for (std::map<int,int>::iterator it = values.begin() ; it != values.end() ; ++it)
+		it->second = cnt++;
+	
+	//apply
+	for (int i = 0 ; i <numaNodes * numaNodes ; i++)
+		distanceMap[i] = values[distanceMap[i]];
 }
 
 /*******************  FUNCTION  *********************/
@@ -371,6 +430,10 @@ void convertToJson(htopml::JsonState& json, const NumaTopo& value)
 						if (value.numaMap[cpu] == node || value.numaMap[cpu] == -1)
 							json.printValue(cpu);
 				json.closeFieldArray("cpus");
+				json.openFieldArray("distance");
+					for (int i = 0 ; i < value.numaNodes ; i++)
+						json.printValue(value.distanceMap[node*value.numaNodes+i]);
+				json.closeFieldArray("distance");
 			json.closeFieldStruct(nodeName);
 		}
 	json.closeStruct();
