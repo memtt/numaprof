@@ -32,6 +32,8 @@ ThreadTracker::ThreadTracker(ProcessTracker * process)
 	this->tid = OS::getTID();
 	this->mbindCalls = 0;
 	this->memPolicy = topo->getCurrentMemPolicy();
+	this->instructionFlush = 0;
+	this->allocFlush = 0;
 	logBinding(memPolicy);
 	logBinding(this->numa);
 	printf("Numa initial mapping : %d\n",numa);
@@ -277,6 +279,8 @@ void ThreadTracker::onAccess(size_t ip,size_t addr,bool write)
 	//flush to keep small
 	if (instructions.size() >= 200)
 	{
+		if (instructionFlush++ == 10000)
+			printf("Caution, flushing instruction a lot of time, maybe you need to increase flush threshold, current is %d!\n",200);
 		this->process->mergeInstruction(instructions);
 		instructions.clear();
 	}
@@ -284,6 +288,8 @@ void ThreadTracker::onAccess(size_t ip,size_t addr,bool write)
 	//flush to keep smell
 	if (allocCache.size() >= 200)
 	{
+		if (allocFlush++ == 10000)
+			printf("Caution, flushing allocs a lot of time, maybe you need to increase flush threshold, current is %d!\n",200);
 		for (AllocCacheMap::iterator it = allocCache.begin() ; it != allocCache.end() ; ++it)
 			(it->first)->merge(it->second);
 		allocCache.clear();

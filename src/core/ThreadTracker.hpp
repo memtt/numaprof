@@ -91,6 +91,8 @@ class ThreadTracker
 		MemPolicyLog memPolicyLog;
 		size_t * cntTouchedPages;
 		size_t mbindCalls;
+		size_t instructionFlush;
+		size_t allocFlush;
 };
 
 /*******************  FUNCTION  *********************/
