@@ -49,11 +49,13 @@ parser.add_argument('--search-path', '-S', dest='search',
 args = parser.parse_args()
 
 ######################################################
-gblSearchPath = args.search.split(',')
+gblSearchPath = []
+if args.search is not None:
+	gblSearchPath = args.search.split(',')
 
 ######################################################
 gblPathReplace = {};
-if args.override != None:
+if args.override is not None:
 	lst = args.override.split(",")
 	for over in lst:
 		tmp = over.split(':')
