@@ -165,7 +165,13 @@ NumaprofSourceEditor.prototype.loadSourceFile = function(file,success,fail)
 	if (gblIsAsm)
 		select = "asm";
 	
-	$.get( "/api/"+select+"/file"+file, function(data) {
+	var uri;
+	if (file[0] == '/')
+		uri = "/api/"+select+"/file"+file;
+	else
+		uri = "/api/"+select+"/no-path-file/"+file;
+	
+	$.get( uri, function(data) {
 		success(data);
 	})
 	.fail(function(data) {
@@ -364,8 +370,15 @@ NumaprofSourceEditor.prototype.updateAnotations = function(move)
 	if (gblIsAsm)
 		select = "asm";
 	
+	var uri;
+	if (file[0] == '/')
+		uri ="/api/"+select+"/file-stats"+file;
+	else
+		uri ="/api/"+select+"/no-path-file-stats/"+file;
+		
+	
 	//fetch flat profile of current file
-	$.get( "/api/"+select+"/file-stats"+file, function(data) {
+	$.get( uri, function(data) {
 		//update data with more info than provided by server
 		cur.data = data;
 		for (var i in data)
@@ -420,7 +433,7 @@ NumaprofSourceEditor.prototype.genPieDataAccess = function(data)
 	var dataset = [
 		{legend:"MCDRAM", value:data.data[mode]["mcdramAccess"], color:"#FF79DE"},
 		{legend:"Remote", value:data.data[mode]["remoteAccess"], color:"red"},
-		{legend:"Loca", value:data.data[mode]["localAccess"], color:"rgb(44, 160, 44)"},
+		{legend:"Local", value:data.data[mode]["localAccess"], color:"rgb(44, 160, 44)"},
 		{legend:"Un. Both", value:data.data[mode]["unpinnedBothAccess"], color:"rgb(31, 119, 180)"},
 		{legend:"Un. Thread", value:data.data[mode]["unpinnedThreadAccess"], color:"rgb(255, 127, 14)"},
 		{legend:"Un. Page", value:data.data[mode]["unpinnedPageAccess"], color: "rgb(255, 187, 120)"},
@@ -525,7 +538,7 @@ NumaprofSourceEditor.prototype.genD3Pie = function(dataset)
 			.attr("transform", function(d) { return "translate(" + arc.centroid(d) + ")"; })
 			.style("text-anchor", "middle")
 			.style("font-size","12")
-			.text(function(d) { return (d.data.value / sum > 0.5)?d.data.legend:""; });
+			.text(function(d) { return (d.data.value / sum > 0.2)?d.data.legend:""; });
 	} else {
 		svg.append("text")
 			.attr("transform", function(d) { return "translate(0,0)"; })

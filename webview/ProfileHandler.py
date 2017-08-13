@@ -10,6 +10,7 @@
 ######################################################
 import json
 import subprocess
+import os
 
 ######################################################
 class ProfileHandler:
@@ -111,16 +112,17 @@ class ProfileHandler:
 		for instr in self.data["symbols"]["instr"]:
 			if instr in self.data["symbols"]["instr"] and "file" in self.data["symbols"]["instr"][instr]:
 				fid = self.data["symbols"]["instr"][instr]["file"]
-				fname = self.data["symbols"]["strings"][fid]
+				fname = os.path.normpath(self.data["symbols"]["strings"][fid])
 				out1[fname] = True
 				
 				bid = self.data["symbols"]["instr"][instr]["binary"]
-				bname = self.data["symbols"]["strings"][bid]
+				bname = os.path.normpath(self.data["symbols"]["strings"][bid])
 				out2[bname] = True
 		self.fileFilter = out1
 		self.binaryFilter = out2
 	
 	def hasFile(self,fname):
+		print self.fileFilter
 		return fname in self.fileFilter
 	
 	def hasBinary(self,fname):
@@ -133,7 +135,7 @@ class ProfileHandler:
 	def getFuncFileName(self,instr):
 		if "file" in self.data["symbols"]["instr"][instr]:
 			id = self.data["symbols"]["instr"][instr]["file"]
-			return self.data["symbols"]["strings"][id]
+			return os.path.normpath(self.data["symbols"]["strings"][id])
 		else:
 			return "??"
 
@@ -146,7 +148,7 @@ class ProfileHandler:
 	def getBinary(self,instr):
 		if "binary" in self.data["symbols"]["instr"][instr]:
 			id = self.data["symbols"]["instr"][instr]["binary"]
-			return self.data["symbols"]["strings"][id]
+			return os.path.normpath(self.data["symbols"]["strings"][id])
 		else:
 			return "??"
 

@@ -43,8 +43,13 @@ parser.add_argument('profileFile', metavar='FILE', type=str,
                     help='Numaprof profile files to display')
 parser.add_argument('--override', '-O', dest='override',
                     help='Override file path, format: "/orig/:/new/,/orig2/:/new2/"')
+parser.add_argument('--search-path', '-S', dest='search',
+                    help='Search file with non full path in this list of directory : "/home/orig/a,/tmp/b"')
 
 args = parser.parse_args()
+
+######################################################
+gblSearchPath = args.search.split(',')
 
 ######################################################
 gblPathReplace = {};
@@ -60,6 +65,15 @@ def replaceInPath(path):
 		if repl in path:
 			path = path.replace(repl,gblPathReplace[repl])
 	return path
+
+######################################################
+def findSourceFile(name):
+	for path in gblSearchPath:
+		for root, dirs, files in os.walk(path):
+			if name in files:
+				return os.path.join(root, name)
+	return False
+
 
 ######################################################
 print " * Loading file..."
@@ -194,14 +208,37 @@ def apiSourcesFileStats(path):
 	jsonData = json.dumps(data)
 	return Response(jsonData, mimetype='application/json')
 
+@app.route('/api/sources/no-path-file-stats/<path:path>')
+@auth.login_required
+@nocache
+def apiSourcesNoPathFileStats(path):
+	data = profile.getFileStats(path)
+	jsonData = json.dumps(data)
+	return Response(jsonData, mimetype='application/json')
+
 @app.route('/api/sources/file/<path:path>')
 @auth.login_required
 @nocache
 def sourceFiles(path):
 	path = "/"+path
+	print path
 	if profile.hasFile(path):
 		path = replaceInPath(path)
+		print path
 		data=open(path).read()
+		return data
+	else:
+		abort(404)
+
+@app.route('/api/sources/no-path-file/<path:path>')
+@auth.login_required
+@nocache
+def sourceNoPathFiles(path):
+	fname = path.split('/')[-1]
+	full = findSourceFile(fname)
+	print full
+	if full != False:
+		data=open(full).read()
 		return data
 	else:
 		abort(404)
