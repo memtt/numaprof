@@ -115,7 +115,7 @@ void NumaTopo::loadDistanceMap(void)
 	{
 		//build file path
 		char fname[128];
-		sprintf(fname,"/sys/devices/system/node/node%d/cpulist",node);
+		sprintf(fname,"/sys/devices/system/node/node%d/distance",node);
 
 		//load
 		char * list = OS::loadTxtFile(fname,256);
