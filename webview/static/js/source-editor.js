@@ -29,17 +29,17 @@ var tpl = "<table class='table table-borders source-popover-details'>\
 					<td><div width='20px' height='20px' style='background-color:red; width:20px; height:20px;'> </div></td>\
 				</tr>\
 				<tr>\
-					<th>Unpinnect page</th>\
+					<th>Unpinned page</th>\
 					<td>{{unpinnedPageAccess}}</td>\
 					<td><div width='20px' height='20px' style='background-color:rgb(255, 187, 120); width:20px; height:20px;'> </div></td>\
 				</tr>\
 				<tr>\
-					<th>Unpinnect thread</th>\
+					<th>Unpinned thread</th>\
 					<td>{{unpinnedThreadAccess}}</td>\
 					<td><div width='20px' height='20px' style='background-color:rgb(255, 127, 14); width:20px; height:20px;'> </div></td>\
 				</tr>\
 				<tr>\
-					<th>Unpinnect both</th>\
+					<th>Unpinned both</th>\
 					<td>{{unpinnedBothAccess}}</td>\
 					<td><div width='20px' height='20px' style='background-color:rgb(31, 119, 180); width:20px; height:20px;'> </div></td>\
 				</tr>\
