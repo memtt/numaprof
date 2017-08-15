@@ -269,8 +269,13 @@ int NumaTopo::getCurrentNumaAffinity(cpu_set_t * mask, int size,CpuBindList * cp
 	if (cpuBindList != NULL)
 		cpuBindList->clear();
 
+	int cnt = size * 8;
+	printf("SIze = %d, ncpu = %d\n",cnt,cpus);
+	if (cnt > cpus)
+		cnt = cpus;
+	
 	//check numa
-	for (int i = 0 ; i < cpus ; i++)
+	for (int i = 0 ; i < cnt ; i++)
 	{
 		if (CPU_ISSET(i,mask))
 		{

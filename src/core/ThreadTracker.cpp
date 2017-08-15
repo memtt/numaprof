@@ -277,19 +277,19 @@ void ThreadTracker::onAccess(size_t ip,size_t addr,bool write)
 	}
 
 	//flush to keep small
-	if (instructions.size() >= 200)
+	if (instructions.size() >= 512)
 	{
 		if (instructionFlush++ == 10000)
-			printf("Caution, flushing instruction a lot of time, maybe you need to increase flush threshold, current is %d!\n",200);
+			printf("Caution, flushing instruction a lot of time, maybe you need to increase flush threshold, current is %d!\n",512);
 		this->process->mergeInstruction(instructions);
 		instructions.clear();
 	}
 
 	//flush to keep smell
-	if (allocCache.size() >= 200)
+	if (allocCache.size() >= 512)
 	{
 		if (allocFlush++ == 10000)
-			printf("Caution, flushing allocs a lot of time, maybe you need to increase flush threshold, current is %d!\n",200);
+			printf("Caution, flushing allocs a lot of time, maybe you need to increase flush threshold, current is %d!\n",512);
 		for (AllocCacheMap::iterator it = allocCache.begin() ; it != allocCache.end() ; ++it)
 			(it->first)->merge(it->second);
 		allocCache.clear();
