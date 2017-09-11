@@ -31,9 +31,9 @@ Numaprof extract the given metrics per call site and per malloc call site :
 Install
 -------
 
-First download the last version of pintool (tested : 3.2-81205 on x86_64 arch) and extract it somewhere.
+First download the last version of pintool (tested : 3.2-81205 on x86_64 arch : https://software.intel.com/en-us/articles/pin-a-binary-instrumentation-tool-downloads) and extract it somewhere.
 
-The use the configure script (for pintool mode do not use directly the cmake script, the configure script does extra things with pin):
+Then use the configure script (for pintool mode do not use directly the cmake script, the configure script does extra things with pin):
 
 ```
 mkdir build
@@ -57,10 +57,25 @@ Run you program using the wrapper:
 numaprof-pintool ./benchmark --my-option
 ```
 
+THe GUI password is currently fixed to admin/admin. You can then open the GUI : 
+
+```
+numaprof-webview numaprof-1234.json
+```
+
+If you run the webview on a remote node, you can forward the http session to your local browser by using :
+
+```
+ssh myhost -L8080:localhost:8080
+```
+
+Kcachgrind compatibility
+------------------------
+
 If you want to generate the callgrind compatible output, use:
 
 ```
-numaprof-pintool --callgrind ./benchmark --my-option
+numaprof-to-callgrind numaprof-45689.json
 ```
 
 Then you can open the callgrind file with kcachegrind (http://kcachegrind.sourceforge.net/html/Home.html):
