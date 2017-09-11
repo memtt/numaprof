@@ -8,6 +8,7 @@
 
 /********************  GLOBALS  *********************/
 var gblSourceEditor = null;
+var pageSelector = {pages:1,page:1,perPage:10};
 var selector = new NumaprofSelector();
 var functions = {};
 var template = "<li id='numaprof-func-list-entry'>\
@@ -80,6 +81,27 @@ function setupSelectorList()
 	selectRatio();
 	selectRatio();
 	selectMetric(selector.metric);
+	
+	//setup paging
+	$('#paging').bootpag({
+		total: pageSelector.pages,
+		page: pageSelector.page,
+		maxVisible: 6,
+		leaps: false,
+		firstLastUse: false,
+		first: '←',
+		last: '→',
+		wrapClass: 'pagination',
+		activeClass: 'active',
+		disabledClass: 'disabled',
+		nextClass: 'next',
+		prevClass: 'prev',
+		lastClass: 'last',
+		firstClass: 'first'
+	}).on("page", function(event, num){
+		pageSelector.page = num;
+		updateFuncList();
+	}); 
 }
 
 /*******************  FUNCTION  *********************/
@@ -106,7 +128,8 @@ function updateFuncList()
 	out.sort(function(a,b) {return b.value-a.value;});
 	
 	//select N first
-	out = out.slice(0,10);
+	start = pageSelector.perPage*(pageSelector.page-1);
+	out = out.slice(start,start+pageSelector.perPage);
 	
 	//clear
 	$('#numaprof-func-list').html("")
@@ -139,6 +162,19 @@ function updateFuncList()
 }
 
 /*******************  FUNCTION  *********************/
+function updatePaging()
+{
+	len = Object.keys(functions).length;
+	console.log("====================");
+	console.log(len);
+	console.log(len / pageSelector.perPage);
+	$('#paging').bootpag({
+		page:1,
+		total:Math.ceil(len / pageSelector.perPage)
+	});
+}
+
+/*******************  FUNCTION  *********************/
 function loadFunctions()
 {
 	var select = "sources";
@@ -151,6 +187,7 @@ function loadFunctions()
 		for (var i in data)
 			data[i].function = i;
 		selector.setData(functions);
+		updatePaging();
 		updateFuncList();
 	})
 	.fail(function(data) {

@@ -80,6 +80,13 @@ def findSourceFile(name):
 ######################################################
 print " * Loading file..."
 profile = ProfileHandler(args.profileFile)
+
+######################################################
+#prepare some outputs
+print " * Prepare func list..."
+functionsCache = json.dumps(profile.getFuncList())
+print " * Prepare asm func list..."
+asmFunctionsCache = json.dumps(profile.getAsmFuncList())
 print " * Done"
 
 ######################################################
@@ -197,9 +204,7 @@ def apiDetailsThreads():
 @auth.login_required
 @nocache
 def apiSourcesFuncions():
-	data = profile.getFuncList()
-	jsonData = json.dumps(data)
-	return Response(jsonData, mimetype='application/json')
+	return Response(functionsCache, mimetype='application/json')
 
 @app.route('/api/sources/file-stats/<path:path>')
 @auth.login_required
@@ -250,9 +255,7 @@ def sourceNoPathFiles(path):
 @auth.login_required
 @nocache
 def apiAsmFuncions():
-	data = profile.getAsmFuncList()
-	jsonData = json.dumps(data)
-	return Response(jsonData, mimetype='application/json')
+	return Response(asmFunctionsCache, mimetype='application/json')
 
 @app.route('/api/asm/file-stats/<path:path>')
 @auth.login_required
