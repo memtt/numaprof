@@ -12,6 +12,7 @@
 #include "ThreadTracker.hpp"
 #include "../common/Debug.hpp"
 #include "../portability/OS.hpp"
+#include "../common/Options.hpp"
 #include "linux/mempolicy.h"
 
 /*******************  NAMESPACE  ********************/
@@ -36,8 +37,12 @@ ThreadTracker::ThreadTracker(ProcessTracker * process)
 	this->allocFlush = 0;
 	logBinding(memPolicy);
 	logBinding(this->numa);
-	printf("Numa initial mapping : %d\n",numa);
-	printf("Numa initial mem mapping : %s\n",getMemBindTypeName(memPolicy.type));
+	
+	if (!getGlobalOptions().outputSilent)
+	{
+		printf("Numa initial mapping : %d\n",numa);
+		printf("Numa initial mem mapping : %s\n",getMemBindTypeName(memPolicy.type));
+	}
 	
 	int numaNodes = topo->getNumaNodes();
 	this->cntTouchedPages = new size_t[numaNodes];
@@ -280,7 +285,7 @@ void ThreadTracker::onAccess(size_t ip,size_t addr,bool write)
 	if (instructions.size() >= 512)
 	{
 		if (instructionFlush++ == 10000)
-			printf("Caution, flushing instruction a lot of time, maybe you need to increase flush threshold, current is %d!\n",512);
+			printf("NUMAPROF: Caution, flushing instruction a lot of time, maybe you need to increase flush threshold, current is %d!\n",512);
 		this->process->mergeInstruction(instructions);
 		instructions.clear();
 	}
@@ -289,7 +294,7 @@ void ThreadTracker::onAccess(size_t ip,size_t addr,bool write)
 	if (allocCache.size() >= 512)
 	{
 		if (allocFlush++ == 10000)
-			printf("Caution, flushing allocs a lot of time, maybe you need to increase flush threshold, current is %d!\n",512);
+			printf("NUMAPROF: Caution, flushing allocs a lot of time, maybe you need to increase flush threshold, current is %d!\n",512);
 		for (AllocCacheMap::iterator it = allocCache.begin() ; it != allocCache.end() ; ++it)
 			(it->first)->merge(it->second);
 		allocCache.clear();
@@ -374,7 +379,6 @@ void ThreadTracker::onExitFunction(void)
 void ThreadTracker::onMBind(void * addr,size_t len,size_t mode,const unsigned long *nodemask,size_t maxnode,size_t flags)
 {
 	//basic capture
-	printf("--> Capture mbind usage\n");
 	mbindCalls++;
 	
 	//extarct policy

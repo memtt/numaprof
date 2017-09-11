@@ -9,13 +9,15 @@
 ######################################################
 find_package(Numactl REQUIRED)
 include_directories(${NUMACTL_INCLUDE_DIR})
+include_directories(../extern-deps/iniparser/src)
 
 ######################################################
 add_library(numaprof SHARED $<TARGET_OBJECTS:numaprof-core>
 							$<TARGET_OBJECTS:numaprof-portability>
 							$<TARGET_OBJECTS:numaprof-common>
 							$<TARGET_OBJECTS:htopml-json>
-							$<TARGET_OBJECTS:malt-core>)
+							$<TARGET_OBJECTS:malt-core>
+							$<TARGET_OBJECTS:iniparser>)
 target_link_libraries(numaprof ${NUMACTL_LIBRARY})
 
 ######################################################

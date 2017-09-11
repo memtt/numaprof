@@ -7,8 +7,5 @@
 ######################################################
 
 ######################################################
-add_subdirectory(gmock-1.7.0)
-add_subdirectory(jsoncpp/dist)
-add_subdirectory(from-htopml)
-add_subdirectory(from-malt-v2)
-add_subdirectory(iniparser)
+add_library(iniparser OBJECT dictionary.c iniparser.c)
+SET_TARGET_PROPERTIES(iniparser PROPERTIES COMPILE_FLAGS -fPIC)

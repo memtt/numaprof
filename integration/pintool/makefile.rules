@@ -8,29 +8,47 @@ CST_CFLAGS=-I$(CST_SRC)/src -I$(CST_BUILD)/src -DUSE_PIN_LOCKS -I$(CST_SRC)/exte
 #CST_LSFLAGS=-Wl,-rpath=$(CST_BUILD)/src $(CST_BUILD)/src/libnumaprof.so 
 NUMAPROF_TOOL_CXXFLAGS=$(TOOL_CXXFLAGS)
 #NUMAPROF_TOOL_CXXFLAGS=$(TOOL_CXXFLAGS_NOOPT)
+NUMAPROF_TOOL_CFLAGS=$(TOOL_CFLAGS)
 
 OBJS=$(OBJDIR)numaprof-debug$(OBJ_SUFFIX)\
-     $(OBJDIR)numaprof-page-table$(OBJ_SUFFIX)\
-     $(OBJDIR)numaprof-move-pages$(OBJ_SUFFIX)\
-     $(OBJDIR)numaprof-helper$(OBJ_SUFFIX)\
-	 $(OBJDIR)numaprof-process-tracker$(OBJ_SUFFIX)\
-	 $(OBJDIR)numaprof-thread-tracker$(OBJ_SUFFIX)\
-	 $(OBJDIR)numaprof-json-state$(OBJ_SUFFIX)\
-	 $(OBJDIR)numaprof-json-convert$(OBJ_SUFFIX)\
-	 $(OBJDIR)numaprof-stats$(OBJ_SUFFIX)\
-	 $(OBJDIR)numaprof-clock$(OBJ_SUFFIX)\
-	 $(OBJDIR)numaprof-stack$(OBJ_SUFFIX)\
-	 $(OBJDIR)numaprof-os$(OBJ_SUFFIX)\
-	 $(OBJDIR)numaprof-access-matrix$(OBJ_SUFFIX)\
-	 $(OBJDIR)numaprof-malloc-tracker$(OBJ_SUFFIX)\
-	 $(OBJDIR)numaprof-malt-debug$(OBJ_SUFFIX)\
-	 $(OBJDIR)numaprof-malt-formatted-message$(OBJ_SUFFIX)\
-	 $(OBJDIR)numaprof-malt-linux-proc-map$(OBJ_SUFFIX)\
-	 $(OBJDIR)numaprof-malt-symbol-registry$(OBJ_SUFFIX)\
-     $(OBJDIR)numaprof-numa-topo$(OBJ_SUFFIX)
+	$(OBJDIR)numaprof-page-table$(OBJ_SUFFIX)\
+	$(OBJDIR)numaprof-move-pages$(OBJ_SUFFIX)\
+	$(OBJDIR)numaprof-helper$(OBJ_SUFFIX)\
+	$(OBJDIR)numaprof-process-tracker$(OBJ_SUFFIX)\
+	$(OBJDIR)numaprof-thread-tracker$(OBJ_SUFFIX)\
+	$(OBJDIR)numaprof-json-state$(OBJ_SUFFIX)\
+	$(OBJDIR)numaprof-json-convert$(OBJ_SUFFIX)\
+	$(OBJDIR)numaprof-stats$(OBJ_SUFFIX)\
+	$(OBJDIR)numaprof-clock$(OBJ_SUFFIX)\
+	$(OBJDIR)numaprof-stack$(OBJ_SUFFIX)\
+	$(OBJDIR)numaprof-os$(OBJ_SUFFIX)\
+	$(OBJDIR)numaprof-access-matrix$(OBJ_SUFFIX)\
+	$(OBJDIR)numaprof-malloc-tracker$(OBJ_SUFFIX)\
+	$(OBJDIR)numaprof-malt-debug$(OBJ_SUFFIX)\
+	$(OBJDIR)numaprof-malt-formatted-message$(OBJ_SUFFIX)\
+	$(OBJDIR)numaprof-malt-linux-proc-map$(OBJ_SUFFIX)\
+	$(OBJDIR)numaprof-malt-symbol-registry$(OBJ_SUFFIX)\
+	$(OBJDIR)numaprof-malt-symbol-registry$(OBJ_SUFFIX)\
+	$(OBJDIR)numaprof-numa-topo$(OBJ_SUFFIX)\
+	$(OBJDIR)numaprof-options$(OBJ_SUFFIX)\
+	$(OBJDIR)numaprof-formatted-message$(OBJ_SUFFIX)\
+	$(OBJDIR)iniparser-dictionary$(OBJ_SUFFIX)\
+	$(OBJDIR)iniparser-iniparser$(OBJ_SUFFIX)
 
 # Build the intermediate object file.
 $(OBJDIR)libnumaprof-pintool$(OBJ_SUFFIX): $(SRCDIR)/numaprof.cpp 
+	$(CXX) $(NUMAPROF_TOOL_CXXFLAGS) $(COMP_OBJ)$@ $< $(CST_CFLAGS)
+
+$(OBJDIR)iniparser-dictionary$(OBJ_SUFFIX): $(SRCDIR)/../../extern-deps/iniparser/src/dictionary.c
+	$(CC) $(NUMAPROF_TOOL_CFLAGS) $(COMP_OBJ)$@ $< $(CST_CFLAGS)
+
+$(OBJDIR)iniparser-iniparser$(OBJ_SUFFIX): $(SRCDIR)/../../extern-deps/iniparser/src/iniparser.c 
+	$(CC) $(NUMAPROF_TOOL_CFLAGS) $(COMP_OBJ)$@ $< $(CST_CFLAGS)
+
+$(OBJDIR)numaprof-options$(OBJ_SUFFIX): $(SRCDIR)/../../src/common/Options.cpp 
+	$(CXX) $(NUMAPROF_TOOL_CXXFLAGS) $(COMP_OBJ)$@ $< $(CST_CFLAGS)
+
+$(OBJDIR)numaprof-formatted-message$(OBJ_SUFFIX): $(SRCDIR)/../../src/common/FormattedMessage.cpp 
 	$(CXX) $(NUMAPROF_TOOL_CXXFLAGS) $(COMP_OBJ)$@ $< $(CST_CFLAGS)
 
 $(OBJDIR)numaprof-debug$(OBJ_SUFFIX): $(SRCDIR)/../../src/common/Debug.cpp 

@@ -14,6 +14,7 @@
 #include <cstdio>
 #include "../common/Debug.hpp"
 #include "../common/Helper.hpp"
+#include "../common/Options.hpp"
 #include "../portability/NumaTopo.hpp"
 #include "../portability/OS.hpp"
 #include "linux/mempolicy.h"
@@ -95,7 +96,8 @@ void NumaTopo::loadCpuNb()
 	this->cpus++;
 
 	//debug
-	printf("Get cpu number : %d\n",cpus);
+	if (!getGlobalOptions().outputSilent)
+		printf("NUMAPROF: Get cpu number : %d\n",cpus);
 }
 
 /*******************  FUNCTION  *********************/
@@ -225,7 +227,7 @@ void NumaTopo::loadNumaMap(void)
 	{
 		if (numaMap[i] == -1)
 		{
-			printf("Caution, CPU %d was not assigned to a NUMA node, assigned to 0 !\n",i);
+			printf("NUMAPROF: Caution, CPU %d was not assigned to a NUMA node, assigned to 0 !\n",i);
 			numaMap[i] = 0;
 		}
 	}
@@ -270,7 +272,8 @@ int NumaTopo::getCurrentNumaAffinity(cpu_set_t * mask, int size,CpuBindList * cp
 		cpuBindList->clear();
 
 	int cnt = size * 8;
-	printf("SIze = %d, ncpu = %d\n",cnt,cpus);
+	if (!getGlobalOptions().outputSilent)
+		printf("NUMAPROF: Size = %d, ncpu = %d\n",cnt,cpus);
 	if (cnt > cpus)
 		cnt = cpus;
 	
@@ -293,7 +296,8 @@ int NumaTopo::getCurrentNumaAffinity(cpu_set_t * mask, int size,CpuBindList * cp
 	if (numa == -2)
 		numa = -1;
 
-	printf("Thread is binded on NUMA %d\n",numa);
+	if (!getGlobalOptions().outputSilent)
+		printf("Thread is binded on NUMA %d\n",numa);
 	return numa;
 }
 
@@ -348,7 +352,7 @@ MemPolicy NumaTopo::getCurrentMemPolicy()
 		status = get_mempolicy(&policy.mode,mask,size,NULL,0);
 		if (status != 0)
 		{
-			printf("\033[31mCAUTION, get_mempolicy not implemented, you might be running on a non NUMA system !\nAll accesses will be considered local !\033[0m\n");
+			printf("\033[31mNUMAPROF: CAUTION, get_mempolicy not implemented, you might be running on a non NUMA system !\nAll accesses will be considered local !\033[0m\n");
 			hasMemPolicy = false;
 		} else {
 			for (int i = 0 ; i < numaNodes ; i++)

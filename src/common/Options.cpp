@@ -1,0 +1,296 @@
+/*****************************************************
+             PROJECT  : numaprof
+             VERSION  : 2.3.0
+             DATE     : 05/2017
+             AUTHOR   : Valat Sébastien - CERN
+             LICENSE  : CeCILL-C
+*****************************************************/
+
+/********************  HEADERS  *********************/
+//std
+#include <cstdio>
+#include <cassert>
+//internals
+#include "Debug.hpp"
+#include "Options.hpp"
+#include "../../extern-deps/from-htopml/json/ConvertToJson.h"
+
+/*******************  NAMESPACE  ********************/
+namespace numaprof 
+{
+
+/********************  GLOBALS  *********************/
+Options * gblOptions = NULL;
+
+/*******************  FUNCTION  *********************/
+/**
+ * Constructor to setup the default values for each options
+**/
+Options::Options(void)
+{
+	//output
+	this->outputName              = "numaprof-%1-%2.%3";
+	this->outputIndent            = false;
+	this->outputJson              = true;
+	this->outputDumpConfig        = false;
+	this->outputSilent            = false;
+	//info
+	this->infoHidden              = false;
+}
+
+/*******************  FUNCTION  *********************/
+/**
+ * Manage operator == to help validation in unit test suite.
+**/
+bool Options::operator==(const Options& value) const
+{
+	//output
+	if (this->outputName != value.outputName) return false;
+	if (this->outputIndent != value.outputIndent) return false;
+	if (this->outputJson != value.outputJson) return false;
+	if (this->outputDumpConfig != value.outputDumpConfig) return false;
+	if (this->outputSilent != value.outputSilent)  return false;
+	//info
+	if (this->infoHidden != value.infoHidden) return false;
+	
+	return true;
+}
+
+/*******************  FUNCTION  *********************/
+/**
+ * Load values from string, mostly to be used from MALT_OPTION environment variable.
+ * 
+ * It expect string format like :
+ * 
+ * SEC1:NAME1=VALUE1;SEC2:NAME2=VALUE2;
+ * 
+ * @param value Define the string to load as a config file.
+**/
+void Options::loadFromString ( const char* value )
+{
+	//trivial
+	if (value == NULL)
+		return;
+
+	//create fake dictionary
+	dictionary * dic = dictionary_new(10);
+	
+	//copy string
+	char * dump = strdup(value);
+	
+	//loop on separators ';'
+	char * cur = dump;
+	while (*cur != '\0')
+	{
+		//remind start
+		char * start = cur;
+		char * sep = NULL;
+		
+		//search ';' or '\0'
+		while (*cur != ';' && *cur != '\0')
+		{
+			if (*cur == '=')
+				sep = cur;
+			cur++;
+		}
+		
+		//skip to next
+		if (cur == start)
+		{
+			cur++;
+			continue;
+		}
+		
+		//is end
+		bool isEnd = (*cur == '\0');
+		char buffer[256];
+		sprintf(buffer,"Invalid string format to setup option : '%s', expect SECTION:NAME=VALUE.",start);
+		numaprofAssume(sep != NULL,buffer);
+		
+		//cut strings
+		*cur = '\0';
+		*sep = '\0';
+		sep++;
+		
+		//setup in INI
+		IniParserHelper::setEntry(dic,start,sep);
+		
+		//move
+		if (isEnd == false)
+			cur++;
+	}
+	
+	//load
+	this->loadFromIniDic(dic);
+
+	//free
+	iniparser_freedict(dic);
+	free(dump);
+}
+
+/*******************  FUNCTION  *********************/
+/**
+ * Internal function to load options from iniDic.
+**/
+void Options::loadFromIniDic ( dictionary* iniDic )
+{
+	//errors
+	assert(iniDic != NULL);
+	
+	//load values for output
+	this->outputName          = iniparser_getstring(iniDic,"output:name",(char*)this->outputName.c_str());
+	this->outputIndent        = iniparser_getboolean(iniDic,"output:indent",this->outputIndent);
+	this->outputJson          = iniparser_getboolean(iniDic,"output:json",this->outputJson);
+	this->outputDumpConfig    = iniparser_getboolean(iniDic,"output:config",this->outputDumpConfig);
+	this->outputSilent        = iniparser_getboolean(iniDic,"output:silent",this->outputSilent);
+	
+	//info
+	this->infoHidden          = iniparser_getboolean(iniDic,"info:hidden",this->infoHidden);
+}
+
+/*******************  FUNCTION  *********************/
+/**
+ * Function to load options from a config file in INI format.
+**/
+void Options::loadFromFile(const char* fname)
+{
+	//load ini dic
+	dictionary * iniDic;
+	assert(fname != NULL);
+	iniDic = iniparser_load(fname);
+	
+	//errors
+	char buffer[128];
+	sprintf(buffer,"Failed to load config file : %s !",fname);
+	numaprofAssume(iniDic != NULL,buffer);
+	
+	//load
+	loadFromIniDic(iniDic);
+	
+	//free dic
+	iniparser_freedict(iniDic);
+	
+	//TODO apply getenv MALT_OPTIONS to override here and add "envOverride" parameter to enable it from caller
+}
+
+/*******************  FUNCTION  *********************/
+/**
+ * Helper function to convert the options to JSON output format and dump it
+ * into the MALT output profile.
+**/
+void convertToJson(htopml::JsonState & json,const Options & value)
+{
+	json.openStruct();
+		json.openFieldStruct("output");
+					json.printField("dumpConfig",value.outputDumpConfig);
+			json.printField("index",value.outputIndent);
+			json.printField("json",value.outputJson);
+				json.printField("name",value.outputName);
+			json.printField("silent",value.outputSilent);
+		json.closeFieldStruct("output");
+		
+		json.openFieldStruct("info");
+			json.printField("hidden",value.infoHidden);
+		json.closeFieldStruct("info");
+	json.closeStruct();
+}
+
+/*******************  FUNCTION  *********************/
+/**
+ * Helper to dump the config as INI file.
+**/
+void Options::dumpConfig(const char* fname)
+{
+	//create dic
+	assert(fname != NULL);
+	dictionary * dic = dictionary_new(10);
+	
+	//output
+	IniParserHelper::setEntry(dic,"output:name",this->outputName.c_str());
+	IniParserHelper::setEntry(dic,"output:json",this->outputJson);
+	IniParserHelper::setEntry(dic,"output:indent",this->outputIndent);
+	IniParserHelper::setEntry(dic,"output:config",this->outputDumpConfig);
+	IniParserHelper::setEntry(dic,"output:silent",this->outputSilent);
+	
+	//info
+	IniParserHelper::setEntry(dic,"info:hidden",this->infoHidden);
+
+	//write
+	FILE * fp = fopen(fname,"w");
+	char buffer[2048];
+	sprintf(buffer,"Failed to write dump of config file into %s : %s !",fname,strerror(errno));
+	numaprofAssume(fp != NULL,buffer);
+	iniparser_dump_ini(dic,fp);
+	fclose(fp);
+	
+	//free
+	iniparser_freedict(dic);
+}
+
+/*******************  FUNCTION  *********************/
+/**
+ * Internal function to split strings on ':' and extract the section name.
+**/
+std::string IniParserHelper::extractSectionName ( const char * key )
+{
+	std::string tmp;
+	int i = 0;
+	while (key[i] != ':' && key[i] != '\0')
+		tmp += key[i++];
+	return tmp;
+}
+
+/*******************  FUNCTION  *********************/
+/**
+ * Updat some entries of a dictionnary.
+ * @param dic Define the dictionnary to update.
+ * @param key Define the key to update.
+ * @param value Define the value to setup for the given key.
+**/
+void IniParserHelper::setEntry(dictionary* dic, const char* key, const char* value)
+{
+	iniparser_set(dic,extractSectionName(key).c_str(),NULL);
+	iniparser_set(dic,key,value);
+}
+
+/*******************  FUNCTION  *********************/
+/**
+ * Help set setup ini dic entries from boolean by converting them to string
+ * internally.
+ * @param dic Define the dictionnary to fill.
+ * @param key Define the key to update (key:name)
+ * @param value Define the boolean value to setup.
+**/
+void IniParserHelper::setEntry(dictionary* dic, const char* key, bool value)
+{
+	setEntry(dic,key,value?"true":"false");
+}
+
+/*******************  FUNCTION  *********************/
+/**
+ * Help set setup ini dic entries from integer by converting them to string
+ * internally.
+ * @param dic Define the dictionnary to fill.
+ * @param key Define the key to update (key:name)
+ * @param value Define the integer value to setup.
+**/
+void IniParserHelper::setEntry(dictionary* dic, const char* key, int value)
+{
+	char buffer[64];
+	sprintf(buffer,"%d",value);
+	setEntry(dic,key,buffer);
+}
+
+/*******************  FUNCTION  *********************/
+/**
+ * Need to be call once after malloc is available.
+**/
+Options& initGlobalOptions ( void )
+{
+	//error
+	numaprofAssume (gblOptions == NULL,"initGlobalOptions was used previously, gblOptions is already init ! ");
+	gblOptions = new Options();
+	return *gblOptions;
+}
+
+}

@@ -14,6 +14,7 @@
 #include <core/ThreadTracker.hpp>
 #include <portability/OS.hpp>
 #include <common/Helper.hpp>
+#include <common/Options.hpp>
 #include <iostream>
 
 using namespace std;
@@ -974,6 +975,15 @@ int main(int argc, char *argv[])
 	PIN_InitSymbols();
 
 	if (PIN_Init(argc, argv)) return Usage();
+	
+	//load options
+	Options & options = initGlobalOptions();
+	const char * configFile = getenv("NUMAPROF_CONFIG");
+	if (configFile != NULL)
+		options.loadFromFile(configFile);
+	const char * envOptions = getenv("NUMAPROF_OPTIONS");
+	if (envOptions != NULL)
+		options.loadFromString(envOptions);
 
 	//setup
 	gblProcessTracker = new ProcessTracker();

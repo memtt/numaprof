@@ -7,8 +7,4 @@
 ######################################################
 
 ######################################################
-add_subdirectory(gmock-1.7.0)
-add_subdirectory(jsoncpp/dist)
-add_subdirectory(from-htopml)
-add_subdirectory(from-malt-v2)
-add_subdirectory(iniparser)
+add_subdirectory(src)

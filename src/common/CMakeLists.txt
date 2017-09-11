@@ -7,7 +7,7 @@
 ######################################################
 
 ######################################################
-add_library(numaprof-common OBJECT Debug.cpp Helper.cpp)
+add_library(numaprof-common OBJECT Debug.cpp Helper.cpp Options.cpp FormattedMessage.cpp)
 SET_TARGET_PROPERTIES(numaprof-common PROPERTIES COMPILE_FLAGS -fPIC)
 
 ######################################################

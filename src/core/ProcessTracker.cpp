@@ -12,6 +12,8 @@
 #include "../common/Helper.hpp"
 #include "../portability/OS.hpp"
 #include "../portability/Clock.hpp"
+#include "../common/Options.hpp"
+#include "../common/FormattedMessage.hpp"
 #include <sys/types.h>
 #include <unistd.h>
 #include <fstream>
@@ -152,6 +154,11 @@ void ProcessTracker::onExit(void)
 	//get clock
 	clockAtEnd = Clock::get();
 	
+	//dump config
+	Options & options = initGlobalOptions();
+	if (options.outputDumpConfig)
+		options.dumpConfig(FormattedMessage(options.outputName).arg(OS::getExeName()).arg(OS::getPID()).arg("ini").toString().c_str());
+	
 	//flush alloc cache data
 	//this must be done before calling flush because otherwise
 	//we miss some data as this cache point on struct from every threads
@@ -182,15 +189,16 @@ void ProcessTracker::onExit(void)
 	#endif
 	registry.solveNames();
 
-	//prep filename
-	char buffer[64];
-	sprintf(buffer,"numaprof-%d.json",OS::getPID());
-	
-	//open & dump
-	std::ofstream out;
-	out.open(buffer);
-	htopml::convertToJson(out,*this,true);
-	out.close();
+	//dump json file
+	if (getGlobalOptions().outputJson)
+	{
+		//open & dump
+		std::string fname = FormattedMessage(options.outputName).arg(OS::getExeName()).arg(OS::getPID()).arg("json").toString();
+		std::ofstream out;
+		out.open(fname.c_str());
+		htopml::convertToJson(out,*this,getGlobalOptions().outputIndent);
+		out.close();
+	}
 }
 
 /*******************  FUNCTION  *********************/
@@ -200,12 +208,20 @@ void convertToJson(htopml::JsonState& json, const ProcessTracker& value)
 		json.openFieldStruct("infos");
 			json.printField("formatVersion",1);
 			json.printField("tool","numaprof");
-			json.printField("exe",OS::getExeName());
-			json.printField("command",OS::getCmdLine());
-			json.printField("hostname",OS::getHostname());
+			if (getGlobalOptions().infoHidden == false)
+			{
+				json.printField("exe",OS::getExeName());
+				json.printField("command",OS::getCmdLine());
+				json.printField("hostname",OS::getHostname());
+			} else {
+				json.printField("exe","unknown");
+				json.printField("command","unknown");
+				json.printField("hostname","unknown");
+			}
 			json.printField("date",OS::getDateTime());
 			json.printField("duration",value.clockAtEnd);
 		json.closeFieldStruct("infos");
+		json.printField("config",getGlobalOptions());
 		json.openFieldStruct("process");
 			json.printField("maxAllocatedPages",value.maxAllocatedPages);
 		json.closeFieldStruct("process");
