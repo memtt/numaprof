@@ -37,6 +37,7 @@ Then use the configure script (for pintool mode do not use directly the cmake sc
 
 ```
 mkdir build
+cd build
 ../configure --prefix=PREFIX --with-pintool=PINTOOL_PATH
 make
 make install
