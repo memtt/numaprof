@@ -122,7 +122,7 @@ class ProfileHandler:
 		self.binaryFilter = out2
 	
 	def hasFile(self,fname):
-		print self.fileFilter
+		#print self.fileFilter
 		return fname in self.fileFilter
 	
 	def hasBinary(self,fname):
@@ -170,54 +170,62 @@ class ProfileHandler:
 		out = {}
 	
 		#do it for instructions
-		for instr in self.data["instructions"]:
+		instructions = self.data["instructions"]
+		for instr in instructions:
 			#fname = self.getFuncName(instr)
-			fname = self.data["instructions"][instr]["func"]
+			selectedInstructions = instructions[instr]
+			fname = selectedInstructions["func"]
 			if not fname in out:
 				out[fname] = self.getDefault()
 				#out[fname]["file"] = self.getFuncFileName(instr)
-				out[fname]["file"] = self.data["instructions"][instr]["file"]
+				out[fname]["file"] = selectedInstructions["file"]
 			if not "access" in out[fname]:
 				out[fname]["access"] = {}
-			self.merge(out[fname]["access"],self.data["instructions"][instr])
+			self.merge(out[fname]["access"],selectedInstructions)
 		
 		#do it for allocs
-		for instr in self.data["allocs"]:
+		allocs = self.data["allocs"]
+		for instr in allocs:
 			#fname = self.getFuncName(instr)
-			fname = self.data["allocs"][instr]["func"]
+			allocInstr = allocs[instr]
+			fname = allocInstr["func"]
 			if not fname in out:
 				out[fname] = self.getDefault()
-				out[fname]["file"] = self.data["allocs"][instr]["file"]
+				out[fname]["file"] = allocInstr["file"]
 			if not "alloc" in out[fname]:
 				out[fname]["alloc"] = {}
-			self.merge(out[fname]["alloc"],self.data["allocs"][instr])
+			self.merge(out[fname]["alloc"],allocInstr)
 		return out;
 	
 	def getAsmFuncList(self):
 		out = {}
 	
 		#do it for instructions
-		for instr in self.data["instructions"]:
+		instructions = self.data["instructions"]
+		for instr in instructions:
 			#fname = self.getFuncName(instr)
-			fname = self.data["instructions"][instr]["func"]
+			selectedInstr = instructions[instr]
+			fname = selectedInstr["func"]
 			if not fname in out:
 				out[fname] = self.getDefault()
 				#out[fname]["file"] = self.getFuncFileName(instr)
-				out[fname]["file"] = self.data["instructions"][instr]["binary"]
+				out[fname]["file"] = selectedInstr["binary"]
 			if not "access" in out[fname]:
 				out[fname]["access"] = {}
-			self.merge(out[fname]["access"],self.data["instructions"][instr])
+			self.merge(out[fname]["access"],selectedInstr)
 		
 		#do it for allocs
-		for instr in self.data["allocs"]:
+		allocs = self.data["allocs"]
+		for instr in allocs:
 			#fname = self.getFuncName(instr)
-			fname = self.data["allocs"][instr]["func"]
+			allocInstr = allocs[instr]
+			fname = allocInstr["func"]
 			if not fname in out:
 				out[fname] = self.getDefault()
-				out[fname]["file"] = self.data["allocs"][instr]["binary"]
+				out[fname]["file"] = allocInstr["binary"]
 			if not "alloc" in out[fname]:
 				out[fname]["alloc"] = {}
-			self.merge(out[fname]["alloc"],self.data["allocs"][instr])
+			self.merge(out[fname]["alloc"],allocInstr)
 		return out;
 
 	def getFileStats(self,path):
