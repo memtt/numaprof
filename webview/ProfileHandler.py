@@ -258,9 +258,43 @@ class ProfileHandler:
 					out[line]["alloc"] = {}
 				self.merge(out[line]["alloc"],self.data["allocs"][instr])
 		return out;
-
-	def loadBinaryDesassMap(self,path):
+	
+	def getOneAddrOfSymbol(self,path,func):
+		for instr in self.data["instructions"]:
+			#fname = self.getFuncFileName(instr)
+			fname = self.data["instructions"][instr]["binary"]
+			f = self.data["instructions"][instr]["func"]
+			if path == fname and f == func:
+				return instr
+		
+		for instr in self.data["allocs"]:
+			#fname = self.getFuncFileName(instr)
+			fname = self.data["allocs"][instr]["binary"]
+			f = self.data["allocs"][instr]["func"]
+			if path == fname and f == func:
+				return instr
+	
+	def loadBinaryDesass(self,path,func):
+		addr = self.getOneAddrOfSymbol(path,func)[2:]
 		data = subprocess.check_output(['objdump', '-d',path]).decode("utf-8")
+		lines = data.split('\n')
+		out = []
+		status = False
+		for line in lines:
+			if status and line == "":
+				out.append("")
+				break
+			if line == "":
+				out = []
+			else:
+				caddr = line.split(":")[0].strip()
+				if caddr == addr:
+					status = True
+				out.append(line)
+		return "\n".join(out)
+
+	def loadBinaryDesassMap(self,path,func):
+		data = self.loadBinaryDesass(path,func)
 		lines = data.split('\n')
 		cnt = 1
 		out = {}
@@ -271,21 +305,22 @@ class ProfileHandler:
 			cnt += 1
 		return out
 	
-	def getAsmFileStats(self,path,realPath):
+	def getAsmFileStats(self,path,realPath,func):
 		out = {}
-		asmMap = self.loadBinaryDesassMap(realPath)
+		asmMap = self.loadBinaryDesassMap(realPath,func)
 		#do it for instructions
 		for instr in self.data["instructions"]:
 			#fname = self.getFuncFileName(instr)
 			fname = self.data["instructions"][instr]["binary"]
-			if fname == path:
+			f = self.data["instructions"][instr]["func"]
+			if fname == path and f == func:
 				#line = self.getLine(instr)
 				addr = instr[2:]
 				#print addr, asmMap[addr]
 				line = asmMap[addr]
 				if not line in out:
 					out[line] = self.getDefault()
-					out[line]["func"] = self.data["instructions"][instr]["func"]
+					out[line]["func"] = f
 				if not "access" in out[line]:
 					out[line]["access"] = {}
 				self.merge(out[line]["access"],self.data["instructions"][instr])
@@ -295,14 +330,15 @@ class ProfileHandler:
 		for instr in self.data["allocs"]:
 			#fname = self.getFuncFileName(instr)
 			fname = self.data["allocs"][instr]["binary"]
-			if fname == path:
+			f = self.data["allocs"][instr]["func"]
+			if fname == path and f == func:
 				#line = self.getLine(instr)
 				addr = instr[2:]
 				#print addr, asmMap[addr]
 				line = asmMap[addr]
 				if not line in out:
 					out[line] = self.getDefault()
-					out[line]["func"] = self.data["allocs"][instr]["func"]
+					out[line]["func"] = f
 				if not "alloc" in out[line]:
 					out[line]["alloc"] = {}
 				self.merge(out[line]["alloc"],self.data["allocs"][instr])

@@ -8,7 +8,7 @@
 ######################################################
 
 ######################################################
-from flask import Flask, render_template, send_from_directory, Response, send_file, abort
+from flask import Flask, render_template, send_from_directory, Response, send_file, abort, request
 from ProfileHandler import ProfileHandler
 import os
 import json
@@ -262,7 +262,8 @@ def apiAsmFuncions():
 @nocache
 def apiAsmFileStats(path):
 	path = "/"+path
-	data = profile.getAsmFileStats(path,replaceInPath(path))
+	func = request.args.get('func')
+	data = profile.getAsmFileStats(path,replaceInPath(path),func)
 	jsonData = json.dumps(data)
 	return Response(jsonData, mimetype='application/json')
 
@@ -271,9 +272,12 @@ def apiAsmFileStats(path):
 @nocache
 def asmFiles(path):
 	path = "/"+path
+	func = request.args.get('func')
+	print func
 	if profile.hasBinary(path):
 		path = replaceInPath(path)
-		data = subprocess.check_output(['objdump', '-d',path]).decode("utf-8") 
+		#data = subprocess.check_output(['objdump', '-d',path]).decode("utf-8") 
+		data = profile.loadBinaryDesass(path,func)
 		return data
 	else:
 		abort(404)

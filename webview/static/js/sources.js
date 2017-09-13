@@ -155,8 +155,8 @@ function updateFuncList()
 	if (gblSourceEditor.file == null && firstFile != null)
 		if (firstFunc != null)
 			gblSourceEditor.moveToFileFunction(firstFile,firstFunc);
-		else
-			gblSourceEditor.moveToFile(firstFile);
+		//else
+		//	gblSourceEditor.moveToFile(firstFile);
 	else if (gblSourceEditor.file == null)
 		gblSourceEditor.moveToFile(null);
 }

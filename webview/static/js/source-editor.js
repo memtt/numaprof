@@ -165,7 +165,7 @@ NumaprofSourceEditor.prototype.getLanguageClassForHighlighter = function(name) {
 }
 
 /********************************************************************/
-NumaprofSourceEditor.prototype.loadSourceFile = function(file,success,fail)
+NumaprofSourceEditor.prototype.loadSourceFile = function(file,func,success,fail)
 {
 	var select = "sources";
 	if (gblIsAsm)
@@ -173,9 +173,9 @@ NumaprofSourceEditor.prototype.loadSourceFile = function(file,success,fail)
 	
 	var uri;
 	if (file[0] == '/')
-		uri = "/api/"+select+"/file"+file;
+		uri = "/api/"+select+"/file"+file+"?func="+func;
 	else
-		uri = "/api/"+select+"/no-path-file/"+file;
+		uri = "/api/"+select+"/no-path-file/"+file+"?func="+func;
 	
 	$.get( uri, function(data) {
 		success(data);
@@ -186,10 +186,10 @@ NumaprofSourceEditor.prototype.loadSourceFile = function(file,success,fail)
 }
 
 /********************************************************************/
-NumaprofSourceEditor.prototype.moveToFile = function(file)
+NumaprofSourceEditor.prototype.moveToFile = function(file,func)
 {
 	//nothing to do
-	if (this.file == file)
+	if (this.file == file && !gblIsAsm)
 	{
 		this.doPostMove();
 		return;
@@ -227,7 +227,7 @@ NumaprofSourceEditor.prototype.moveToFile = function(file)
 		this.file = "";
 	} else {
 		var cur = this;
-		this.loadSourceFile(file,function(data){
+		this.loadSourceFile(file,func,function(data){
 			// File loaded, now highlight it
 			cur.container.innerHTML = 
 				'<pre class="line-numbers"><code class="' + 
@@ -236,7 +236,7 @@ NumaprofSourceEditor.prototype.moveToFile = function(file)
 			cur.syntaxHighlighterEle = cur.container.getElementsByTagName("code")[0];
 			Prism.highlightElement(cur.syntaxHighlighterEle);
 			cur.file = file;
-			cur.updateAnotations();
+			cur.updateAnotations(true,func);
 			$("#"+cur.containerId+" pre").height($( window ).height() - margin);
 		}, function() {
 			// XHR fails to load file, show error message
@@ -296,7 +296,7 @@ NumaprofSourceEditor.prototype.moveToFileFunction = function(file,func)
 		$("#numaprof-source-filename").text(file);
 		this.postMove = {};
 	}
-	this.moveToFile(file);
+	this.moveToFile(file,func);
 }
 
 /****************************************************/
@@ -363,7 +363,7 @@ NumaprofSourceEditor.prototype.extractMax = function(data)
 
 /********************************************************************/
 //update anotations
-NumaprofSourceEditor.prototype.updateAnotations = function(move)
+NumaprofSourceEditor.prototype.updateAnotations = function(move,func)
 {
 	//keep track of current this
 	var cur = this;
@@ -378,9 +378,9 @@ NumaprofSourceEditor.prototype.updateAnotations = function(move)
 	
 	var uri;
 	if (file[0] == '/')
-		uri ="/api/"+select+"/file-stats"+file;
+		uri ="/api/"+select+"/file-stats"+file+"?func="+func;
 	else
-		uri ="/api/"+select+"/no-path-file-stats/"+file;
+		uri ="/api/"+select+"/no-path-file-stats/"+file+"?func="+func;
 		
 	
 	//fetch flat profile of current file
