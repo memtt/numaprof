@@ -114,6 +114,9 @@ NumaprofSourceEditor.prototype.doPostMove = function()
 /********************************************************************/
 NumaprofSourceEditor.prototype.getLanguage = function(filename)
 {
+	if (gblIsAsm)
+		return "nasm";
+	
 	//set mode
 	var ext = (/[.]/.exec(filename)) ? /[^.]+$/.exec(filename) : undefined;
 	if (ext != undefined)
@@ -150,9 +153,12 @@ NumaprofSourceEditor.prototype.getLanguageClassForHighlighter = function(name) {
 			return 'language-fortran';
 		case 'c':
 		case 'c++':
+		case 'C++':
 			return 'language-cpp';
 		case 'python':
 			return 'language-python';
+		case 'nasm':
+			return 'language-nasm';
 		default:
 			return '';
 	}
