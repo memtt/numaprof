@@ -58,7 +58,8 @@ Run you program using the wrapper:
 numaprof-pintool ./benchmark --my-option
 ```
 
-THe GUI password is currently fixed to admin/admin. You can then open the GUI : 
+The numaprof GUI is based on a webserver and be viewed in the browser at http://localhost:8080.
+The GUI password is currently fixed to admin/admin. You can launch the webserver by running : 
 
 ```
 numaprof-webview numaprof-1234.json
