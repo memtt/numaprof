@@ -11,6 +11,7 @@ var gblSourceEditor = null;
 var pageSelector = {pages:1,page:1,perPage:10};
 var selector = new NumaprofSelector();
 var functions = {};
+var preparedFunctions = [];
 var template = "<li id='numaprof-func-list-entry'>\
 					<a href='javascript:' data-toggle='popover' data-content='{{ longName }}' id='func-{{id}}'>\
 						<span class='size'>\
@@ -31,6 +32,7 @@ function selectMetric(name)
 	{
 		selector.selectMetric(name);
 		$("#numaprof-selected-metric").text(selector.getMetricName());
+		filterAndOrderFuncList();
 		updateFuncList();
 		updateAnotations();
 	}
@@ -47,6 +49,7 @@ function selectRatio()
 		selector.ratio = true;
 		$("#numaprof-ratio-select").addClass("active");
 	}
+	filterAndOrderFuncList();
 	updateFuncList();
 	updateAnotations();
 }
@@ -61,6 +64,7 @@ function updateAnotations()
 function selectSearch(value)
 {
 	selector.query = value;
+	filterAndOrderFuncList();
 	updateFuncList();
 }
 
@@ -105,10 +109,10 @@ function setupSelectorList()
 }
 
 /*******************  FUNCTION  *********************/
-function updateFuncList()
+function filterAndOrderFuncList()
 {
-	//build list
-	var out = [];
+	//filter
+	out = [];
 	for (var i in functions)
 	{
 		if (selector.filter(functions[i]))
@@ -126,6 +130,16 @@ function updateFuncList()
 	
 	//sort
 	out.sort(function(a,b) {return b.value-a.value;});
+	
+	//export
+	preparedFunctions = out;
+}
+
+/*******************  FUNCTION  *********************/
+function updateFuncList()
+{
+	//build list
+	var out = preparedFunctions;
 	
 	//select N first
 	start = pageSelector.perPage*(pageSelector.page-1);
@@ -188,6 +202,7 @@ function loadFunctions()
 			data[i].function = i;
 		selector.setData(functions);
 		updatePaging();
+		filterAndOrderFuncList();
 		updateFuncList();
 	})
 	.fail(function(data) {
