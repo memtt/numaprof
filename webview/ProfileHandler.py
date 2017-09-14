@@ -265,14 +265,14 @@ class ProfileHandler:
 			fname = self.data["instructions"][instr]["binary"]
 			f = self.data["instructions"][instr]["func"]
 			if path == fname and f == func:
-				return instr
+				return "0x"+self.getSoRelativeAddr(instr)
 		
 		for instr in self.data["allocs"]:
 			#fname = self.getFuncFileName(instr)
 			fname = self.data["allocs"][instr]["binary"]
 			f = self.data["allocs"][instr]["func"]
 			if path == fname and f == func:
-				return instr
+				return "0x"+self.getSoRelativeAddr(instr)
 	
 	def loadBinaryDesass(self,path,func):
 		addr = self.getOneAddrOfSymbol(path,func)[2:]
@@ -300,10 +300,21 @@ class ProfileHandler:
 		out = {}
 		for line in lines:
 			if len(line) > 0 and line[0] == ' ':
-				addr = line.split(':')[0][2:]
+				addr = line.split(':')[0].strip()
 				out[addr] = cnt
 			cnt += 1
 		return out
+	
+	def getSoRelativeAddr(self,addr):
+		addrInt = int(addr[2:],16)
+		for sym in self.data["symbols"]["map"]:
+			lower = int(sym["lower"][2:],16)
+			upper = int(sym["upper"][2:],16)
+			if addrInt >= lower and addrInt < upper and ".so" in sym["file"]:
+				#print "Replace in %s : %s => 0x%x"%(sym["file"],addr,(addrInt - lower))
+				return "%x" % (addrInt - lower)
+		#print "Addr not found in memory map, keep addr : %s"%addr
+		return addr[2:]
 	
 	def getAsmFileStats(self,path,realPath,func):
 		out = {}
@@ -315,7 +326,8 @@ class ProfileHandler:
 			f = self.data["instructions"][instr]["func"]
 			if fname == path and f == func:
 				#line = self.getLine(instr)
-				addr = instr[2:]
+				#addr = instr[2:]
+				addr = self.getSoRelativeAddr(instr)
 				#print addr, asmMap[addr]
 				line = asmMap[addr]
 				if not line in out:
@@ -333,7 +345,8 @@ class ProfileHandler:
 			f = self.data["allocs"][instr]["func"]
 			if fname == path and f == func:
 				#line = self.getLine(instr)
-				addr = instr[2:]
+				#addr = instr[2:]
+				addr = self.getSoRelativeAddr(instr)
 				#print addr, asmMap[addr]
 				line = asmMap[addr]
 				if not line in out:
