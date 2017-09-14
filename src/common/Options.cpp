@@ -78,7 +78,7 @@ void Options::loadFromString ( const char* value )
 	//copy string
 	char * dump = strdup(value);
 	
-	//loop on separators ';'
+	//loop on separators ','
 	char * cur = dump;
 	while (*cur != '\0')
 	{
@@ -86,8 +86,8 @@ void Options::loadFromString ( const char* value )
 		char * start = cur;
 		char * sep = NULL;
 		
-		//search ';' or '\0'
-		while (*cur != ';' && *cur != '\0')
+		//search ',' or '\0'
+		while (*cur != ',' && *cur != '\0')
 		{
 			if (*cur == '=')
 				sep = cur;
