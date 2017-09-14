@@ -42,7 +42,7 @@ struct Options
 	void loadFromFile(const char * fname);
 	void loadFromString(const char * value);
 	void loadFromIniDic(dictionary * iniDic);
-	void dumpConfig(const char * fname);
+	void dumpConfig(const char * fname) const;
 	bool operator==(const Options & value) const;
 	//output
 	std::string outputName;

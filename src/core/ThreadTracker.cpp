@@ -40,8 +40,8 @@ ThreadTracker::ThreadTracker(ProcessTracker * process)
 	
 	if (!getGlobalOptions().outputSilent)
 	{
-		printf("Numa initial mapping : %d\n",numa);
-		printf("Numa initial mem mapping : %s\n",getMemBindTypeName(memPolicy.type));
+		printf("NUMAPROF: Numa initial mapping : %d\n",numa);
+		printf("NUMAPROF: Numa initial mem mapping : %s\n",getMemBindTypeName(memPolicy.type));
 	}
 	
 	int numaNodes = topo->getNumaNodes();

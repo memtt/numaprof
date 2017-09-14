@@ -297,7 +297,7 @@ int NumaTopo::getCurrentNumaAffinity(cpu_set_t * mask, int size,CpuBindList * cp
 		numa = -1;
 
 	if (!getGlobalOptions().outputSilent)
-		printf("Thread is binded on NUMA %d\n",numa);
+		printf("NUMAPROF: Thread is binded on NUMA %d\n",numa);
 	return numa;
 }
 

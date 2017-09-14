@@ -155,7 +155,7 @@ void ProcessTracker::onExit(void)
 	clockAtEnd = Clock::get();
 	
 	//dump config
-	Options & options = initGlobalOptions();
+	const Options & options = getGlobalOptions();
 	if (options.outputDumpConfig)
 		options.dumpConfig(FormattedMessage(options.outputName).arg(OS::getExeName()).arg(OS::getPID()).arg("ini").toString().c_str());
 	

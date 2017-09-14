@@ -199,7 +199,7 @@ void convertToJson(htopml::JsonState & json,const Options & value)
 /**
  * Helper to dump the config as INI file.
 **/
-void Options::dumpConfig(const char* fname)
+void Options::dumpConfig(const char* fname) const
 {
 	//create dic
 	assert(fname != NULL);

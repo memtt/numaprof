@@ -159,7 +159,7 @@ int OS::getNumaOfPage(size_t addr)
 	} else {
 		if (errno == ENOSYS)
 		{
-			printf("\033[31mCAUTION, move_pages not implemented, you might be running on a non NUMA system !\nAll accesses will be considered local !\033[0m\n");
+			printf("\033[31mNUMAPROF: CAUTION, move_pages not implemented, you might be running on a non NUMA system !\nAll accesses will be considered local !\033[0m\n");
 			hasMovePages = false;
 		}
 		return 0;
