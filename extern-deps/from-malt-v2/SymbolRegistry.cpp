@@ -223,7 +223,7 @@ void SymbolRegistry::solveNames(void)
 	//first try with maqao infos
 	if (!maqaoSites.empty())
 	{
-		fprintf(stderr,"MATT : Resolving symbols with maqao infos...\n");
+		fprintf(stderr,"NUMAPROF : Resolving symbols with maqao infos...\n");
 		this->solveMaqaoNames();
 	}
 	
