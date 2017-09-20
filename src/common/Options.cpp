@@ -30,7 +30,7 @@ Options::Options(void)
 {
 	//output
 	this->outputName              = "numaprof-%1-%2.%3";
-	this->outputIndent            = false;
+	this->outputIndent            = true;
 	this->outputJson              = true;
 	this->outputDumpConfig        = false;
 	this->outputSilent            = false;

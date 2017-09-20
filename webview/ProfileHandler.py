@@ -155,7 +155,7 @@ class ProfileHandler:
 	def merge(self,out,inData):
 		for entry in inData:
 			if entry == "line" or entry == "func" or entry == "file" or entry == "binary":
-				break;
+				continue;
 			if entry in out:
 				out[entry] += inData[entry]
 			else:
