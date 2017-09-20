@@ -45,8 +45,15 @@ parser.add_argument('--override', '-O', dest='override',
                     help='Override file path, format: "/orig/:/new/,/orig2/:/new2/"')
 parser.add_argument('--search-path', '-S', dest='search',
                     help='Search file with non full path in this list of directory : "/home/orig/a,/tmp/b"')
+parser.add_argument('--port', '-p', dest='port',
+                    help='Port to use to export display to browser')
 
 args = parser.parse_args()
+
+######################################################
+port = 8080
+if args.port is not None:
+	port = args.port
 
 ######################################################
 gblSearchPath = []
@@ -282,4 +289,4 @@ def asmFiles(path):
 	else:
 		abort(404)
 
-app.run(host="127.0.0.1", port=8080, threaded=True)
+app.run(host="127.0.0.1", port=port, threaded=True)
