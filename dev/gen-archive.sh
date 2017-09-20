@@ -36,4 +36,5 @@ cd /tmp
 tar -cjf ${prefix}.tar.bz2 ${prefix}
 cd $current
 mv /tmp/${prefix}.tar.bz2 ./
+rm -rfvd /tmp/${prefix}
 echo "Finished"

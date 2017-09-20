@@ -24,7 +24,8 @@ class Converter:
 			"unpinnedBothAccess",
 			"localAccess",
 			"remoteAccess",
-			"mcdramAccess"
+			"mcdramAccess",
+			"nonAlloc"
 		]
 		with open(file) as data_file:    
 			self.data = json.load(data_file)
@@ -74,6 +75,7 @@ class Converter:
 		print "event: localAccess : Local NUMA access"
 		print "event: remoteAccess : Remote NUMA access"
 		print "event: mcdramAccess : KNL MCDRAM access"
+		print "event: nonAlloc : Access to static allocated elements"
 		#allocs
 		print "event: allocfirstTouch : Allocation first touch"
 		print "event: allocunpinnedFirstTouch : Allocation unpinned first touch"
@@ -83,6 +85,7 @@ class Converter:
 		print "event: alloclocalAccess : Allocation local NUMA access"
 		print "event: allocremoteAccess : Allocation remote NUMA access"
 		print "event: allocmcdramAccess : Allocation KNL MCDRAM access"
+		print "event: allocnonAlloc : Allocation access to static allocated elements"
 		print "events:"," ".join(self.counters)," ".join("alloc"+x for x in self.counters)
 		print "summary:",self.computeSummary()
 		print ""
