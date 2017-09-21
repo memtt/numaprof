@@ -15,6 +15,7 @@
 #include <portability/OS.hpp>
 #include <common/Helper.hpp>
 #include <common/Options.hpp>
+#include <sys/syscall.h>
 #include <iostream>
 
 using namespace std;
@@ -30,6 +31,14 @@ using namespace std;
 #define CALLOC "calloc"
 #define FREE "free"
 #define REALLOC "realloc"
+#endif
+
+#if !defined(__NR_sched_setaffinity)
+	#if defined(__x86_64__)
+		#define __NR_sched_setaffinity 203
+	#else
+		#error "Unsupported arch !"
+	#endif
 #endif
 
 //#define NUMAPROF_TRACE_ALLOCS
@@ -273,7 +282,9 @@ static VOID afterMBind(THREADID threadid)
 /*******************  FUNCTION  *********************/
 static VOID beforeSchedSetAffinity(ADDRINT pid, ADDRINT size,ADDRINT mask,THREADID threadid)
 {
-	printf("--> Intercept thread affinity of %lu (%d) (%p)!\n",pid,OS::getTID(),(void*)mask);
+	if (mask == 0)
+		return;
+	printf("NUMAPROF: Intercept thread affinity of %lu (%d) (%p)!\n",pid,OS::getTID(),(void*)mask);
 
 	//numaprof::NumaTopo topo;
 	//topo.getCurrentNumaAffinity(*(cpu_set_t*)mask);
@@ -281,15 +292,22 @@ static VOID beforeSchedSetAffinity(ADDRINT pid, ADDRINT size,ADDRINT mask,THREAD
 	{
 		getTls(threadid).tracker->onSetAffinity((cpu_set_t*)mask,size);
 	} else {
-		printf("----> set affinity of remote thread\n");
+		printf("NUMAPROF: set affinity of remote thread\n");
 		gblProcessTracker->onThreadSetAffinity(pid,(cpu_set_t*)mask,size);
 	}
 }
 
 /*******************  FUNCTION  *********************/
+static VOID SyscallEntry(THREADID threadIndex, CONTEXT *ctxt, SYSCALL_STANDARD std, VOID *v)
+{
+	if (PIN_GetSyscallNumber(ctxt, std) == __NR_sched_setaffinity)
+		beforeSchedSetAffinity(PIN_GetSyscallArgument(ctxt, std, 0),PIN_GetSyscallArgument(ctxt, std, 1),PIN_GetSyscallArgument(ctxt, std, 2),threadIndex);
+}
+
+/*******************  FUNCTION  *********************/
 static VOID beforeSetMemPolicy(ADDRINT mode, ADDRINT nodemask,ADDRINT maxnode,THREADID threadid)
 {
-	printf("--> Intercept thread set mem policy!\n");
+	printf("NUMAPROF: Intercept thread set mem policy!\n");
 
 	getTls(threadid).tracker->onSetMemPolicy(mode,(const unsigned long*)nodemask,maxnode);
 }
@@ -733,7 +751,11 @@ static VOID instrImageMBind(IMG img, VOID *v)
 }
 
 /*******************  FUNCTION  *********************/
-static VOID instrImageSetSchedAffinity(IMG img, VOID *v)
+//Not needed anymore as we use direct instrumentation of syscall
+//required to support intel opemp.
+//But could be better if we can move back to function instrumentation
+//instead of instrumenting all syscalls....
+/*static VOID instrImageSetSchedAffinity(IMG img, VOID *v)
 {
 	// Instrument the sched_setaffinity function to intercept thread pinning.  
 
@@ -753,7 +775,7 @@ static VOID instrImageSetSchedAffinity(IMG img, VOID *v)
 					   IARG_THREAD_ID,IARG_END);
 		RTN_Close(schedRtn);
 	}
-}
+}*/
 
 /*******************  FUNCTION  *********************/
 // Is called for every instruction and instruments reads and writes
@@ -927,7 +949,8 @@ static VOID instrImage(IMG img, VOID *v)
 		if (false) 
 			instrImageMain(img,v);
 	}
-	instrImageSetSchedAffinity(img,v);
+	//we use capture of syscall directly (required to intel OpenMP)
+	//instrImageSetSchedAffinity(img,v);
 	instrImageMBind(img,v);
 	instrImageSetMempolicy(img,v);
 }
@@ -1007,6 +1030,7 @@ int main(int argc, char *argv[])
 	// Register ThreadStart to be called when a thread starts and stop.
 	PIN_AddThreadStartFunction(ThreadStart, NULL);
 	PIN_AddThreadFiniFunction(ThreadFini, NULL);
+	PIN_AddSyscallEntryFunction(SyscallEntry, NULL);
 
 	// Never returns
 	PIN_StartProgram();
