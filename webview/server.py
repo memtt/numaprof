@@ -12,12 +12,13 @@ from flask import Flask, render_template, send_from_directory, Response, send_fi
 from ProfileHandler import ProfileHandler
 import os
 import json
-from flask_httpauth import HTTPBasicAuth
+from flask_htpasswd import HtPasswdAuth
 from nocache import nocache
 from flask_cache import Cache
 import argparse
 import sys
 import subprocess
+from os.path import expanduser
 
 ######################################################
 app = Flask(__name__, static_url_path='')
@@ -26,16 +27,12 @@ app = Flask(__name__, static_url_path='')
 #cache.init_app(app)
 
 ######################################################
-auth = HTTPBasicAuth()
-users = {
-    "admin": "admin"
-}
+#config
+app.config['FLASK_HTPASSWD_PATH'] = expanduser("~")+'/.numaprof/htpasswd'
+app.config['FLASK_SECRET'] = 'numaprof auth'
 
-@auth.get_password
-def get_pw(username):
-	if username in users:
-		return users.get(username)
-	return None
+#build
+htpasswd = HtPasswdAuth(app)
 
 ######################################################
 parser = argparse.ArgumentParser(description='Numaprof web server.')
@@ -99,141 +96,141 @@ print " * Done"
 ######################################################
 @app.route('/')
 @app.route('/index.html')
-@auth.login_required
+@htpasswd.required
 @nocache
-def rootPage():
+def rootPage(user):
     return render_template('index.html', file=profile.getFileName(), page = "home")
 
 @app.route('/threads.html')
-@auth.login_required
+@htpasswd.required
 @nocache
-def threadPage():
+def threadPage(user):
     return render_template('threads.html', file=profile.getFileName(), page = "threads")
 
 @app.route('/sources.html')
-@auth.login_required
+@htpasswd.required
 @nocache
-def sourcesPage():
+def sourcesPage(user):
     return render_template('sources.html', file=profile.getFileName(), page = "sources")
 
 @app.route('/details.html')
-@auth.login_required
+@htpasswd.required
 @nocache
-def detailsPage():
+def detailsPage(user):
     return render_template('details.html', file=profile.getFileName(), page = "details")
 
 @app.route('/asm.html')
-@auth.login_required
+@htpasswd.required
 @nocache
-def asmPage():
+def asmPage(user):
     return render_template('asm.html', file=profile.getFileName(), page = "asm")
 
 @app.route('/help.html')
-@auth.login_required
+@htpasswd.required
 @nocache
-def helpPage():
+def helpPage(user):
     return render_template('help.html', file=profile.getFileName(), page = "help")
 
 ######################################################
 @app.route('/static/<path:path>')
-@auth.login_required
+@htpasswd.required
 @nocache
-def serveStaticFiles(path):
+def serveStaticFiles(user,path):
     return send_from_directory('./static', path)
 
 @app.route('/static/bower/<path:path>')
-@auth.login_required
+@htpasswd.required
 @nocache
-def jqueryFiles(path):
+def jqueryFiles(user,path):
     return send_from_directory('./bower_components/', path)
 
 ######################################################
 @app.route('/api/index/infos.json')
-@auth.login_required
+@htpasswd.required
 @nocache
-def apiIndexSummary():
+def apiIndexSummary(user):
 	data = profile.getInfos()
 	jsonData = json.dumps(data)
 	return Response(jsonData, mimetype='application/json')
 
 @app.route('/api/index/numa-topo.json')
-@auth.login_required
+@htpasswd.required
 @nocache
-def apiIndexNumaTopo():
+def apiIndexNumaTopo(user):
 	data = profile.getNumaTopo()
 	jsonData = json.dumps(data)
 	return Response(jsonData, mimetype='application/json')
 
 @app.route('/api/index/process-summary.json')
-@auth.login_required
+@htpasswd.required
 @nocache
-def apiIndexProcessSummary():
+def apiIndexProcessSummary(user):
 	data = profile.getProcessSummary()
 	jsonData = json.dumps(data)
 	return Response(jsonData, mimetype='application/json')
 
 @app.route('/api/index/process-access-matrix.json')
-@auth.login_required
+@htpasswd.required
 @nocache
-def apiIndexProcessAccessMatrix():
+def apiIndexProcessAccessMatrix(user):
 	data = profile.getProcessAccessMatrix()
 	jsonData = json.dumps(data)
 	return Response(jsonData, mimetype='application/json')
 
 @app.route('/api/index/numa-page-stats.json')
-@auth.login_required
+@htpasswd.required
 @nocache
-def apiIndexNumaPageStats():
+def apiIndexNumaPageStats(user):
 	data = profile.getNumaPageStats()
 	jsonData = json.dumps(data)
 	return Response(jsonData, mimetype='application/json')
 
 ######################################################
 @app.route('/api/threads/infos.json')
-@auth.login_required
+@htpasswd.required
 @nocache
-def apiThreadsInfos():
+def apiThreadsInfos(user):
 	data = profile.getThreadInfos()
 	jsonData = json.dumps(data)
 	return Response(jsonData, mimetype='application/json')
 
 ######################################################
 @app.route('/api/details/threads.json')
-@auth.login_required
+@htpasswd.required
 @nocache
-def apiDetailsThreads():
+def apiDetailsThreads(user):
 	data = profile.getThreadInfos()
 	jsonData = json.dumps(data)
 	return Response(jsonData, mimetype='application/json')
 
 ######################################################
 @app.route('/api/sources/functions.json')
-@auth.login_required
+@htpasswd.required
 @nocache
-def apiSourcesFuncions():
+def apiSourcesFuncions(user):
 	return Response(functionsCache, mimetype='application/json')
 
 @app.route('/api/sources/file-stats/<path:path>')
-@auth.login_required
+@htpasswd.required
 @nocache
-def apiSourcesFileStats(path):
+def apiSourcesFileStats(user,path):
 	path = "/"+path
 	data = profile.getFileStats(path)
 	jsonData = json.dumps(data)
 	return Response(jsonData, mimetype='application/json')
 
 @app.route('/api/sources/no-path-file-stats/<path:path>')
-@auth.login_required
+@htpasswd.required
 @nocache
-def apiSourcesNoPathFileStats(path):
+def apiSourcesNoPathFileStats(user,path):
 	data = profile.getFileStats(path)
 	jsonData = json.dumps(data)
 	return Response(jsonData, mimetype='application/json')
 
 @app.route('/api/sources/file/<path:path>')
-@auth.login_required
+@htpasswd.required
 @nocache
-def sourceFiles(path):
+def sourceFiles(user,path):
 	path = "/"+path
 	print path
 	if profile.hasFile(path):
@@ -245,9 +242,9 @@ def sourceFiles(path):
 		abort(404)
 
 @app.route('/api/sources/no-path-file/<path:path>')
-@auth.login_required
+@htpasswd.required
 @nocache
-def sourceNoPathFiles(path):
+def sourceNoPathFiles(user,path):
 	fname = path.split('/')[-1]
 	full = findSourceFile(fname)
 	print full
@@ -259,15 +256,15 @@ def sourceNoPathFiles(path):
 
 ######################################################
 @app.route('/api/asm/functions.json')
-@auth.login_required
+@htpasswd.required
 @nocache
-def apiAsmFuncions():
+def apiAsmFuncions(user):
 	return Response(asmFunctionsCache, mimetype='application/json')
 
 @app.route('/api/asm/file-stats/<path:path>')
-@auth.login_required
+@htpasswd.required
 @nocache
-def apiAsmFileStats(path):
+def apiAsmFileStats(user,path):
 	path = "/"+path
 	func = request.args.get('func')
 	data = profile.getAsmFileStats(path,replaceInPath(path),func)
@@ -275,9 +272,9 @@ def apiAsmFileStats(path):
 	return Response(jsonData, mimetype='application/json')
 
 @app.route('/api/asm/file/<path:path>')
-@auth.login_required
+@htpasswd.required
 @nocache
-def asmFiles(path):
+def asmFiles(user,path):
 	path = "/"+path
 	func = request.args.get('func')
 	print func

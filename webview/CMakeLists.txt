@@ -11,6 +11,9 @@ set(WEBVIEW_PATH ${CMAKE_INSTALL_PREFIX}/share/numaprof/webview)
 configure_file(webview.sh.in numaprof-webview @ONLY)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/numaprof-webview DESTINATION bin
 	PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_EXECUTE GROUP_READ WORLD_EXECUTE WORLD_READ)
+configure_file(webview-htpasswd.sh.in numaprof-passwd @ONLY)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/numaprof-passwd DESTINATION bin
+	PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_EXECUTE GROUP_READ WORLD_EXECUTE WORLD_READ)
 
 ######################################################
 if (NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/bower_components/ OR NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/deps)
@@ -27,6 +30,6 @@ endif (NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/bower_components/ OR NOT EXISTS ${
 
 ######################################################
 # Install the webview into share directory
-INSTALL(FILES Helper.py nocache.py ProfileHandler.py server.py DESTINATION share/numaprof/webview)
+INSTALL(FILES Helper.py nocache.py ProfileHandler.py server.py nhtpasswd.py DESTINATION share/numaprof/webview)
 INSTALL(DIRECTORY templates DESTINATION share/numaprof/webview)
 INSTALL(DIRECTORY static DESTINATION share/numaprof/webview)

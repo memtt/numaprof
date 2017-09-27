@@ -65,6 +65,15 @@ The GUI password is currently fixed to admin/admin. You can launch the webserver
 numaprof-webview numaprof-1234.json
 ```
 
+The first time you launch the GUI you will need to provide a user/password to secure the interface.
+You can change the password or add other users by using :
+
+```
+numaprof-passwd {USER}
+```
+
+The users are stored into `~/.numaprof/htpasswd` by following the `htpasswd` format.
+
 If you run the webview on a remote node, you can forward the http session to your local browser by using :
 
 ```

@@ -35,7 +35,7 @@ fi
 ######################################################
 set -e
 set -x
-pip install -t deps --no-compile flask flask_httpauth Flask-Cache
+pip install -t deps --no-compile flask flask_httpauth Flask-Cache htpasswd flask-htpasswd
 npm install bower
 bower install
 set +x
