@@ -31,3 +31,9 @@ add_executable(case-openmp-loop case-openmp-loop.cpp)
 SET_TARGET_PROPERTIES(case-openmp-loop PROPERTIES COMPILE_FLAGS "-g -O0 ${OpenMP_CXX_FLAGS}")
 SET_TARGET_PROPERTIES(case-openmp-loop PROPERTIES LINK_FLAGS "${OpenMP_CXX_FLAGS}")
 
+######################################################
+add_executable(case-omp-stack-issue case-omp-stack-issue.cpp)
+SET_TARGET_PROPERTIES(case-omp-stack-issue PROPERTIES COMPILE_FLAGS "-g -O0 ${OpenMP_CXX_FLAGS}")
+SET_TARGET_PROPERTIES(case-omp-stack-issue PROPERTIES LINK_FLAGS "${OpenMP_CXX_FLAGS}")
+
+
