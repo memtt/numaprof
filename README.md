@@ -95,6 +95,26 @@ Then you can open the callgrind file with kcachegrind (http://kcachegrind.source
 kcachegrind numaprof-12345.callgrind
 ```
 
+Available options
+-----------------
+
+Here the config file which can be given by using `-c FILE` option to numaprof-pintool. You can also give a specific entry
+by using `-o SECTION:NAME=value,SECTION2:NAME2=value2`.
+
+```ini
+[output]
+name=numaprof-%1-%2.%3
+indent=true
+json=true
+dumpConfig=false
+silent=false
+removeSmall=false
+removeRatio=0.5
+
+[info]
+hidden=false
+```
+
 Licence
 -------
 
