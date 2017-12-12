@@ -115,6 +115,17 @@ removeRatio=0.5
 hidden=false
 ```
 
+On huge application
+-------------------
+
+NUMAPROF was not yet testing on multi-million line application so we expect some slow down on such big code.
+But it should be able to work. Although, the web GUI might lag due to too much data. In this case, enable
+filtering option at profiling time by using option to remove all entries smaller than 0.2% from the output profile:
+
+```
+numaprof-pintool -o output:removeSmall=true,output:removeRatio=0.2 ./benchmark --my-option
+```
+
 Licence
 -------
 
