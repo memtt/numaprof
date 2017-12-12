@@ -10,7 +10,7 @@
 #define NUMAPROF_STATS_HPP
 
 /********************  MACRO  ***********************/
-//#define NUMAPROG_CALLSTACK
+//#define NUMAPROF_CALLSTACK
 
 /*******************  HEADERS  **********************/
 #include <cstdlib>
@@ -28,6 +28,8 @@ struct Stats
 	//functions
 	Stats(void);
 	void merge(Stats & info);
+	void applyCut(float cutoff);
+	bool asOneLargerThan(Stats & info);
 
 	//members
 	size_t firstTouch;
@@ -42,7 +44,7 @@ struct Stats
 };
 
 /*********************  TYPES  **********************/
-#ifdef NUMAPROG_CALLSTACK
+#ifdef NUMAPROF_CALLSTACK
 typedef std::map<MiniStack,Stats> InstrInfoMap;
 #else
 typedef std::map<size_t,Stats> InstrInfoMap;
@@ -51,6 +53,33 @@ typedef std::map<size_t,Stats> InstrInfoMap;
 /*******************  FUNCTION  *********************/
 void convertToJson(htopml::JsonState& json, const Stats& value);
 void convertToJson(htopml::JsonState& json, const InstrInfoMap& value);
+
+/*******************  FUNCTION  *********************/
+inline bool Stats::asOneLargerThan(Stats & info)
+{
+	//check if one is biffer than ref
+	if (firstTouch >= info.firstTouch)
+		return true;
+	if (unpinnedFirstTouch >= info.unpinnedFirstTouch)
+		return true;
+	if (unpinnedPageAccess >= info.unpinnedPageAccess)
+		return true;
+	if (unpinnedThreadAccess >= info.unpinnedThreadAccess)
+		return true;
+	if (unpinnedBothAccess >= info.unpinnedBothAccess)
+		return true;
+	if (localAccess >= info.localAccess)
+		return true;
+	if (remoteAccess >= info.remoteAccess)
+		return true;
+	if (mcdramAccess >= info.mcdramAccess)
+		return true;
+	if (nonAlloc >= info.nonAlloc)
+		return true;
+	
+	//none
+	return false;
+}
 
 }
 

@@ -34,6 +34,8 @@ Options::Options(void)
 	this->outputJson              = true;
 	this->outputDumpConfig        = false;
 	this->outputSilent            = false;
+	this->outputRemoveSmall       = false;
+	this->outputRemoveRatio       = 0.5;
 	//info
 	this->infoHidden              = false;
 }
@@ -50,6 +52,8 @@ bool Options::operator==(const Options& value) const
 	if (this->outputJson != value.outputJson) return false;
 	if (this->outputDumpConfig != value.outputDumpConfig) return false;
 	if (this->outputSilent != value.outputSilent)  return false;
+	if (this->outputRemoveSmall != value.outputRemoveSmall) return false;
+	if (this->outputRemoveRatio != value.outputRemoveRatio) return false;
 	//info
 	if (this->infoHidden != value.infoHidden) return false;
 	
@@ -143,6 +147,8 @@ void Options::loadFromIniDic ( dictionary* iniDic )
 	this->outputJson          = iniparser_getboolean(iniDic,"output:json",this->outputJson);
 	this->outputDumpConfig    = iniparser_getboolean(iniDic,"output:config",this->outputDumpConfig);
 	this->outputSilent        = iniparser_getboolean(iniDic,"output:silent",this->outputSilent);
+	this->outputRemoveSmall   = iniparser_getboolean(iniDic,"output:removeSmall",this->outputRemoveSmall);
+	this->outputRemoveRatio   = iniparser_getdouble(iniDic,"output:removeRatio",this->outputRemoveRatio);
 	
 	//info
 	this->infoHidden          = iniparser_getboolean(iniDic,"info:hidden",this->infoHidden);
@@ -182,11 +188,13 @@ void convertToJson(htopml::JsonState & json,const Options & value)
 {
 	json.openStruct();
 		json.openFieldStruct("output");
-					json.printField("dumpConfig",value.outputDumpConfig);
+			json.printField("dumpConfig",value.outputDumpConfig);
 			json.printField("index",value.outputIndent);
 			json.printField("json",value.outputJson);
-				json.printField("name",value.outputName);
+			json.printField("name",value.outputName);
 			json.printField("silent",value.outputSilent);
+			json.printField("removeSmall",value.outputRemoveSmall);
+			json.printField("removeRatio",value.outputRemoveRatio);
 		json.closeFieldStruct("output");
 		
 		json.openFieldStruct("info");
@@ -211,6 +219,8 @@ void Options::dumpConfig(const char* fname) const
 	IniParserHelper::setEntry(dic,"output:indent",this->outputIndent);
 	IniParserHelper::setEntry(dic,"output:config",this->outputDumpConfig);
 	IniParserHelper::setEntry(dic,"output:silent",this->outputSilent);
+	IniParserHelper::setEntry(dic,"output:removeSmall",this->outputRemoveSmall);
+	IniParserHelper::setEntry(dic,"output:removeRatio",this->outputRemoveRatio);
 	
 	//info
 	IniParserHelper::setEntry(dic,"info:hidden",this->infoHidden);
@@ -280,6 +290,22 @@ void IniParserHelper::setEntry(dictionary* dic, const char* key, int value)
 	sprintf(buffer,"%d",value);
 	setEntry(dic,key,buffer);
 }
+
+/*******************  FUNCTION  *********************/
+/**
+ * Help set setup ini dic entries from integer by converting them to string
+ * internally.
+ * @param dic Define the dictionnary to fill.
+ * @param key Define the key to update (key:name)
+ * @param value Define the float value to setup.
+**/
+void IniParserHelper::setEntry(dictionary* dic, const char* key, float value)
+{
+	char buffer[64];
+	sprintf(buffer,"%f",value);
+	setEntry(dic,key,buffer);
+}
+
 
 /*******************  FUNCTION  *********************/
 /**

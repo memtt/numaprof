@@ -444,9 +444,20 @@ void SymbolRegistry::solveMissings(void)
 	std::vector<void*> toResolve;
 
 	//search
-	for (CallSiteMap::const_iterator it = callSiteMap.begin() ; it != callSiteMap.end() ; ++it)
+	for (CallSiteMap::iterator it = callSiteMap.begin() ; it != callSiteMap.end() ; ++it)
+	{
 		if (it->second.function == -1 || getString(it->second.function) == "??")
 			toResolve.push_back(it->first);
+		//setup others
+		if (it->first == (void*)(0x2UL))
+		{
+			it->second.binaryStringId = getString("??");
+			it->second.file = getString("??");
+			it->second.function = getString("others");
+			it->second.line = 0;
+			it->second.mapEntry = NULL;
+		}
+	}
 		
 	//nothing to do
 	if (toResolve.size() == 0)

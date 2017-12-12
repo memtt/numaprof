@@ -191,13 +191,13 @@ void ThreadTracker::onAccess(size_t ip,size_t addr,bool write)
 	} 
 	
 	//extrct mini stack
-	#ifdef NUMAPROG_CALLSTACK
+	#ifdef NUMAPROF_CALLSTACK
 		MiniStack miniStack;
 		stack.fillMiniStack(miniStack);
 	#endif
 
 	//get instr
-	#ifdef NUMAPROG_CALLSTACK
+	#ifdef NUMAPROF_CALLSTACK
 		Stats & instr = instructions[miniStack];
 	#else
 		Stats & instr = instructions[ip];
@@ -333,7 +333,7 @@ void ThreadTracker::onMremap(size_t oldAddr,size_t oldSize,size_t newAddr, size_
 void ThreadTracker::onAlloc(size_t ip,size_t ptr,size_t size)
 {
 	//printf("%lu => %p => %lu\n",ip,(void*)ptr,size);
-	#ifdef NUMAPROG_CALLSTACK
+	#ifdef NUMAPROF_CALLSTACK
 		MiniStack miniStack;
 		stack.fillMiniStack(miniStack);
 		allocTracker.onAlloc(miniStack,ptr,size);
@@ -345,7 +345,7 @@ void ThreadTracker::onAlloc(size_t ip,size_t ptr,size_t size)
 /*******************  FUNCTION  *********************/
 void ThreadTracker::onRealloc(size_t ip, size_t oldPtr, size_t newPtr, size_t newSize)
 {
-	#ifdef NUMAPROG_CALLSTACK
+	#ifdef NUMAPROF_CALLSTACK
 		MiniStack miniStack;
 		stack.fillMiniStack(miniStack);
 		allocTracker.onFree(oldPtr);

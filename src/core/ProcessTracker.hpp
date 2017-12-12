@@ -49,6 +49,8 @@ class ProcessTracker
 		NumaTopo & getNumaTopo(void);
 		void onThreadSetAffinity(int pid,cpu_set_t * mask,int size);
 	private:
+		void removeSmall(InstrInfoMap & map, float cutoff);
+	private:
 		PageTable pageTable;
 		InstrInfoMap instructions;
 		InstrInfoMap allocStats;

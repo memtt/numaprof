@@ -18,6 +18,9 @@
 #include <unistd.h>
 #include <fstream>
 
+/********************  MACRO  ***********************/
+#define NUMAPROF_OTHERS (0x2LU)
+
 /*******************  NAMESPACE  ********************/
 namespace numaprof
 {
@@ -145,7 +148,7 @@ void ProcessTracker::onThreadSetAffinity(int pid,cpu_set_t * mask, int size)
 
 	//error
 	if (found == false)
-		printf("WARNING, failed to found TID %d for binding, is it from an external process ?\n",pid);
+		printf("NUMAPROF WARNING, failed to found TID %d for binding, is it from an external process ?\n",pid);
 }
 
 /*******************  FUNCTION  *********************/
@@ -169,10 +172,17 @@ void ProcessTracker::onExit(void)
 	for (ThreadTrackerMap::iterator it = threads.begin() ; it != threads.end() ; ++it)
 		it->second->flush();
 	
+	//remove small
+	if (getGlobalOptions().outputRemoveSmall)
+	{
+		this->removeSmall(instructions,getGlobalOptions().outputRemoveRatio);
+		this->removeSmall(allocStats,getGlobalOptions().outputRemoveRatio);
+	}
+	
 	//extract symbols
 	registry.loadProcMap();
 
-	#ifdef NUMAPROG_CALLSTACK
+	#ifdef NUMAPROF_CALLSTACK
 		for (InstrInfoMap::iterator it = instructions.begin() ; it != instructions.end() ; ++it)
 			for (int i = 0 ; i < NUMAPROG_MINI_STACk_SIZE ; i++)
 				if (it->first.stack[i] != NULL)
@@ -199,6 +209,43 @@ void ProcessTracker::onExit(void)
 		htopml::convertToJson(out,*this,getGlobalOptions().outputIndent);
 		out.close();
 	}
+}
+
+/*******************  FUNCTION  *********************/
+void ProcessTracker::removeSmall(InstrInfoMap & map,float cutoff)
+{
+	//vars
+	Stats global;
+	Stats others;
+	InstrInfoMap copy;
+	
+	//compute global by merging & build a copy (Ok, I should use C++11 move operator instead)
+	for (InstrInfoMap::iterator it = map.begin() ; it != map.end() ; ++it)
+	{
+		global.merge(it->second);
+		copy[it->first] = it->second;
+	}
+	
+	//clear origin
+	map.clear();
+	
+	//copute cut
+	Stats cut;
+	cut.merge(global);
+	cut.applyCut(cutoff);
+	
+	//copy only the one larger than 0.1%
+	for (InstrInfoMap::iterator it = copy.begin() ; it != copy.end() ; ++it)
+	{
+		//check if one is larger than cutoff
+		if (it->second.asOneLargerThan(cut))
+			map[it->first] = it->second;
+		else
+			others.merge(it->second);
+	}
+	
+	//insert others
+	map[NUMAPROF_OTHERS] = others;
 }
 
 /*******************  FUNCTION  *********************/

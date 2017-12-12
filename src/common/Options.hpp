@@ -50,6 +50,8 @@ struct Options
 	bool outputJson;
 	bool outputDumpConfig;
 	bool outputSilent;
+	bool outputRemoveSmall;
+	float outputRemoveRatio;
 	//info
 	bool infoHidden;
 };
@@ -90,6 +92,7 @@ struct IniParserHelper
 	static void setEntry (dictionary * dic, const char * key, const char* value );
 	static void setEntry (dictionary * dic, const char * key, bool value);
 	static void setEntry (dictionary * dic, const char * key, int value);
+	static void setEntry (dictionary * dic, const char * key, float value);
 };
 
 /*******************  FUNCTION  *********************/

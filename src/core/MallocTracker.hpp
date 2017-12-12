@@ -26,7 +26,7 @@ struct MallocInfos
 };
 
 /*********************  TYPES  **********************/
-#ifdef NUMAPROG_CALLSTACK
+#ifdef NUMAPROF_CALLSTACK
 	typedef MiniStack StackIp;
 #else
 	typedef size_t StackIp;

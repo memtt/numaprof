@@ -42,6 +42,24 @@ void Stats::merge(Stats & info)
 }
 
 /*******************  FUNCTION  *********************/
+void Stats::applyCut(float cutoff)
+{
+	//compute real cutoff from %
+	cutoff /= 100.0;
+	
+	//apply
+	firstTouch *= cutoff;
+	unpinnedFirstTouch *= cutoff;
+	unpinnedPageAccess *= cutoff;
+	unpinnedThreadAccess *= cutoff;
+	unpinnedBothAccess *= cutoff;
+	localAccess *= cutoff;
+	remoteAccess *= cutoff;
+	mcdramAccess *= cutoff;
+	nonAlloc *= cutoff;
+}
+
+/*******************  FUNCTION  *********************/
 void convertToJson(htopml::JsonState& json, const Stats& value)
 {
 	json.openStruct();
@@ -69,7 +87,7 @@ void convertToJson(htopml::JsonState& json, const Stats& value)
 /*******************  FUNCTION  *********************/
 void convertToJson(htopml::JsonState& json, const InstrInfoMap& value)
 {
-	#ifdef NUMAPROG_CALLSTACK
+	#ifdef NUMAPROF_CALLSTACK
 		json.openArray();
 			for (InstrInfoMap::const_iterator it = value.begin() ; it != value.end() ; ++it)
 			{
