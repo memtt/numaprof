@@ -217,14 +217,15 @@ NumaprofSourceEditor.prototype.moveToFile = function(file,func)
 		// XHR fails to load file, show error message
 		this.container.innerHTML = 
 			'<pre class="line-numbers"><code>No source file to load</code></pre>';
-		cur.syntaxHighlighterEle = cur.container.getElementsByTagName("code")[0];
-		Prism.highlightElement(cur.syntaxHighlighterEle);
-		Prism.plugins.codeAnnotator.add(cur.syntaxHighlighterEle, {
+		this.syntaxHighlighterEle = this.container.getElementsByTagName("code")[0];
+		Prism.highlightElement(this.syntaxHighlighterEle);
+		Prism.plugins.codeAnnotator.add(this.syntaxHighlighterEle, {
 			line: 1, 
 			text: "Error", 
 			class: "line-annotate-large"
 		});
 		this.file = "";
+		$("#"+this.containerId+" pre").height($( window ).height() - margin);
 	} else {
 		var cur = this;
 		this.loadSourceFile(file,func,function(data){
