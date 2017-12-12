@@ -48,15 +48,15 @@ void Stats::applyCut(float cutoff)
 	cutoff /= 100.0;
 	
 	//apply
-	firstTouch *= cutoff;
-	unpinnedFirstTouch *= cutoff;
-	unpinnedPageAccess *= cutoff;
-	unpinnedThreadAccess *= cutoff;
-	unpinnedBothAccess *= cutoff;
-	localAccess *= cutoff;
-	remoteAccess *= cutoff;
-	mcdramAccess *= cutoff;
-	nonAlloc *= cutoff;
+	firstTouch = ((float)firstTouch) * cutoff;
+	unpinnedFirstTouch = ((float)unpinnedFirstTouch) * cutoff;
+	unpinnedPageAccess = ((float)unpinnedPageAccess) * cutoff;
+	unpinnedThreadAccess = ((float)unpinnedThreadAccess)* cutoff;
+	unpinnedBothAccess = ((float)unpinnedBothAccess) *cutoff;
+	localAccess = ((float)localAccess)*cutoff;
+	remoteAccess = ((float)remoteAccess)*cutoff;
+	mcdramAccess = ((float)mcdramAccess)*cutoff;
+	nonAlloc = ((float)nonAlloc)*cutoff;
 }
 
 /*******************  FUNCTION  *********************/

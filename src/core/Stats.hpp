@@ -58,25 +58,25 @@ void convertToJson(htopml::JsonState& json, const InstrInfoMap& value);
 inline bool Stats::asOneLargerThan(Stats & info)
 {
 	//check if one is biffer than ref
-	if (firstTouch >= info.firstTouch)
+	if (firstTouch > info.firstTouch)
 		return true;
-	if (unpinnedFirstTouch >= info.unpinnedFirstTouch)
+	if (unpinnedFirstTouch > info.unpinnedFirstTouch)
 		return true;
-	if (unpinnedPageAccess >= info.unpinnedPageAccess)
+	if (unpinnedPageAccess > info.unpinnedPageAccess)
 		return true;
-	if (unpinnedThreadAccess >= info.unpinnedThreadAccess)
+	if (unpinnedThreadAccess > info.unpinnedThreadAccess)
 		return true;
-	if (unpinnedBothAccess >= info.unpinnedBothAccess)
+	if (unpinnedBothAccess > info.unpinnedBothAccess)
 		return true;
-	if (localAccess >= info.localAccess)
+	if (localAccess > info.localAccess)
 		return true;
-	if (remoteAccess >= info.remoteAccess)
+	if (remoteAccess > info.remoteAccess)
 		return true;
-	if (mcdramAccess >= info.mcdramAccess)
+	if (mcdramAccess > info.mcdramAccess)
 		return true;
-	if (nonAlloc >= info.nonAlloc)
+	if (nonAlloc > info.nonAlloc)
 		return true;
-	
+
 	//none
 	return false;
 }

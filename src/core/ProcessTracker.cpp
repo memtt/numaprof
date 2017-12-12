@@ -175,6 +175,7 @@ void ProcessTracker::onExit(void)
 	//remove small
 	if (getGlobalOptions().outputRemoveSmall)
 	{
+		printf("NUMAPROF Do remove values bellow : %f%\n",getGlobalOptions().outputRemoveRatio);
 		this->removeSmall(instructions,getGlobalOptions().outputRemoveRatio);
 		this->removeSmall(allocStats,getGlobalOptions().outputRemoveRatio);
 	}

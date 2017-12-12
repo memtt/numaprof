@@ -455,7 +455,7 @@ void SymbolRegistry::solveMissings(void)
 			it->second.file = getString("??");
 			it->second.function = getString("others");
 			it->second.line = 0;
-			it->second.mapEntry = NULL;
+			it->second.mapEntry = &(*procMap.begin());
 		}
 	}
 		
