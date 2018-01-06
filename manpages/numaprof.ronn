@@ -1,0 +1,101 @@
+numaprof(1) -- A NUMA memory profiling tool
+===========================================
+
+## SYNOPSIS
+
+`numaprof` [--callgrind] [--config file] [--help] [--] YOUR_COMMAND
+
+## DESCRIPTION
+
+NUMAPROF is a NUMA memory profiling tool instrumenting your binary application with 
+pintool. It intercept all the memory accesses and track thread placement on the NUMA 
+topology to determine when you are making local, remote, mcdram or unpinned memory acceses.
+The profile can be viewed with numaprof-webview(1).
+
+NUMAPROF work out of the box but to profiling your application it might be better to compile
+it with debug symbols (`-g`) and also to disable inlining to get more accurate stacks 
+(`-O0` or `-fno-inline`).
+
+## OPTIONS
+
+ * `-c`, `--config`: 
+   Provide a config file as parameters with formats described in the next part
+   of this manpage. You can also get a dump of the default configuration with `-d`.
+ * `--callgrind`:
+   After generating the profile to native format, automatically convert it to
+   callgrind compatible format.
+ * `-d`, `--dumpconfig`:
+   Dump the current NUMAPROF configuration in a file with the same name as profile file.
+   It helps for quick start in the configuration by getting all the options and default value.
+ * `-o`:
+   Permit to pass some specific options from the config file in the command line.
+   The value is a list of options separated by commas and formatted like `SECTION:NAME=VALUE`.
+   See the configuration file format (INI format) to find the available sections and names.
+ * `-h`, `--help`:
+   Display help message with a list of available command line options.
+
+## GET THE GUI
+
+With NUMAPROF you can use direcly `kcachegrind` if you enable the valgrind compatible format by using `--callgrind`. 
+But by default NUMAPROF will generate a JSON file to be used with numaprof-webview(1).
+
+## CONFIGURATION FILE
+
+You can get an example of this config file with `-d` option and setup the config file to use with `-c` one.
+The config file use INI format with sections and variables as in this example :
+
+	[output]
+	name=numaprof-%1-%2.%3
+	indent=true
+	json=true
+	dumpConfig=false
+	silent=false
+	removeSmall=false
+	removeRatio=0.5
+
+	[info]
+	hidden=false
+
+The `output` section support :
+
+ * `name`:
+   Define the name of the profile file. %1 is replaced by the program name, %2 by the PID or MPI rank and %3 by extension.
+ * `json`:
+   Enable output of the default JSON file format.
+ * `indent`: 
+   Enable indentations in the JSON/LUA files. Useful for debugging but generate bigger files.
+ * `silent`:
+   Enable silent mode so that NUMAPROF will not write anything to the standard output of errors output not to disturb
+   streams sent to scripts.
+ * `removeSmall`:
+   When running large application NUMAPROF might generate really big profiles. In case it append you can enable this
+   feature which will remove all the entries corresponding to less than `removeRatio` percent of the total value.
+   This lower a lot the size of the output file but loose some information.
+ * `removeRatio`:
+   When enabling cut option, select to which ratio to cut to keep the data.
+ 
+The `info` section support:
+
+ * `hidden`:
+   Enable hiding execution information. This option remove some possibility sensitive information
+   from the output file, like executable names, hostname and command options. It is still recommended
+   taking a look at the file for example to replace (sed(1)) the paths which might also be removed.
+   This option target some companies which might want to hide their internal applications when exchanging
+   with external partners.
+
+## ENVIRONMENT
+
+In that case you can setup some environment variables to configure NUMAPROF :
+
+ * `NUMAPROF_CONFIG`:
+   Define the configuration file to use (equivalent of `-c` option).
+ * `NUMAPROF_OPTIONS`:
+   List of options to transmit to NUMAPROF (equivalent of `-o` option, see its documentation for format).
+
+## VERSION
+
+   This is the manpage of NUMAPROF version 0.0.0-dev.
+
+## SEE ALSO
+
+numaprof-webview(1), numaprof-passwd(1)

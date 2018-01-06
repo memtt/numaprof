@@ -1,0 +1,45 @@
+numaprof-webview(1) -- Webserver for the NUMAPROF web GUI
+===========================================================
+
+## SYNOPSIS
+
+`numaprof-webview` [OPTIONS] -i {numaprof-profile.json}
+
+## DESCRIPTION
+
+The NUMAPROF web GUI is hosted by a python script managed by `numaprof-webview` command. It will
+by default open a socket listening on `localhost` and port `8080` so reachable with address
+http://localhost:8080.
+
+## OPTIONS
+
+ * `-O`, `--override`:
+   If you copy a profile file from a remote machine to your local one, your code might
+   be stored into another place (not same user, not same path). Thanks to override options
+   you can alias some paths to make it transparent to the GUI and be able to find your
+   source code. The format is *src_path1:dest_path1,src_path2,dest_path2*. The easiest use
+   is to override the root directory of your project.
+ * `p`, `--port`:
+   Force to use another port than default 8080.
+ * `-S`, `--search-path`:
+   Search file with non full path in this list of directories : */home/orig/a,/tmp/b*.
+ * `-h`, `--help`:
+   Display a short help message to summarize the available options.
+
+## REMOTE USAGE THROUGH SSH
+
+On clusters you might be interesting by launching the `numaprof-webview` remotly and forward
+it through ssh to get it on your local machine. You can achieve this port redirection with
+ssh options :
+
+ ssh {YOUR_HOST} -L 8080:localhost:8080
+
+Where the first 8080 is the local port and the second one the remote.
+
+## VERSION
+
+   This is the manpage of NUMAPROF version 0.0.0-dev.
+
+## SEE ALSO
+
+numaprof-passwd(1), numaprof(1)

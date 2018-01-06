@@ -1,0 +1,24 @@
+numaprof-passwd(1) -- Password editor for MALT web GUI
+==================================================
+
+## SYNOPSIS
+
+`numaprof-passwd` {username} [password]
+
+## DESCRIPTION
+
+The NUMAPROF web GUI provided by numaprof-webview(1) is secured by a local password which is configured
+by `numaprof-passwd` command and stored into `~/.numaprof/htpasswd` file. It will be called automatically
+the first time you call `numaprof-webserver`.
+
+`numaprof-passwd` is essentially a wrapper to call a script provided by nodeJS module `htpasswd` so it
+also supports all the options it provides. You can refer to the documentation of this module for
+more details : https://www.npmjs.com/package/htpasswd.
+
+## VERSION
+
+   This is the manpage of NUMAPROF version 0.0.0-dev
+
+## SEE ALSO
+
+numaprof-webview(1), numaprof(1)
