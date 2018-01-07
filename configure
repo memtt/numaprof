@@ -323,6 +323,7 @@ install: all
 	install -D integration/pintool/obj-intel64/libnumaprof-pintool.so ${PREFIX_PATH}/lib/libnumaprof-pintool.so
 	install -D ${SOURCE_DIR}/integration/scripts/numaprof-to-callgrind.py ${PREFIX_PATH}/bin/numaprof-to-callgrind
 	install -D integration/scripts/numaprof-pintool.sh ${PREFIX_PATH}/bin/numaprof-pintool
+	install -D integration/scripts/numaprof-pintool.sh ${PREFIX_PATH}/bin/numaprof
 EOF
 
 ######################################################
