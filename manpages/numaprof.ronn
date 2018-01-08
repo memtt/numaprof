@@ -9,7 +9,7 @@ numaprof(1) -- A NUMA memory profiling tool
 
 NUMAPROF is a NUMA memory profiling tool instrumenting your binary application with 
 pintool. It intercept all the memory accesses and track thread placement on the NUMA 
-topology to determine when you are making local, remote, mcdram or unpinned memory acceses.
+topology to determine when you are making local, remote, mcdram or unpinned memory accesses.
 The profile can be viewed with numaprof-webview(1).
 
 NUMAPROF work out of the box but to profiling your application it might be better to compile
@@ -74,14 +74,14 @@ The `output` section support :
  * `removeSmall`:
    When running large application NUMAPROF might generate really big profiles. In case it append you can enable this
    feature which will remove all the entries corresponding to less than `removeRatio` percent of the total value.
-   This lower a lot the size of the output file but loose some information.
+   This lower a lot the size of the output file but lose some information.
  * `removeRatio`:
-   When enabling cut option, select to which ratio to cut to keep the data.
+   When enabling the cut option, it selects which ratio will be used to cut the data.
   
 The `core` section support:
 
  * `skipStackAccesses`: By default numaprof does not intercept the stack memory accesses to be faster,
-   your can disable this feature by changing this value to false.
+   you can disable this feature by changing this value to false.
  * `threadCacheEntries`: to avoid taking mutex too often numaprof use per thread caches an flush the entries
    by group. This option configure the size of this buffer.
  

@@ -83,7 +83,7 @@
 
 <p>NUMAPROF is a NUMA memory profiling tool instrumenting your binary application with
 pintool. It intercept all the memory accesses and track thread placement on the NUMA
-topology to determine when you are making local, remote, mcdram or unpinned memory acceses.
+topology to determine when you are making local, remote, mcdram or unpinned memory accesses.
 The profile can be viewed with <span class="man-ref">numaprof-webview<span class="s">(1)</span></span>.</p>
 
 <p>NUMAPROF work out of the box but to profiling your application it might be better to compile
@@ -125,6 +125,10 @@ silent=false
 removeSmall=false
 removeRatio=0.5
 
+[core]
+skipStackAccesses=true
+threadCacheEntries=512
+
 [info]
 hidden=false
 </code></pre>
@@ -139,9 +143,19 @@ hidden=false
 streams sent to scripts.</dd>
 <dt><code>removeSmall</code></dt><dd>When running large application NUMAPROF might generate really big profiles. In case it append you can enable this
 feature which will remove all the entries corresponding to less than <code>removeRatio</code> percent of the total value.
-This lower a lot the size of the output file but loose some information.</dd>
-<dt><code>removeRatio</code></dt><dd>When enabling cut option, select to which ratio to cut to keep the data.</dd>
+This lower a lot the size of the output file but lose some information.</dd>
+<dt><code>removeRatio</code></dt><dd>When enabling the cut option, it selects which ratio will be used to cut the data.</dd>
 </dl>
+
+
+<p>The <code>core</code> section support:</p>
+
+<ul>
+<li><code>skipStackAccesses</code>: By default numaprof does not intercept the stack memory accesses to be faster,
+you can disable this feature by changing this value to false.</li>
+<li><code>threadCacheEntries</code>: to avoid taking mutex too often numaprof use per thread caches an flush the entries
+by group. This option configure the size of this buffer.</li>
+</ul>
 
 
 <p>The <code>info</code> section support:</p>

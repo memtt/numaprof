@@ -22,13 +22,13 @@ http://localhost:8080.
  * `p`, `--port`:
    Force to use another port than default 8080.
  * `-S`, `--search-path`:
-   Search file with non full path in this list of directories : */home/orig/a,/tmp/b*.
+   Search file with non-full path in this list of directories : */home/orig/a,/tmp/b*.
  * `-h`, `--help`:
    Display a short help message to summarize the available options.
 
 ## REMOTE USAGE THROUGH SSH
 
-On clusters you might be interesting by launching the `numaprof-webview` remotly and forward
+On clusters you might be interested by launching the `numaprof-webview` remotly and forward
 it through ssh to get it on your local machine. You can achieve this port redirection with
 ssh options :
 
