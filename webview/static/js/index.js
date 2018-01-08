@@ -81,7 +81,7 @@ function setupHeadMap(svgId,data)
 	
 	var itemSize = 44,
 		cellSize = itemSize - 1,
-		margin = {top: 20, right: 20, bottom: 20, left: 110};
+		margin = {top: 50, right: 20, bottom: 20, left: 90};
 		
 	var width = 50+50*nodes - margin.right - margin.left,
 		height = 50+50*nodes - margin.top - margin.bottom;
@@ -169,6 +169,23 @@ function setupHeadMap(svgId,data)
 		.attr("transform", function (d) {
 			return "rotate(-65)";
 		});
+	
+	// text label for the x axis
+	svg.append("text")             
+		.attr("transform",
+				"translate(" + (width/2) + " ," + 
+							( -25) + ")")
+		.style("text-anchor", "middle")
+		.text("To");
+		
+	// text label for the y axis
+	svg.append("text")
+		.attr("transform", "rotate(-90)")
+		.attr("y", 0 - margin.left)
+		.attr("x",0 - (height / 2))
+		.attr("dy", "1em")
+		.style("text-anchor", "middle")
+		.text("From"); 
 }
 
 /*******************  FUNCTION  *********************/

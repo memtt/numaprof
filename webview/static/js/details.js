@@ -42,12 +42,12 @@ function setupHeadMap(divId,data)
 	for (var i in data)
 		nodes++;
 	
-	var itemSize = 12,
+	var itemSize = 15,
 		cellSize = itemSize - 1,
-		margin = {top: 20, right: 20, bottom: 20, left: 110};
+		margin = {top: 50, right: 20, bottom: 20, left: 110};
 		
-	var width = 60+2*itemSize*nodes - margin.right - margin.left,
-		height = 20+itemSize*nodes - margin.top - margin.bottom;
+	var width = 120+2*itemSize*nodes - margin.right - margin.left,
+		height = 100+itemSize*nodes - margin.top - margin.bottom;
 
 	//convert
 	var fdata = [];
@@ -132,6 +132,23 @@ function setupHeadMap(divId,data)
 		.attr("transform", function (d) {
 			return "rotate(-65)";
 		});
+	
+	// text label for the x axis
+	svg.append("text")             
+		.attr("transform",
+				"translate(" + (width/2) + " ," + 
+							( -25) + ")")
+		.style("text-anchor", "middle")
+		.text("To");
+		
+	// text label for the y axis
+	svg.append("text")
+		.attr("transform", "rotate(-90)")
+		.attr("y", 0 - margin.left)
+		.attr("x",0 - (height / 2))
+		.attr("dy", "1em")
+		.style("text-anchor", "middle")
+		.text("From"); 
 }
 
 /*******************  FUNCTION  *********************/
