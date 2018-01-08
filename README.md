@@ -4,15 +4,12 @@ Numaprof
 What is it ?
 ------------
 
-Numaprof is currently a prototype to implement a NUMA memory 
-profiler. The idea is to instrument the read/write operations in 
+Numaprof is a NUMA memory profiler. The idea is to instrument the read/write operations in 
 the application and check the NUMA location of the thread at 
 accesss time to compare it to the memory location of the data.
 
-I'm currently testing an implementation based on pintool but I'm 
-also looking to possibly use a CLANG/LLVM plugin which offer
-the same thing but without support on non recompiled code :
-https://llvm.org/svn/llvm-project/safecode/trunk/lib/CommonMemorySafety/InstrumentMemoryAccesses.cpp
+The tool is currently based on Pintool, a dynamic instrumentation tool from Intel offering a little bit
+the same service than valgrind but supporting threads so faster for parallel applications.
 
 Metrics
 -------
@@ -55,7 +52,7 @@ export PATH=PREFIX/bin:$PATH
 Run you program using the wrapper:
 
 ```
-numaprof-pintool ./benchmark --my-option
+numaprof ./benchmark --my-option
 ```
 
 The numaprof GUI is based on a webserver and be viewed in the browser at http://localhost:8080.
