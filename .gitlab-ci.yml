@@ -5,7 +5,8 @@ test:
   - rm -rfv build testinstall
   - mkdir build
   - cd build
-  - ../configure --enable-debug --prefix="$PWD/../testinstall"
+#  - ../configure --enable-debug --prefix="$PWD/../testinstall"
+  - cmake .. -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=$PWD/../testinstall
   - make
   - make test
   - make install
