@@ -93,6 +93,7 @@ class ThreadTracker
 		size_t mbindCalls;
 		size_t instructionFlush;
 		size_t allocFlush;
+		size_t cacheEntries;
 };
 
 /*******************  FUNCTION  *********************/

@@ -35,6 +35,7 @@ ThreadTracker::ThreadTracker(ProcessTracker * process)
 	this->memPolicy = topo->getCurrentMemPolicy();
 	this->instructionFlush = 0;
 	this->allocFlush = 0;
+	this->cacheEntries = getGlobalOptions().coreThreadCacheEntries;
 	logBinding(memPolicy);
 	logBinding(this->numa);
 	
@@ -282,19 +283,19 @@ void ThreadTracker::onAccess(size_t ip,size_t addr,bool write)
 	}
 
 	//flush to keep small
-	if (instructions.size() >= 512)
+	if (instructions.size() >= cacheEntries)
 	{
 		if (instructionFlush++ == 10000)
-			printf("NUMAPROF: Caution, flushing instruction a lot of time, maybe you need to increase flush threshold, current is %d!\n",512);
+			printf("NUMAPROF: Caution, flushing instruction a lot of time, maybe you need to increase flush threshold, current is %d, see core:threadCacheSize !\n",cacheEntries);
 		this->process->mergeInstruction(instructions);
 		instructions.clear();
 	}
 
 	//flush to keep smell
-	if (allocCache.size() >= 512)
+	if (allocCache.size() >= cacheEntries)
 	{
 		if (allocFlush++ == 10000)
-			printf("NUMAPROF: Caution, flushing allocs a lot of time, maybe you need to increase flush threshold, current is %d!\n",512);
+			printf("NUMAPROF: Caution, flushing allocs a lot of time, maybe you need to increase flush threshold, current is %d, see core:threadCacheSize !\n",cacheEntries);
 		for (AllocCacheMap::iterator it = allocCache.begin() ; it != allocCache.end() ; ++it)
 			(it->first)->merge(it->second);
 		allocCache.clear();

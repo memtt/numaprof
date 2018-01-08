@@ -36,6 +36,9 @@ Options::Options(void)
 	this->outputSilent            = false;
 	this->outputRemoveSmall       = false;
 	this->outputRemoveRatio       = 0.5;
+	//core
+	this->coreSkipStackAccesses   = true;
+	this->coreThreadCacheEntries     = 512;
 	//info
 	this->infoHidden              = false;
 }
@@ -54,6 +57,9 @@ bool Options::operator==(const Options& value) const
 	if (this->outputSilent != value.outputSilent)  return false;
 	if (this->outputRemoveSmall != value.outputRemoveSmall) return false;
 	if (this->outputRemoveRatio != value.outputRemoveRatio) return false;
+	//core
+	if (this->coreSkipStackAccesses != value.coreSkipStackAccesses) return false;
+	if (this->coreThreadCacheEntries != value.coreThreadCacheEntries) return false;
 	//info
 	if (this->infoHidden != value.infoHidden) return false;
 	
@@ -150,6 +156,10 @@ void Options::loadFromIniDic ( dictionary* iniDic )
 	this->outputRemoveSmall   = iniparser_getboolean(iniDic,"output:removeSmall",this->outputRemoveSmall);
 	this->outputRemoveRatio   = iniparser_getdouble(iniDic,"output:removeRatio",this->outputRemoveRatio);
 	
+	//core
+	this->coreSkipStackAccesses = iniparser_getdouble(iniDic,"output:skipStackAccesses",this->coreSkipStackAccesses);
+	this->coreThreadCacheEntries = iniparser_getdouble(iniDic,"output:threadCacheEntries",this->coreThreadCacheEntries);
+	
 	//info
 	this->infoHidden          = iniparser_getboolean(iniDic,"info:hidden",this->infoHidden);
 }
@@ -197,6 +207,11 @@ void convertToJson(htopml::JsonState & json,const Options & value)
 			json.printField("removeRatio",value.outputRemoveRatio);
 		json.closeFieldStruct("output");
 		
+		json.openFieldStruct("core");
+			json.printField("skipStackAccesses",value.coreSkipStackAccesses);
+			json.printField("threadCacheEntries",value.coreThreadCacheEntries);
+		json.closeFieldStruct("core");
+		
 		json.openFieldStruct("info");
 			json.printField("hidden",value.infoHidden);
 		json.closeFieldStruct("info");
@@ -221,6 +236,10 @@ void Options::dumpConfig(const char* fname) const
 	IniParserHelper::setEntry(dic,"output:silent",this->outputSilent);
 	IniParserHelper::setEntry(dic,"output:removeSmall",this->outputRemoveSmall);
 	IniParserHelper::setEntry(dic,"output:removeRatio",this->outputRemoveRatio);
+	
+	//core
+	IniParserHelper::setEntry(dic,"core:skipStackAccesses",this->coreSkipStackAccesses);
+	IniParserHelper::setEntry(dic,"core:threadCacheEntries",this->coreThreadCacheEntries);
 	
 	//info
 	IniParserHelper::setEntry(dic,"info:hidden",this->infoHidden);

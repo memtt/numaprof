@@ -111,6 +111,10 @@ silent=false
 removeSmall=false
 removeRatio=0.5
 
+[core]
+skipStackAccesses=true
+threadCacheEntries=512
+
 [info]
 hidden=false
 ```

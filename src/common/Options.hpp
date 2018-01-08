@@ -52,6 +52,9 @@ struct Options
 	bool outputSilent;
 	bool outputRemoveSmall;
 	float outputRemoveRatio;
+	//core
+	bool coreSkipStackAccesses;
+	int coreThreadCacheEntries;
 	//info
 	bool infoHidden;
 };

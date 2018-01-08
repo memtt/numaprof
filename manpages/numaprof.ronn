@@ -52,6 +52,10 @@ The config file use INI format with sections and variables as in this example :
 	silent=false
 	removeSmall=false
 	removeRatio=0.5
+	
+	[core]
+	skipStackAccesses=true
+	threadCacheEntries=512
 
 	[info]
 	hidden=false
@@ -73,6 +77,13 @@ The `output` section support :
    This lower a lot the size of the output file but loose some information.
  * `removeRatio`:
    When enabling cut option, select to which ratio to cut to keep the data.
+  
+The `core` section support:
+
+ * `skipStackAccesses`: By default numaprof does not intercept the stack memory accesses to be faster,
+   your can disable this feature by changing this value to false.
+ * `threadCacheEntries`: to avoid taking mutex too often numaprof use per thread caches an flush the entries
+   by group. This option configure the size of this buffer.
  
 The `info` section support:
 
