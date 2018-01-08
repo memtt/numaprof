@@ -286,7 +286,7 @@ void ThreadTracker::onAccess(size_t ip,size_t addr,bool write)
 	if (instructions.size() >= cacheEntries)
 	{
 		if (instructionFlush++ == 10000)
-			printf("NUMAPROF: Caution, flushing instruction a lot of time, maybe you need to increase flush threshold, current is %d, see core:threadCacheSize !\n",cacheEntries);
+			printf("NUMAPROF: Caution, flushing instruction a lot of time, maybe you need to increase flush threshold, current is %ld, see core:threadCacheSize !\n",cacheEntries);
 		this->process->mergeInstruction(instructions);
 		instructions.clear();
 	}
@@ -295,7 +295,7 @@ void ThreadTracker::onAccess(size_t ip,size_t addr,bool write)
 	if (allocCache.size() >= cacheEntries)
 	{
 		if (allocFlush++ == 10000)
-			printf("NUMAPROF: Caution, flushing allocs a lot of time, maybe you need to increase flush threshold, current is %d, see core:threadCacheSize !\n",cacheEntries);
+			printf("NUMAPROF: Caution, flushing allocs a lot of time, maybe you need to increase flush threshold, current is %ld, see core:threadCacheSize !\n",cacheEntries);
 		for (AllocCacheMap::iterator it = allocCache.begin() ; it != allocCache.end() ; ++it)
 			(it->first)->merge(it->second);
 		allocCache.clear();
