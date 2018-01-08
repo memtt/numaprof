@@ -1,15 +1,10 @@
-test:
+build_and_test:
   script:
-  - git submodule update --init
   - ls -la
   - rm -rfv build testinstall
   - mkdir build
   - cd build
-#  - ../configure --enable-debug --prefix="$PWD/../testinstall"
-  - cmake .. -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=$PWD/../testinstall
+  - if [ -d /opt/pin-3.2-81205-gcc-linux ]; then ../configure --enable-debug --prefix="$PWD/../testinstall" --with-pintool=/opt/pin-3.2-81205-gcc-linux; else cmake .. -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=$PWD/../testinstall; fi
   - make
   - make test
   - make install
-  tags: 
-  except:
-  - tags
