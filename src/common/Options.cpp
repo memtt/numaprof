@@ -157,8 +157,8 @@ void Options::loadFromIniDic ( dictionary* iniDic )
 	this->outputRemoveRatio   = iniparser_getdouble(iniDic,"output:removeRatio",this->outputRemoveRatio);
 	
 	//core
-	this->coreSkipStackAccesses = iniparser_getdouble(iniDic,"output:skipStackAccesses",this->coreSkipStackAccesses);
-	this->coreThreadCacheEntries = iniparser_getdouble(iniDic,"output:threadCacheEntries",this->coreThreadCacheEntries);
+	this->coreSkipStackAccesses = iniparser_getboolean(iniDic,"output:skipStackAccesses",this->coreSkipStackAccesses);
+	this->coreThreadCacheEntries = iniparser_getint(iniDic,"output:threadCacheEntries",this->coreThreadCacheEntries);
 	
 	//info
 	this->infoHidden          = iniparser_getboolean(iniDic,"info:hidden",this->infoHidden);
