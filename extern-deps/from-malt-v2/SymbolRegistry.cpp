@@ -274,7 +274,7 @@ void SymbolRegistry::solveNames(LinuxProcMapEntry * procMapEntry)
 	std::stringstream addr2lineCmd;
 	addr2lineCmd << "addr2line -C -f -e " << procMapEntry->file;
 	std::vector<CallSite*> lst;
-	bool isSharedLib = false;
+	bool isSharedLib = true;
 	
 	//check if shared lib or exe
 	if (procMapEntry->file.substr(procMapEntry->file.size()-3) == ".so" || procMapEntry->file.find(".so.") != std::string::npos)
