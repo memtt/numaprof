@@ -39,6 +39,10 @@ ThreadTracker::ThreadTracker(ProcessTracker * process)
 	logBinding(memPolicy);
 	logBinding(this->numa);
 	
+	//allocate and initial
+	this->distanceCnt = new size_t[topo->getDistanceMax()+2];
+	memset(distanceCnt,0,sizeof(size_t)*(topo->getDistanceMax()+2));
+	
 	if (!getGlobalOptions().outputSilent)
 	{
 		printf("NUMAPROF: Numa initial mapping : %d\n",numa);
@@ -206,7 +210,10 @@ void ThreadTracker::onAccess(size_t ip,size_t addr,bool write)
 	
 	//acces matrix
 	if (pageNode >= 0)
+	{
 		accessMatrix.access(numa,pageNode);
+		distanceCnt[topo->getDistance(numa,pageNode)+1]++;
+	}
 
 	//get malloc relation
 	MallocInfos * allocInfos = (MallocInfos *)page.getAllocPointer(addr);
@@ -410,6 +417,7 @@ void convertToJson(htopml::JsonState& json, const ThreadTracker& value)
 		json.printField("memPolicy",value.memPolicy);
 		json.printField("binding",value.cpuBindList);
 		json.printField("accessMatrix",value.accessMatrix);
+		json.printFieldArray("distanceCnt",value.distanceCnt,value.topo->getDistanceMax()+2);
 		json.printField("bindingLog",value.bindingLog);
 		json.printField("memPolicyLog",value.memPolicyLog);
 		json.printField("clockStart",value.clockStart);

@@ -94,6 +94,7 @@ class ThreadTracker
 		size_t instructionFlush;
 		size_t allocFlush;
 		size_t cacheEntries;
+		size_t * distanceCnt;
 };
 
 /*******************  FUNCTION  *********************/

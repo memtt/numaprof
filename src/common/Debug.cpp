@@ -72,7 +72,12 @@ void DebugMessage::print ( const char* format, ... )
 	{
 		perror(glob);
 	} else {
-		write(cstMessageLevelFD[level],glob,size);
+		ssize_t res = write(cstMessageLevelFD[level],glob,size);
+		if (res > 0)
+		{
+			fprintf(stderr,"Fail to write !");
+			abort();
+		}
 	}
 	
 	//special

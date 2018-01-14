@@ -324,10 +324,12 @@ function displayThread(divId,data,threadId,first)
 		setupPieChart(divId + " .threadFirstTouch",genPieDataFirstTouch(data.stats));
 		setupPieChart(divId + " .threadAccesses",genPieDataAccess(data.stats));
 		setupHeadMap(divId + " .accessMatrix",data.accessMatrix);
+		setupNumaDistanceStats(divId+ " .accessDistance",data.distanceCnt);
 	} else {
 		updateChartData(divId + " .threadFirstTouch",genPieDataFirstTouch(data.stats));
 		updateChartData(divId + " .threadAccesses",genPieDataAccess(data.stats));
 		updateHeadMap(divId + " .accessMatrix",data.accessMatrix);
+		updateNumaDistanceStats(divId+ " .accessDistance",data.distanceCnt);
 	}
 	var numaBinding = data.numa;
 	if (numaBinding == -1)
@@ -433,6 +435,63 @@ function loadDetails()
 	.fail(function(data) {
 		numaprofHelper.logError("/api/details/threads.json");
 	})
+}
+
+/*******************  FUNCTION  *********************/
+function updateNumaDistanceStats(divName,data)
+{
+	//reformat data
+	var formattedData = [{
+		key: "Numa distance",
+		values: []
+    }];
+	
+	for (var i in data)
+		formattedData[0].values.push({x:i-1,y:data[i]});
+	
+	var chart = gblCharts[divName];
+	d3.select(divName+' svg').datum(formattedData).transition().duration(500).call(chart);
+	nv.utils.windowResize(chart.update);
+}
+
+/*******************  FUNCTION  *********************/
+function setupNumaDistanceStats(divName,data)
+{
+	//reformat data
+	var formattedData = [{
+		key: "Numa distance",
+		values: []
+    }];
+	
+	for (var i in data)
+		formattedData[0].values.push({x:i-1,y:data[i]});
+
+	//plot
+	nv.addGraph(function() {
+		var chart = nv.models.multiBarChart()
+			//.transitionDuration(350)
+			//.reduceXTicks(true)   //If 'false', every single x-axis tick label will be rendered.
+			//.rotateLabels(0)      //Angle to rotate x-axis labels.
+			.showControls(false)   //Allow user to switch between 'Grouped' and 'Stacked' mode.
+			//.groupSpacing(0.1)    //Distance between each group of bars.
+		;
+
+		// 	chart.xAxis
+		// 		.tickFormat(d3.format(',f'));
+		// 
+		// 	chart.yAxis
+		// 		.tickFormat(d3.format(',.1f'));
+
+		d3.select(divName+' svg')
+			.datum(formattedData)
+			.call(chart);
+
+		nv.utils.windowResize(chart.update);
+		
+		gblCharts[divName] = chart;
+
+		return chart;
+	});
 }
 
 /*******************  FUNCTION  *********************/

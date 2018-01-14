@@ -101,6 +101,16 @@ void NumaTopo::loadCpuNb()
 }
 
 /*******************  FUNCTION  *********************/
+int NumaTopo::getDistanceMax(void) const
+{
+	int max = 0;
+	for (int i = 0 ; i < numaNodes * numaNodes ; i++)
+		if (distanceMap[i] > max)
+			max = distanceMap[i];
+	return max;
+}
+
+/*******************  FUNCTION  *********************/
 void NumaTopo::loadDistanceMap(void)
 {
 	//check
