@@ -18,8 +18,6 @@ function setupNumaPageStats(data)
 	for (var i in data)
 		formattedData[0].values.push({x:i,y:data[i]});
 
-	console.log(formattedData);
-	
 	//plot
 	nv.addGraph(function() {
 		var chart = nv.models.multiBarChart()
@@ -58,8 +56,6 @@ function setupDistanceCnt(data)
 	for (var i in data)
 		formattedData[0].values.push({x:i-1,y:data[i]});
 
-	console.log(formattedData);
-	
 	//plot
 	nv.addGraph(function() {
 		var chart = nv.models.multiBarChart()
