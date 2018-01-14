@@ -105,6 +105,21 @@ class ProfileHandler:
 					out[str(node)][i] += matrix[str(node)][i]
 		#ret
 		return out
+
+	def getProcessDistanceCnt(self):
+		out = []
+		#init
+		for i in self.data["threads"][0]["distanceCnt"]:
+			out.append(0)
+		
+		#merge
+		for thread in self.data["threads"]:
+			idx = 0
+			for val in thread["distanceCnt"]:
+				out[idx] += val
+				idx += 1
+		
+		return out;
 	
 	def prepareFileFilter(self):
 		out1 = {}

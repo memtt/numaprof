@@ -262,7 +262,7 @@ void PageTable::regAllocPointerSmall(size_t baseAddr,size_t size,void * value)
 	{
 		//#ifndef NDEBUG
 			if (value != NULL && map->entries[i] != NULL)
-				printf("Invalid status, get %lu entry = %p of %p, expect NULL !\n",i,map->entries[i],map);
+				printf("NUMAPROF: Invalid status, get %lu entry = %p of %p, expect NULL !\n",i,map->entries[i],map);
 		//#endif
 		map->entries[i] = value;
 	}

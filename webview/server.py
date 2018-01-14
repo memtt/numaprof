@@ -177,6 +177,14 @@ def apiIndexProcessAccessMatrix(user):
 	jsonData = json.dumps(data)
 	return Response(jsonData, mimetype='application/json')
 
+@app.route('/api/index/process-distance-cnt.json')
+@htpasswd.required
+@nocache
+def apiIndexProcessDistanceCnt(user):
+	data = profile.getProcessDistanceCnt()
+	jsonData = json.dumps(data)
+	return Response(jsonData, mimetype='application/json')
+
 @app.route('/api/index/numa-page-stats.json')
 @htpasswd.required
 @nocache
