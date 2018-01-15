@@ -58,7 +58,7 @@ ThreadTracker * ProcessTracker::createThreadTracker(int threadId)
 	
 	//debug
 	if (getGlobalOptions().outputSilent == false)
-		printf("NUMAPROF: register thread %d\n",ret->getTID());
+		fprintf(stderr,"NUMAPROF: register thread %d\n",ret->getTID());
 	
 	//unlock
 	mutex.unlock();
@@ -164,11 +164,11 @@ void ProcessTracker::onThreadSetAffinity(int pid,cpu_set_t * mask, int size)
 	
 	//info
 	if (!getGlobalOptions().outputSilent && retry > 1)
-		printf("NUMAPROF: had to retry (%d) to find thread\n",retry);
+		fprintf(stderr,"NUMAPROF: had to retry (%d) to find thread\n",retry);
 
 	//error
 	if (found == false)
-		printf("NUMAPROF WARNING, failed to found TID %d for binding, is it from an external process ?\n",pid);
+		fprintf(stderr,"NUMAPROF WARNING, failed to found TID %d for binding, is it from an external process ?\n",pid);
 }
 
 /*******************  FUNCTION  *********************/

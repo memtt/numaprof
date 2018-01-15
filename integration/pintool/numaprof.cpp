@@ -285,7 +285,7 @@ static VOID beforeSchedSetAffinity(ADDRINT pid, ADDRINT size,ADDRINT mask,THREAD
 	if (mask == 0)
 		return;
 	if (gblOptions->outputSilent == false)
-		printf("NUMAPROF: Intercept thread affinity of %lu (%d) (%p)!\n",pid,OS::getTID(),(void*)mask);
+		fprintf(stderr,"NUMAPROF: Intercept thread affinity of %lu (%d) (%p)!\n",pid,OS::getTID(),(void*)mask);
 
 	//numaprof::NumaTopo topo;
 	//topo.getCurrentNumaAffinity(*(cpu_set_t*)mask);
@@ -294,7 +294,7 @@ static VOID beforeSchedSetAffinity(ADDRINT pid, ADDRINT size,ADDRINT mask,THREAD
 		getTls(threadid).tracker->onSetAffinity((cpu_set_t*)mask,size);
 	} else {
 		if (getGlobalOptions().outputSilent == false)
-			printf("NUMAPROF: set affinity of remote thread\n");
+			fprintf(stderr,"NUMAPROF: set affinity of remote thread\n");
 		gblProcessTracker->onThreadSetAffinity(pid,(cpu_set_t*)mask,size);
 	}
 }
@@ -310,7 +310,7 @@ static VOID SyscallEntry(THREADID threadIndex, CONTEXT *ctxt, SYSCALL_STANDARD s
 static VOID beforeSetMemPolicy(ADDRINT mode, ADDRINT nodemask,ADDRINT maxnode,THREADID threadid)
 {
 	if (getGlobalOptions().outputSilent)
-		printf("NUMAPROF: Intercept thread set mem policy!\n");
+		fprintf(stderr,"NUMAPROF: Intercept thread set mem policy!\n");
 
 	getTls(threadid).tracker->onSetMemPolicy(mode,(const unsigned long*)nodemask,maxnode);
 }
@@ -536,7 +536,7 @@ static VOID instrImageMalloc(IMG img, VOID *v)
 	if (RTN_Valid(mallocRtn))
 	{
 		if (!getGlobalOptions().outputSilent)
-			printf("NUMAPROF: instr malloc from %s\n",IMG_Name(img).c_str());
+			fprintf(stderr,"NUMAPROF: instr malloc from %s\n",IMG_Name(img).c_str());
 		RTN_Open(mallocRtn);
 		
 		// Instrument malloc() to print the input argument value and the return value.
