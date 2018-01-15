@@ -56,6 +56,10 @@ ThreadTracker * ProcessTracker::createThreadTracker(int threadId)
 	else
 		ret = it->second;
 	
+	//debug
+	if (getGlobalOptions().outputSilent == false)
+		printf("NUMAPROF: register thread %d\n",ret->getTID());
+	
 	//unlock
 	mutex.unlock();
 
@@ -136,15 +140,31 @@ void ProcessTracker::onMunmap(size_t baseAddr,size_t size)
 void ProcessTracker::onThreadSetAffinity(int pid,cpu_set_t * mask, int size)
 {
 	bool found = false;
-	mutex.lock();
-	for (ThreadTrackerMap::iterator it = threads.begin() ; it != threads.end() ; ++it)
-		if (it->second->getTID() == pid)
-		{
-			found = true;
-			it->second->onSetAffinity(mask,size);
-			break;
-		}
-	mutex.unlock();
+	int retry = 0;
+	
+	//ok sometime if seams to be called before the other thread is registered
+	//so we make several tries before really failing and ignore
+	while(found == false && retry < 10)
+	{
+		mutex.lock();
+		for (ThreadTrackerMap::iterator it = threads.begin() ; it != threads.end() ; ++it)
+			if (it->second->getTID() == pid)
+			{
+				found = true;
+				it->second->onSetAffinity(mask,size);
+				break;
+			}
+		mutex.unlock();
+		
+		//not found to retry
+		if (found == false)
+			usleep(500);
+		retry++;
+	}
+	
+	//info
+	if (!getGlobalOptions().outputSilent && retry > 1)
+		printf("NUMAPROF: had to retry (%d) to find thread\n",retry);
 
 	//error
 	if (found == false)
