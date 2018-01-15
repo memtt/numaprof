@@ -293,7 +293,7 @@ static VOID beforeSchedSetAffinity(ADDRINT pid, ADDRINT size,ADDRINT mask,THREAD
 	{
 		getTls(threadid).tracker->onSetAffinity((cpu_set_t*)mask,size);
 	} else {
-		if (getGlobalOptions().outputSilent)
+		if (getGlobalOptions().outputSilent == false)
 			printf("NUMAPROF: set affinity of remote thread\n");
 		gblProcessTracker->onThreadSetAffinity(pid,(cpu_set_t*)mask,size);
 	}
