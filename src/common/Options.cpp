@@ -33,7 +33,7 @@ Options::Options(void)
 	this->outputIndent            = true;
 	this->outputJson              = true;
 	this->outputDumpConfig        = false;
-	this->outputSilent            = false;
+	this->outputSilent            = true;
 	this->outputRemoveSmall       = false;
 	this->outputRemoveRatio       = 0.5;
 	//core
