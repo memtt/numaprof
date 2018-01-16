@@ -25,3 +25,4 @@ Biblio
  * http://www.dynamorio.org/
  * https://github.com/wapiflapi/villoc/issues/3
  * http://optumsoft.com/dangers-of-using-dlsym-with-rtld_next/
+ * http://doi.acm.org/10.1145/1806651.1806667
