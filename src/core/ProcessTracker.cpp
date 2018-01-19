@@ -144,7 +144,7 @@ void ProcessTracker::onThreadSetAffinity(int pid,cpu_set_t * mask, int size)
 	
 	//ok sometime if seams to be called before the other thread is registered
 	//so we make several tries before really failing and ignore
-	while(found == false && retry < 10)
+	while(found == false && retry < 200)
 	{
 		mutex.lock();
 		for (ThreadTrackerMap::iterator it = threads.begin() ; it != threads.end() ; ++it)
