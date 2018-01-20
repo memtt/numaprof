@@ -16,7 +16,7 @@
 #include <cstdlib>
 #include <map>
 #include "Stack.hpp"
-#include "../../extern-deps/from-htopml/json/ConvertToJson.h"
+#include "../../../extern-deps/from-htopml/json/ConvertToJson.h"
 
 /*******************  NAMESPACE  ********************/
 namespace numaprof

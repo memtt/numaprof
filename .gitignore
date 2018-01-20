@@ -1,9 +1,9 @@
-build
+build*
 *.pyc
 package-lock.json
-webview/node_modules/
-webview/deps/
-webview/bower_components/
+src/webview/node_modules/
+src/webview/deps/
+src/webview/bower_components/
 .kdev4
 *.kdev4
 .vscode

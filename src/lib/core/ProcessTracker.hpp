@@ -16,8 +16,8 @@
 #include "../portability/NumaTopo.hpp"
 #include "../portability/Clock.hpp"
 #include "Stats.hpp"
-#include "../../extern-deps/from-htopml/json/ConvertToJson.h"
-#include "../../extern-deps/from-malt-v2/SymbolRegistry.hpp"
+#include "../../../extern-deps/from-htopml/json/ConvertToJson.h"
+#include "../../../extern-deps/from-malt-v2/SymbolRegistry.hpp"
 
 /*******************  NAMESPACE  ********************/
 namespace numaprof

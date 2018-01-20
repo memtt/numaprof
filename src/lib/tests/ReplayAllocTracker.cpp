@@ -10,8 +10,8 @@
 #include <gtest/gtest.h>
 #include <cstdlib>
 #include <cstdio>
-#include "../src/core/PageTable.hpp"
-#include "../src/core/MallocTracker.hpp"
+#include "../core/PageTable.hpp"
+#include "../core/MallocTracker.hpp"
 
 /***************** USING NAMESPACE ******************/
 using namespace numaprof;

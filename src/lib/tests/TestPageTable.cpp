@@ -8,7 +8,7 @@
 
 /********************  HEADERS  *********************/
 #include <gtest/gtest.h>
-#include "../src/core/PageTable.hpp"
+#include "../core/PageTable.hpp"
 
 /***************** USING NAMESPACE ******************/
 using namespace numaprof;

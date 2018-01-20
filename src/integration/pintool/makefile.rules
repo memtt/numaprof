@@ -1,10 +1,8 @@
 TOOL_ROOTS := libnumaprof-pintool
 
-HWLOC_PREFIX=$(HOME)/usr
-
 CST_SRC=$(SRCDIR)/../..
 CST_BUILD=$(CST_SRC)/build
-CST_CFLAGS=-I$(CST_SRC)/src -I$(CST_BUILD)/src -DUSE_PIN_LOCKS -I$(CST_SRC)/extern-deps/from-numactl $(CST_DEBUG_FLAGS)
+CST_CFLAGS=-I$(CST_SRC)/lib -I$(CST_BUILD)/lib -DUSE_PIN_LOCKS -I$(CST_SRC)/extern-deps/from-numactl $(CST_DEBUG_FLAGS)
 #CST_LSFLAGS=-Wl,-rpath=$(CST_BUILD)/src $(CST_BUILD)/src/libnumaprof.so 
 NUMAPROF_TOOL_CXXFLAGS=$(TOOL_CXXFLAGS)
 #NUMAPROF_TOOL_CXXFLAGS=$(TOOL_CXXFLAGS_NOOPT)
@@ -39,73 +37,73 @@ OBJS=$(OBJDIR)numaprof-debug$(OBJ_SUFFIX)\
 $(OBJDIR)libnumaprof-pintool$(OBJ_SUFFIX): $(SRCDIR)/numaprof.cpp 
 	$(CXX) $(NUMAPROF_TOOL_CXXFLAGS) $(COMP_OBJ)$@ $< $(CST_CFLAGS)
 
-$(OBJDIR)iniparser-dictionary$(OBJ_SUFFIX): $(SRCDIR)/../../extern-deps/iniparser/src/dictionary.c
+$(OBJDIR)iniparser-dictionary$(OBJ_SUFFIX): $(SRCDIR)/../../../extern-deps/iniparser/src/dictionary.c
 	$(CC) $(NUMAPROF_TOOL_CFLAGS) $(COMP_OBJ)$@ $< $(CST_CFLAGS)
 
-$(OBJDIR)iniparser-iniparser$(OBJ_SUFFIX): $(SRCDIR)/../../extern-deps/iniparser/src/iniparser.c 
+$(OBJDIR)iniparser-iniparser$(OBJ_SUFFIX): $(SRCDIR)/../../../extern-deps/iniparser/src/iniparser.c 
 	$(CC) $(NUMAPROF_TOOL_CFLAGS) $(COMP_OBJ)$@ $< $(CST_CFLAGS)
 
-$(OBJDIR)numaprof-options$(OBJ_SUFFIX): $(SRCDIR)/../../src/common/Options.cpp 
+$(OBJDIR)numaprof-options$(OBJ_SUFFIX): $(SRCDIR)/../../lib/common/Options.cpp 
 	$(CXX) $(NUMAPROF_TOOL_CXXFLAGS) $(COMP_OBJ)$@ $< $(CST_CFLAGS)
 
-$(OBJDIR)numaprof-formatted-message$(OBJ_SUFFIX): $(SRCDIR)/../../src/common/FormattedMessage.cpp 
+$(OBJDIR)numaprof-formatted-message$(OBJ_SUFFIX): $(SRCDIR)/../../lib/common/FormattedMessage.cpp 
 	$(CXX) $(NUMAPROF_TOOL_CXXFLAGS) $(COMP_OBJ)$@ $< $(CST_CFLAGS)
 
-$(OBJDIR)numaprof-debug$(OBJ_SUFFIX): $(SRCDIR)/../../src/common/Debug.cpp 
+$(OBJDIR)numaprof-debug$(OBJ_SUFFIX): $(SRCDIR)/../../lib/common/Debug.cpp 
 	$(CXX) $(NUMAPROF_TOOL_CXXFLAGS) $(COMP_OBJ)$@ $< $(CST_CFLAGS)
 
-$(OBJDIR)numaprof-page-table$(OBJ_SUFFIX): $(SRCDIR)/../../src/core/PageTable.cpp 
+$(OBJDIR)numaprof-page-table$(OBJ_SUFFIX): $(SRCDIR)/../../lib/core/PageTable.cpp 
 	$(CXX) $(NUMAPROF_TOOL_CXXFLAGS) $(COMP_OBJ)$@ $< $(CST_CFLAGS)
 	
-$(OBJDIR)numaprof-stack$(OBJ_SUFFIX): $(SRCDIR)/../../src/core/Stack.cpp 
+$(OBJDIR)numaprof-stack$(OBJ_SUFFIX): $(SRCDIR)/../../lib/core/Stack.cpp 
 	$(CXX) $(NUMAPROF_TOOL_CXXFLAGS) $(COMP_OBJ)$@ $< $(CST_CFLAGS)
 
-$(OBJDIR)numaprof-access-matrix$(OBJ_SUFFIX): $(SRCDIR)/../../src/core/AccessMatrix.cpp 
+$(OBJDIR)numaprof-access-matrix$(OBJ_SUFFIX): $(SRCDIR)/../../lib/core/AccessMatrix.cpp 
 	$(CXX) $(NUMAPROF_TOOL_CXXFLAGS) $(COMP_OBJ)$@ $< $(CST_CFLAGS)
 
-$(OBJDIR)numaprof-helper$(OBJ_SUFFIX): $(SRCDIR)/../../src/common/Helper.cpp 
+$(OBJDIR)numaprof-helper$(OBJ_SUFFIX): $(SRCDIR)/../../lib/common/Helper.cpp 
 	$(CXX) $(NUMAPROF_TOOL_CXXFLAGS) $(COMP_OBJ)$@ $< $(CST_CFLAGS)
 
-$(OBJDIR)numaprof-process-tracker$(OBJ_SUFFIX): $(SRCDIR)/../../src/core/ProcessTracker.cpp 
+$(OBJDIR)numaprof-process-tracker$(OBJ_SUFFIX): $(SRCDIR)/../../lib/core/ProcessTracker.cpp 
 	$(CXX) $(NUMAPROF_TOOL_CXXFLAGS) $(COMP_OBJ)$@ $< $(CST_CFLAGS)
 
-$(OBJDIR)numaprof-thread-tracker$(OBJ_SUFFIX): $(SRCDIR)/../../src/core/ThreadTracker.cpp 
+$(OBJDIR)numaprof-thread-tracker$(OBJ_SUFFIX): $(SRCDIR)/../../lib/core/ThreadTracker.cpp 
 	$(CXX) $(NUMAPROF_TOOL_CXXFLAGS) $(COMP_OBJ)$@ $< $(CST_CFLAGS)
 
-$(OBJDIR)numaprof-clock$(OBJ_SUFFIX): $(SRCDIR)/../../src/portability/Clock.cpp 
+$(OBJDIR)numaprof-clock$(OBJ_SUFFIX): $(SRCDIR)/../../lib/portability/Clock.cpp 
 	$(CXX) $(NUMAPROF_TOOL_CXXFLAGS) $(COMP_OBJ)$@ $< $(CST_CFLAGS)
 
-$(OBJDIR)numaprof-numa-topo$(OBJ_SUFFIX): $(SRCDIR)/../../src/portability/NumaTopo.cpp 
+$(OBJDIR)numaprof-numa-topo$(OBJ_SUFFIX): $(SRCDIR)/../../lib/portability/NumaTopo.cpp 
 	$(CXX) $(NUMAPROF_TOOL_CXXFLAGS) $(COMP_OBJ)$@ $< $(CST_CFLAGS)
 	
-$(OBJDIR)numaprof-os$(OBJ_SUFFIX): $(SRCDIR)/../../src/portability/OS.cpp 
+$(OBJDIR)numaprof-os$(OBJ_SUFFIX): $(SRCDIR)/../../lib/portability/OS.cpp 
 	$(CXX) $(NUMAPROF_TOOL_CXXFLAGS) $(COMP_OBJ)$@ $< $(CST_CFLAGS)
 	
-$(OBJDIR)numaprof-stats$(OBJ_SUFFIX): $(SRCDIR)/../../src/core/Stats.cpp 
+$(OBJDIR)numaprof-stats$(OBJ_SUFFIX): $(SRCDIR)/../../lib/core/Stats.cpp 
 	$(CXX) $(NUMAPROF_TOOL_CXXFLAGS) $(COMP_OBJ)$@ $< $(CST_CFLAGS)
 
-$(OBJDIR)numaprof-malloc-tracker$(OBJ_SUFFIX): $(SRCDIR)/../../src/core/MallocTracker.cpp 
+$(OBJDIR)numaprof-malloc-tracker$(OBJ_SUFFIX): $(SRCDIR)/../../lib/core/MallocTracker.cpp 
 	$(CXX) $(NUMAPROF_TOOL_CXXFLAGS) $(COMP_OBJ)$@ $< $(CST_CFLAGS)
 
-$(OBJDIR)numaprof-move-pages$(OBJ_SUFFIX): $(SRCDIR)/../../extern-deps/from-numactl/MovePages.cpp 
+$(OBJDIR)numaprof-move-pages$(OBJ_SUFFIX): $(SRCDIR)/../../../extern-deps/from-numactl/MovePages.cpp 
 	$(CXX) $(NUMAPROF_TOOL_CXXFLAGS) $(COMP_OBJ)$@ $< $(CST_CFLAGS)
 
-$(OBJDIR)numaprof-json-state$(OBJ_SUFFIX): $(SRCDIR)/../../extern-deps/from-htopml/json/JsonState.cpp 
+$(OBJDIR)numaprof-json-state$(OBJ_SUFFIX): $(SRCDIR)/../../../extern-deps/from-htopml/json/JsonState.cpp 
 	$(CXX) $(NUMAPROF_TOOL_CXXFLAGS) $(COMP_OBJ)$@ $< $(CST_CFLAGS)
 
-$(OBJDIR)numaprof-json-convert$(OBJ_SUFFIX): $(SRCDIR)/../../extern-deps/from-htopml/json/ConvertToJson.cpp 
+$(OBJDIR)numaprof-json-convert$(OBJ_SUFFIX): $(SRCDIR)/../../../extern-deps/from-htopml/json/ConvertToJson.cpp 
 	$(CXX) $(NUMAPROF_TOOL_CXXFLAGS) $(COMP_OBJ)$@ $< $(CST_CFLAGS)
 
-$(OBJDIR)numaprof-malt-debug$(OBJ_SUFFIX): $(SRCDIR)/../../extern-deps/from-malt-v2/Debug.cpp 
+$(OBJDIR)numaprof-malt-debug$(OBJ_SUFFIX): $(SRCDIR)/../../../extern-deps/from-malt-v2/Debug.cpp 
 	$(CXX) $(NUMAPROF_TOOL_CXXFLAGS) $(COMP_OBJ)$@ $< $(CST_CFLAGS)
 
-$(OBJDIR)numaprof-malt-formatted-message$(OBJ_SUFFIX): $(SRCDIR)/../../extern-deps/from-malt-v2/FormattedMessage.cpp 
+$(OBJDIR)numaprof-malt-formatted-message$(OBJ_SUFFIX): $(SRCDIR)/../../../extern-deps/from-malt-v2/FormattedMessage.cpp 
 	$(CXX) $(NUMAPROF_TOOL_CXXFLAGS) $(COMP_OBJ)$@ $< $(CST_CFLAGS)
 
-$(OBJDIR)numaprof-malt-linux-proc-map$(OBJ_SUFFIX): $(SRCDIR)/../../extern-deps/from-malt-v2/LinuxProcMapReader.cpp 
+$(OBJDIR)numaprof-malt-linux-proc-map$(OBJ_SUFFIX): $(SRCDIR)/../../../extern-deps/from-malt-v2/LinuxProcMapReader.cpp 
 	$(CXX) $(NUMAPROF_TOOL_CXXFLAGS) $(COMP_OBJ)$@ $< $(CST_CFLAGS)
 
-$(OBJDIR)numaprof-malt-symbol-registry$(OBJ_SUFFIX): $(SRCDIR)/../../extern-deps/from-malt-v2/SymbolRegistry.cpp 
+$(OBJDIR)numaprof-malt-symbol-registry$(OBJ_SUFFIX): $(SRCDIR)/../../../extern-deps/from-malt-v2/SymbolRegistry.cpp 
 	$(CXX) $(NUMAPROF_TOOL_CXXFLAGS) $(COMP_OBJ)$@ $< $(CST_CFLAGS)
 
 # Build the tool as a dll (shared object).

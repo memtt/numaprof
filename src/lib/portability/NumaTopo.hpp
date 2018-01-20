@@ -14,7 +14,7 @@
 #include <list>
 #include <sys/types.h>
 #include "OS.hpp"
-#include "../../extern-deps/from-htopml/json/ConvertToJson.h"
+#include "../../../extern-deps/from-htopml/json/ConvertToJson.h"
 
 /*******************  NAMESPACE  ********************/
 namespace numaprof

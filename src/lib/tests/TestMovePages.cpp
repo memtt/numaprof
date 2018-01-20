@@ -8,7 +8,7 @@
 
 /********************  HEADERS  *********************/
 #include <gtest/gtest.h>
-#include "../src/portability/OS.hpp"
+#include "../portability/OS.hpp"
 #include <cstring>
 
 /***************** USING NAMESPACE ******************/

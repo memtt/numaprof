@@ -44,10 +44,4 @@ include_directories(${HWLOC_INCLUDE_DIRS})
 ######################################################
 add_subdirectory(src)
 add_subdirectory(extern-deps)
-add_subdirectory(tests)
-add_subdirectory(manpages)
-add_subdirectory(testcase)
-add_subdirectory(integration)
-if (ENABLE_WEBVIEW)
-	add_subdirectory(webview)
-endif (ENABLE_WEBVIEW)
+

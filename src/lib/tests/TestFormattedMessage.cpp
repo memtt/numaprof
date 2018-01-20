@@ -9,8 +9,8 @@
 /********************  HEADERS  *********************/
 #include <cerrno>
 #include <gtest/gtest.h>
-#include "../src/common/FormattedMessage.hpp"
-#include "../src/common/Debug.hpp"
+#include "../common/FormattedMessage.hpp"
+#include "../common/Debug.hpp"
 
 /***************** USING NAMESPACE ******************/
 using namespace numaprof;

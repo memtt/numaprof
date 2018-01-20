@@ -13,7 +13,7 @@
 //internals
 #include "Debug.hpp"
 #include "Options.hpp"
-#include "../../extern-deps/from-htopml/json/ConvertToJson.h"
+#include "../../../extern-deps/from-htopml/json/ConvertToJson.h"
 
 /*******************  NAMESPACE  ********************/
 namespace numaprof 

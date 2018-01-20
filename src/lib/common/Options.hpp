@@ -17,7 +17,7 @@
 /********************  HEADERS  *********************/
 //iniparser
 extern "C" {
-#include "../../extern-deps/iniparser/src/iniparser.h"
+#include "../../../extern-deps/iniparser/src/iniparser.h"
 }
 
 /*********************  TYPES  **********************/

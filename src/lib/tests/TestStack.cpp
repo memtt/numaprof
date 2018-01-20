@@ -9,8 +9,8 @@
 /********************  HEADERS  *********************/
 #include <gtest/gtest.h>
 #include <sstream>
-#include "../src/core/Stack.hpp"
-#include "../extern-deps/from-htopml/json/ConvertToJson.h"
+#include "../core/Stack.hpp"
+#include "../../extern-deps/from-htopml/json/ConvertToJson.h"
 
 /***************** USING NAMESPACE ******************/
 using namespace numaprof;

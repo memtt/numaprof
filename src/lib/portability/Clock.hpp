@@ -10,7 +10,7 @@
 #define CLOCK_HPP
 
 /********************  HEADERS  *********************/
-#include "../../extern-deps/from-fftw/cycle.h"
+#include "../../../extern-deps/from-fftw/cycle.h"
 
 /*******************  NAMESPACE  ********************/
 namespace numaprof

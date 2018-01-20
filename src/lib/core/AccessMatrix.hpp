@@ -11,7 +11,7 @@
 
 /*******************  HEADERS  **********************/
 #include <cassert>
-#include "../../extern-deps/from-htopml/json/ConvertToJson.h"
+#include "../../../extern-deps/from-htopml/json/ConvertToJson.h"
 
 /*******************  NAMESPACE  ********************/
 namespace numaprof
