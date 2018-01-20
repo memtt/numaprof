@@ -15,12 +15,26 @@ namespace numaprof
 {
 
 /*******************  FUNCTION  *********************/
+/**
+ * Constructor og the tracker.
+ * @param pageTable Pointer to the page table to register allocation regerences.
+**/
 MallocTracker::MallocTracker(PageTable * pageTable)
 {
 	this->pageTable = pageTable;
 }
 
 /*******************  FUNCTION  *********************/
+/**
+ * To be called by thread to register the allocation into the page table
+ * and point the instruction site corresponding the malloc site.
+ * Remark, we store an instruction map on every thread, this increase
+ * the memory usage but avoid locking. The instructino map are
+ * merged into the process tracker at the end of the execution.
+ * @param ip Instruction of call stack defining the malloc call site.
+ * @param ptr Address of the allocated segement
+ * @param size size of the allocated segement.
+**/
 void MallocTracker::onAlloc(StackIp & ip,size_t ptr, size_t size)
 {
 	//printf("On alloc : (%p) %p => %lu\n",(void*)ip,(void*)ptr,size);
@@ -42,6 +56,12 @@ void MallocTracker::onAlloc(StackIp & ip,size_t ptr, size_t size)
 }
 
 /*******************  FUNCTION  *********************/
+/**
+ * To be called when allocated segments are freed by the application.
+ * It unregister the segement from the page table and free the temporary
+ * structure.
+ * @param ptr Pointer of the allocation.
+**/
 void MallocTracker::onFree(size_t ptr)
 {
 	//trivial
@@ -69,6 +89,10 @@ void MallocTracker::onFree(size_t ptr)
 }
 
 /*******************  FUNCTION  *********************/
+/**
+ * At the end of the program execution dump the per thread
+ * counters into the global process one.
+**/
 void MallocTracker::flush(class ProcessTracker * process)
 {
 	process->mergeAllocInstruction(instructions);

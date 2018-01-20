@@ -18,17 +18,36 @@ namespace numaprof
 {
 
 /*********************  STRUCT  *********************/
+/**
+ * Track access from each thead NUMA node to each memory NUMA node.
+**/
 class AccessMatrix
 {
 	public:
 		AccessMatrix(int numaNodes);
 		~AccessMatrix(void);
 		void merge(AccessMatrix & value);
-		void access(int threadNumaNode,int pageNumaNode) {assert(threadNumaNode >= -1 && threadNumaNode < numaNodes); assert(pageNumaNode >= 0 && pageNumaNode < numaNodes); matrix[threadNumaNode+1][pageNumaNode]++;};
+		void access(int threadNumaNode,int pageNumaNode);
 		friend void convertToJson(htopml::JsonState& json, const AccessMatrix& value);
 	private:
+		/** Matrix to store counters **/
 		size_t ** matrix;
+		/** Number of numa nodes **/
 		int numaNodes;
+};
+
+/*******************  FUNCTION  *********************/
+/**
+ * Inrement counter for the current access from given thread NUMA node
+ * to target memory NUMA node.
+ * @param threadNumaNode Define the source of the access, -1 if the thread is not binded.
+ * @param pageNumaNode Define the NUMA node of the accesses memory page.
+**/
+inline void AccessMatrix::access(int threadNumaNode,int pageNumaNode) 
+{
+	assert(threadNumaNode >= -1 && threadNumaNode < numaNodes); 
+	assert(pageNumaNode >= 0 && pageNumaNode < numaNodes); 
+	matrix[threadNumaNode+1][pageNumaNode]++;
 };
 
 }

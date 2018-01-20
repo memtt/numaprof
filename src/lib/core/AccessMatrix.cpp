@@ -16,6 +16,12 @@ namespace numaprof
 {
 
 /*******************  FUNCTION  *********************/
+/**
+ * Constructor of the access matrix, it mostly allocate the matrix
+ * memory.
+ * @param numaNodes Number of numa nodes to consider for memory allocation
+ * and access checking.
+**/
 AccessMatrix::AccessMatrix(int numaNodes)
 {
 	assert(numaNodes > 0);
@@ -30,6 +36,9 @@ AccessMatrix::AccessMatrix(int numaNodes)
 }
 
 /*******************  FUNCTION  *********************/
+/**
+ * Destructor of the matrix. Free the memory.
+**/
 AccessMatrix::~AccessMatrix(void)
 {
 	for (int i = 0 ; i < numaNodes+1 ; i++)
@@ -39,6 +48,11 @@ AccessMatrix::~AccessMatrix(void)
 }
 
 /*******************  FUNCTION  *********************/
+/**
+ * Merge two access matrixes, mostly used to get the process access matrix
+ * from all the per thread access matrix.
+ * @param value Define the matrix to merge on the current one.
+**/
 void AccessMatrix::merge(AccessMatrix & value)
 {
 	//check
@@ -51,6 +65,11 @@ void AccessMatrix::merge(AccessMatrix & value)
 }
 
 /*******************  FUNCTION  *********************/
+/**
+ * Consvert the access matrix into json format.
+ * @param json Define the json obect to use for the conversion.
+ * @param value Define the access matrix to convert.
+**/
 void convertToJson(htopml::JsonState& json, const AccessMatrix& value)
 {
 	json.openStruct();
