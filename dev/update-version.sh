@@ -22,6 +22,7 @@ function extract_old_version()
 {
 	OLD_VERSION=$(cat configure | grep VERSION | xargs echo | cut -d " " -f 4)
 	echo "Old version is ${OLD_VERSION}"
+	OLD_VERSION_SAFE=$(echo $OLD_VERSION | sed -e "s/\\./\\\\./g")
 }
 
 ######################################################
@@ -49,6 +50,7 @@ version="$1"
 newdate="DATE     : $(date +%m/%Y)"
 V="VERSION"
 newversion="$V  : $(printf "%-16s" "$version")"
+versionStrict=$(echo $version | cut -f 1 -d -)
 
 ######################################################
 extract_old_version
@@ -75,10 +77,21 @@ do
 done
 
 ######################################################
+#manpages
+for tmp in src/manpages/*.ronn
+do
+	sed -i -r -e "s/${OLD_VERSION_SAFE}/${version}/g" $tmp
+done
+cur=$PWD
+cd src/manpages/
+make || exit 1
+cd $cur
+
+######################################################
 #update bower and package
 sed -i -r -e "s/^version=[0-9A-Za-z.-]+$/version=${version}/g" dev/gen-archive.sh
-sed -i -r -e "s/^PROJECT_NUMBER         = ${OLD_VERSION}$/PROJECT_NUMBER         = ${version}/g" Doxyfile
-sed -i -r -e "s/^#define DAQPIPE_VERSION \"[0-9A-Za-z.-]+\"$/#define DAQPIPE_VERSION \"${version}\"/g" src/config.h.in
+sed -i -r -e "s/^PROJECT_NUMBER         = ${OLD_VERSION_SAFE}$/PROJECT_NUMBER         = ${version}/g" Doxyfile
+sed -i -r -e "s/${OLD_VERSION_SAFE}/${versionStrict}/g" src/lib/CMakeLists.txt
 #sed -i -r -e "s/${OLD_VERSION}/${version}/g" packaging/README.md
 #sed -i -r -e "s/${OLD_VERSION}/${version}/g" dev/packaging.sh
 #sed -i -r -e "s/${OLD_VERSION}/${version}/g" packaging/fedora/malt.spec
@@ -87,5 +100,5 @@ sed -i -r -e "s/^#define DAQPIPE_VERSION \"[0-9A-Za-z.-]+\"$/#define DAQPIPE_VER
 ######################################################
 #serach not updated
 echo "=================== Check not updated list ======================"
-grep -RHn "$(echo "${OLD_VERSION}" | sed -e 's/\./\\./g')" ./ | grep -v node_modules | grep -v extern-deps | grep -v "\.git" | grep -v bower_components | grep "${OLD_VERSION}"
+grep -RHn "$(echo "${OLD_VERSION}" | sed -e 's/\./\\./g')" ./ | grep -v node_modules | grep -v extern-deps | grep -v "\.git" | grep -v bower_components | grep -v deps | grep "${OLD_VERSION}"
 echo "================================================================="
