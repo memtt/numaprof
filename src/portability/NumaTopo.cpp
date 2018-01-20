@@ -1,6 +1,6 @@
 /*****************************************************
              PROJECT  : numaprof
-             VERSION  : 2.3.0
+             VERSION  : 0.0.0-dev
              DATE     : 05/2017
              AUTHOR   : Valat Sébastien - CERN
              LICENSE  : CeCILL-C
@@ -97,7 +97,17 @@ void NumaTopo::loadCpuNb()
 
 	//debug
 	if (!getGlobalOptions().outputSilent)
-		printf("NUMAPROF: Get cpu number : %d\n",cpus);
+		fprintf(stderr,"NUMAPROF: Get cpu number : %d\n",cpus);
+}
+
+/*******************  FUNCTION  *********************/
+int NumaTopo::getDistanceMax(void) const
+{
+	int max = 0;
+	for (int i = 0 ; i < numaNodes * numaNodes ; i++)
+		if (distanceMap[i] > max)
+			max = distanceMap[i];
+	return max;
 }
 
 /*******************  FUNCTION  *********************/
@@ -227,7 +237,7 @@ void NumaTopo::loadNumaMap(void)
 	{
 		if (numaMap[i] == -1)
 		{
-			printf("NUMAPROF: Caution, CPU %d was not assigned to a NUMA node, assigned to 0 !\n",i);
+			fprintf(stderr,"NUMAPROF: Caution, CPU %d was not assigned to a NUMA node, assigned to 0 !\n",i);
 			numaMap[i] = 0;
 		}
 	}
@@ -273,7 +283,7 @@ int NumaTopo::getCurrentNumaAffinity(cpu_set_t * mask, int size,CpuBindList * cp
 
 	int cnt = size * 8;
 	if (!getGlobalOptions().outputSilent)
-		printf("NUMAPROF: Size = %d, ncpu = %d\n",cnt,cpus);
+		fprintf(stderr,"NUMAPROF: Size = %d, ncpu = %d\n",cnt,cpus);
 	if (cnt > cpus)
 		cnt = cpus;
 	
@@ -297,7 +307,7 @@ int NumaTopo::getCurrentNumaAffinity(cpu_set_t * mask, int size,CpuBindList * cp
 		numa = -1;
 
 	if (!getGlobalOptions().outputSilent)
-		printf("NUMAPROF: Thread is binded on NUMA %d\n",numa);
+		fprintf(stderr,"NUMAPROF: Thread is binded on NUMA %d\n",numa);
 	return numa;
 }
 
@@ -352,7 +362,7 @@ MemPolicy NumaTopo::getCurrentMemPolicy()
 		status = get_mempolicy(&policy.mode,mask,size,NULL,0);
 		if (status != 0)
 		{
-			printf("\033[31mNUMAPROF: CAUTION, get_mempolicy not implemented, you might be running on a non NUMA system !\nAll accesses will be considered local !\033[0m\n");
+			fprintf(stderr,"\033[31mNUMAPROF: CAUTION, get_mempolicy not implemented, you might be running on a non NUMA system !\nAll accesses will be considered local !\033[0m\n");
 			hasMemPolicy = false;
 		} else {
 			for (int i = 0 ; i < numaNodes ; i++)

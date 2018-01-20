@@ -1,6 +1,6 @@
 /*****************************************************
              PROJECT  : numaprof
-             VERSION  : 2.3.0
+             VERSION  : 0.0.0-dev
              DATE     : 05/2017
              AUTHOR   : Valat Sébastien - CERN
              LICENSE  : CeCILL-C
@@ -94,6 +94,7 @@ class ThreadTracker
 		size_t instructionFlush;
 		size_t allocFlush;
 		size_t cacheEntries;
+		size_t * distanceCnt;
 };
 
 /*******************  FUNCTION  *********************/

@@ -1,6 +1,6 @@
 /*****************************************************
              PROJECT  : numaprof
-             VERSION  : 2.3.0
+             VERSION  : 0.0.0-dev
              DATE     : 05/2017
              AUTHOR   : Valat Sébastien - CERN
              LICENSE  : CeCILL-C
@@ -159,7 +159,7 @@ int OS::getNumaOfPage(size_t addr)
 	} else {
 		if (errno == ENOSYS)
 		{
-			printf("\033[31mNUMAPROF: CAUTION, move_pages not implemented, you might be running on a non NUMA system !\nAll accesses will be considered local !\033[0m\n");
+			fprintf(stderr,"\033[31mNUMAPROF: CAUTION, move_pages not implemented, you might be running on a non NUMA system !\nAll accesses will be considered local !\033[0m\n");
 			hasMovePages = false;
 		}
 		return 0;

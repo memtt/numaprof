@@ -33,8 +33,12 @@ do
 			export NUMAPROF_OPTIONS="${NUMAPROF_OPTIONS},output:config=true"
 			shift 1
 			;;
+		--verbose|-V)
+			export NUMAPROF_OPTIONS="${NUMAPROF_OPTIONS},output:silent=false"
+			shift 1
+			;;
 		-h|--help)
-			echo "Usage : numaprof-pintool [--callgrind] [--config file] [--help] [--] YOUR_COMMAND"
+			echo "Usage : numaprof-pintool [--callgrind] [--config file] [--help] [OPTIONS] [--] YOUR_COMMAND"
 			echo ""
 			echo "Options:"
 			echo "   --callgrind                 Enable conversion to kcachegrind format."
@@ -42,6 +46,7 @@ do
 			#echo "           --mpi               Use MPI wrapper to get ranks in output file names."
 			#echo "           --prep-mpi [mpicxx] Build the mpi wrapper into $HOME/.matt/libmattmpi.so"
 			echo "   -d/--dumpconfig             Enable the dump of config file at exit."
+			echo "   -V/--verbose                Enable more printing for debugging."
 			echo "   -o SEC:NAME=VAL;...         Override configuration values."
 			echo "   -h/--help                   Show this help message."
 			echo ""

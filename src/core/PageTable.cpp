@@ -1,6 +1,6 @@
 /*****************************************************
              PROJECT  : numaprof
-             VERSION  : 2.3.0
+             VERSION  : 0.0.0-dev
              DATE     : 05/2017
              AUTHOR   : Valat Sébastien - CERN
              LICENSE  : CeCILL-C
@@ -262,7 +262,7 @@ void PageTable::regAllocPointerSmall(size_t baseAddr,size_t size,void * value)
 	{
 		//#ifndef NDEBUG
 			if (value != NULL && map->entries[i] != NULL)
-				printf("Invalid status, get %lu entry = %p of %p, expect NULL !\n",i,map->entries[i],map);
+				fprintf(stderr,"NUMAPROF: WARNING: Invalid status, get %lu entry = %p of %p, expect NULL !\n",i,map->entries[i],map);
 		//#endif
 		map->entries[i] = value;
 	}
@@ -277,7 +277,7 @@ void PageTable::regAllocPointer(size_t baseAddr,size_t size,void * value)
 
 	//check
 	if (baseAddr % NUMAPROF_ALLOC_GRAIN != 0)
-		numaprofWarning("WARNING : allocated bloc not aligned on grain size : %d (get %lu)\n",NUMAPROF_ALLOC_GRAIN,baseAddr % NUMAPROF_ALLOC_GRAIN);
+		numaprofWarning("WARNING : WARNING: allocated bloc not aligned on grain size : %d (get %lu)\n",NUMAPROF_ALLOC_GRAIN,baseAddr % NUMAPROF_ALLOC_GRAIN);
 	
 	//compute end
 	size_t endAddr = baseAddr + size;

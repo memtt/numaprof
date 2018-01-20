@@ -1,6 +1,6 @@
 /*****************************************************
              PROJECT  : numaprof
-             VERSION  : 2.3.0
+             VERSION  : 0.0.0-dev
              DATE     : 05/2017
              AUTHOR   : Valat Sébastien - CERN
              LICENSE  : CeCILL-C
@@ -54,6 +54,8 @@ class NumaTopo
 		int getNumaNodes(void);
 		MemPolicy getCurrentMemPolicy(void);
 		void staticComputeBindType(MemPolicy & policy);
+		int getDistance(int source,int dest) const;
+		int getDistanceMax(void) const;
 	private:
 		void loadCpuNb(void);
 		void loadNumaMap(void);
@@ -69,6 +71,17 @@ class NumaTopo
 
 /*******************  FUNCTION  *********************/
 const char * getMemBindTypeName(MemBindType type);
+
+/*******************  FUNCTION  *********************/
+inline int NumaTopo::getDistance(int source,int dest) const
+{
+	//check
+	assert(source < numaNodes);
+	assert(dest < numaNodes);
+	
+	//get
+	return distanceMap[source*numaNodes+dest];
+}
 
 }
 

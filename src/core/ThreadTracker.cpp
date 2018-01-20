@@ -1,6 +1,6 @@
 /*****************************************************
              PROJECT  : numaprof
-             VERSION  : 2.3.0
+             VERSION  : 0.0.0-dev
              DATE     : 05/2017
              AUTHOR   : Valat Sébastien - CERN
              LICENSE  : CeCILL-C
@@ -39,10 +39,14 @@ ThreadTracker::ThreadTracker(ProcessTracker * process)
 	logBinding(memPolicy);
 	logBinding(this->numa);
 	
+	//allocate and initial
+	this->distanceCnt = new size_t[topo->getDistanceMax()+2];
+	memset(distanceCnt,0,sizeof(size_t)*(topo->getDistanceMax()+2));
+	
 	if (!getGlobalOptions().outputSilent)
 	{
-		printf("NUMAPROF: Numa initial mapping : %d\n",numa);
-		printf("NUMAPROF: Numa initial mem mapping : %s\n",getMemBindTypeName(memPolicy.type));
+		fprintf(stderr,"NUMAPROF: Numa initial mapping : %d\n",numa);
+		fprintf(stderr,"NUMAPROF: Numa initial mem mapping : %s\n",getMemBindTypeName(memPolicy.type));
 	}
 	
 	int numaNodes = topo->getNumaNodes();
@@ -206,7 +210,10 @@ void ThreadTracker::onAccess(size_t ip,size_t addr,bool write)
 	
 	//acces matrix
 	if (pageNode >= 0)
+	{
 		accessMatrix.access(numa,pageNode);
+		distanceCnt[topo->getDistance(numa,pageNode)+1]++;
+	}
 
 	//get malloc relation
 	MallocInfos * allocInfos = (MallocInfos *)page.getAllocPointer(addr);
@@ -286,7 +293,7 @@ void ThreadTracker::onAccess(size_t ip,size_t addr,bool write)
 	if (instructions.size() >= cacheEntries)
 	{
 		if (instructionFlush++ == 10000)
-			printf("NUMAPROF: Caution, flushing instruction a lot of time, maybe you need to increase flush threshold, current is %ld, see core:threadCacheSize !\n",cacheEntries);
+			fprintf(stderr,"NUMAPROF: Caution, flushing instruction a lot of time, maybe you need to increase flush threshold, current is %ld, see core:threadCacheSize !\n",cacheEntries);
 		this->process->mergeInstruction(instructions);
 		instructions.clear();
 	}
@@ -295,7 +302,7 @@ void ThreadTracker::onAccess(size_t ip,size_t addr,bool write)
 	if (allocCache.size() >= cacheEntries)
 	{
 		if (allocFlush++ == 10000)
-			printf("NUMAPROF: Caution, flushing allocs a lot of time, maybe you need to increase flush threshold, current is %ld, see core:threadCacheSize !\n",cacheEntries);
+			fprintf(stderr,"NUMAPROF: Caution, flushing allocs a lot of time, maybe you need to increase flush threshold, current is %ld, see core:threadCacheSize !\n",cacheEntries);
 		for (AllocCacheMap::iterator it = allocCache.begin() ; it != allocCache.end() ; ++it)
 			(it->first)->merge(it->second);
 		allocCache.clear();
@@ -410,6 +417,7 @@ void convertToJson(htopml::JsonState& json, const ThreadTracker& value)
 		json.printField("memPolicy",value.memPolicy);
 		json.printField("binding",value.cpuBindList);
 		json.printField("accessMatrix",value.accessMatrix);
+		json.printFieldArray("distanceCnt",value.distanceCnt,value.topo->getDistanceMax()+2);
 		json.printField("bindingLog",value.bindingLog);
 		json.printField("memPolicyLog",value.memPolicyLog);
 		json.printField("clockStart",value.clockStart);

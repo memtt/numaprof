@@ -18,8 +18,6 @@ function setupNumaPageStats(data)
 	for (var i in data)
 		formattedData[0].values.push({x:i,y:data[i]});
 
-	console.log(formattedData);
-	
 	//plot
 	nv.addGraph(function() {
 		var chart = nv.models.multiBarChart()
@@ -37,6 +35,44 @@ function setupNumaPageStats(data)
 		// 		.tickFormat(d3.format(',.1f'));
 
 		d3.select('#peakNumaPages svg')
+			.datum(formattedData)
+			.call(chart);
+
+		nv.utils.windowResize(chart.update);
+
+		return chart;
+	});
+}
+
+/*******************  FUNCTION  *********************/
+function setupDistanceCnt(data)
+{
+	//reformat data
+	var formattedData = [{
+		key: "Distance statistiques",
+		values: []
+    }];
+	
+	for (var i in data)
+		formattedData[0].values.push({x:i-1,y:data[i]});
+
+	//plot
+	nv.addGraph(function() {
+		var chart = nv.models.multiBarChart()
+			//.transitionDuration(350)
+			//.reduceXTicks(true)   //If 'false', every single x-axis tick label will be rendered.
+			//.rotateLabels(0)      //Angle to rotate x-axis labels.
+			.showControls(false)   //Allow user to switch between 'Grouped' and 'Stacked' mode.
+			//.groupSpacing(0.1)    //Distance between each group of bars.
+		;
+
+		// 	chart.xAxis
+		// 		.tickFormat(d3.format(',f'));
+		// 
+		// 	chart.yAxis
+		// 		.tickFormat(d3.format(',.1f'));
+
+		d3.select('#distanceCnt svg')
 			.datum(formattedData)
 			.call(chart);
 
@@ -305,10 +341,22 @@ function loadNumaPageStats()
 }
 
 /*******************  FUNCTION  *********************/
+function loadDistanceCnt()
+{
+	$.getJSON( "/api/index/process-distance-cnt.json", function(data) {
+		setupDistanceCnt(data);
+	})
+	.fail(function(data) {
+		numaprofHelper.logError("Fail to load process distance counters");
+	})
+}
+
+/*******************  FUNCTION  *********************/
 $(function() {
 	loadInfos();
 	loadNumaTopo();
 	loadProcessSummary();
 	loadAccessMatrix();
 	loadNumaPageStats();
+	loadDistanceCnt();
 });

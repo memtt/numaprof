@@ -1,6 +1,6 @@
 /*****************************************************
              PROJECT  : numaprof
-             VERSION  : 2.3.0
+             VERSION  : 0.0.0-dev
              DATE     : 05/2017
              AUTHOR   : Valat Sébastien - CERN
              LICENSE  : CeCILL-C
@@ -33,7 +33,7 @@ Options::Options(void)
 	this->outputIndent            = true;
 	this->outputJson              = true;
 	this->outputDumpConfig        = false;
-	this->outputSilent            = false;
+	this->outputSilent            = true;
 	this->outputRemoveSmall       = false;
 	this->outputRemoveRatio       = 0.5;
 	//core

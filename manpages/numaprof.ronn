@@ -33,6 +33,8 @@ it with debug symbols (`-g`) and also to disable inlining to get more accurate s
    See the configuration file format (INI format) to find the available sections and names.
  * `-h`, `--help`:
    Display help message with a list of available command line options.
+ * `-V`, `--verbose`
+   Enable more printing for debugging.
 
 ## GET THE GUI
 

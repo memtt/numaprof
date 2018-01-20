@@ -1,6 +1,6 @@
 /*****************************************************
              PROJECT  : numaprof
-             VERSION  : 2.3.0
+             VERSION  : 0.0.0-dev
              DATE     : 05/2017
              AUTHOR   : Valat Sébastien - CERN
              LICENSE  : CeCILL-C
@@ -12,6 +12,18 @@
 /*******************  NAMESPACE  ********************/
 namespace numaprof
 {
+
+/*******************  FUNCTION  *********************/
+static inline void addAndCheckOverflow(uint64_t & out,uint64_t in)
+{
+	uint64_t before = out;
+	uint64_t after = __sync_fetch_and_add(&out,in,__ATOMIC_RELAXED);
+	if (after < before)
+	{
+		fprintf(stderr,"NUMAPROF: counter overflow !\n");
+		abort();
+	}
+}
 
 /*******************  FUNCTION  *********************/
 Stats::Stats(void)
@@ -39,6 +51,16 @@ void Stats::merge(Stats & info)
 	__sync_fetch_and_add(&this->remoteAccess,info.remoteAccess,__ATOMIC_RELAXED);
 	__sync_fetch_and_add(&this->mcdramAccess,info.mcdramAccess,__ATOMIC_RELAXED);
 	__sync_fetch_and_add(&this->nonAlloc,info.nonAlloc,__ATOMIC_RELAXED);
+	
+	/*addAndCheckOverflow(this->firstTouch,info.firstTouch);
+	addAndCheckOverflow(this->unpinnedFirstTouch,info.unpinnedFirstTouch);
+	addAndCheckOverflow(this->unpinnedPageAccess,info.unpinnedPageAccess);
+	addAndCheckOverflow(this->unpinnedThreadAccess,info.unpinnedThreadAccess);
+	addAndCheckOverflow(this->unpinnedBothAccess,info.unpinnedBothAccess);
+	addAndCheckOverflow(this->localAccess,info.localAccess);
+	addAndCheckOverflow(this->remoteAccess,info.remoteAccess);
+	addAndCheckOverflow(this->mcdramAccess,info.mcdramAccess);
+	addAndCheckOverflow(this->nonAlloc,info.nonAlloc);*/
 }
 
 /*******************  FUNCTION  *********************/
