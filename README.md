@@ -28,7 +28,7 @@ Numaprof extract the given metrics per call site and per malloc call site :
 Install
 -------
 
-First download the last version of pintool (tested : 3.2-81205 on x86_64 arch : https://software.intel.com/en-us/articles/pin-a-binary-instrumentation-tool-downloads) and extract it somewhere.
+First download the last version of pintool (tested : 3.5 on x86_64 arch : https://software.intel.com/en-us/articles/pin-a-binary-instrumentation-tool-downloads) and extract it somewhere.
 
 Then use the configure script (for pintool mode do not use directly the cmake script, the configure script does extra things with pin):
 
