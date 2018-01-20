@@ -227,6 +227,7 @@ void ProcessTracker::onExit(void)
 		//open & dump
 		std::string fname = FormattedMessage(options.outputName).arg(OS::getExeName()).arg(OS::getPID()).arg("json").toString();
 		std::ofstream out;
+		fprintf(stderr,"NUMAPROF: Dump profile in %s\n",fname.c_str());
 		out.open(fname.c_str());
 		htopml::convertToJson(out,*this,getGlobalOptions().outputIndent);
 		out.close();
