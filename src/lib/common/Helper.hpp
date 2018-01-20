@@ -18,6 +18,9 @@ namespace numaprof
 {
 
 /*******************  STRUCT  ***********************/
+/** 
+ * Provide range management.
+**/
 struct Range
 {
 	Range(const char * value);
@@ -27,6 +30,9 @@ struct Range
 };
 
 /*******************  FUNCTION  *********************/
+/**
+ * Provide some helper function to be used in the code.
+**/
 struct Helper
 {
 	static bool extractNth(char * out,const char * value,char sep,int index);

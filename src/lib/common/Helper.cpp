@@ -18,6 +18,14 @@ namespace numaprof
 {
 
 /*******************  FUNCTION  ********************/
+/**
+ * Extract the nth sub-string considering a separator.
+ * @param out Buffer on which to write.
+ * @param value Input string to split
+ * @param sep Separator to consider.
+ * @param index Index of the sub-string to extract.
+ * @return Return true, if found the sub-string, false otherwise.
+**/
 bool Helper::extractNth(char * out,const char * value,char sep,int index)
 {
 	//search start
@@ -47,7 +55,10 @@ bool Helper::extractNth(char * out,const char * value,char sep,int index)
 }
 
 /*******************  FUNCTION  ********************/
-//extect format "0-39"
+/**
+ * Build a range from a string format (eg. 10-35).
+ * @param value Define the default value to setup. Should follow format (10-35).
+**/
 Range::Range(const char * value)
 {
 	//first value
@@ -63,9 +74,17 @@ Range::Range(const char * value)
 		end = start;
 	else
 		end = atoi(second+1);
+	
+	//check
+	numaprofAssert(end >= start);
 }
 
 /*******************  FUNCTION  ********************/
+/**
+ * Check if the range object contain the given value. The max value of range is considered
+ * inside by contain function, meaning 10-20 return true on contain(20).
+ * @param value Define the value we want to check.
+**/
 bool Range::contain(int value)
 {
 	return value >= start && value <= end;
@@ -88,6 +107,11 @@ bool Helper::endBy(const std::string & value,const std::string & what)
 }
 
 /*******************  FUNCTION  ********************/
+/**
+ * Check if a given string contain another one.
+ * @param in Define the input string.
+ * @param what Degine which string to search in.
+**/
 bool Helper::contain(const char * in, const char * what)
 {
 	return strstr(in,what) != NULL;
