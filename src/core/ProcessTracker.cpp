@@ -32,6 +32,7 @@ ProcessTracker::ProcessTracker(void)
 	int nodes = topo.getNumaNodes();
 	currentAllocatedPages.reserve(nodes);
 	maxAllocatedPages.reserve(nodes);
+	markObjectFiledAsNotPinned();
 	for (int i = 0 ; i < nodes ; i++)
 	{
 		currentAllocatedPages.push_back(0);
@@ -267,6 +268,31 @@ void ProcessTracker::removeSmall(InstrInfoMap & map,float cutoff)
 	
 	//insert others
 	map[NUMAPROF_OTHERS] = others;
+}
+
+/*******************  FUNCTION  *********************/
+void ProcessTracker::markObjectFiledAsNotPinned(void)
+{
+	//check
+	if (gblOptions->coreObjectCodePinned == true)
+		return;
+	
+	//load page map
+	MATT::LinuxProcMapReader reader;
+	reader.load();
+
+	//mark new as not pinned
+	for (MATT::LinuxProcMapReader::const_iterator it = reader.begin() ; it != reader.end() ; ++it)
+		if (it->file.empty() == false)
+			if (it->file[0] != '[')
+				if (loadedObjects.find(it->file) == loadedObjects.end())
+					pageTable.markObjectFileAsNotPinned(it->lower,(size_t)it->upper - (size_t)it->lower);
+
+	//remember to not mark again
+	for (MATT::LinuxProcMapReader::const_iterator it = reader.begin() ; it != reader.end() ; ++it)
+		if (it->file.empty() == false)
+			if (it->file[0] != '[')
+				loadedObjects[it->file] = true;
 }
 
 /*******************  FUNCTION  *********************/

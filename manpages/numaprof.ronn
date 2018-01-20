@@ -58,6 +58,7 @@ The config file use INI format with sections and variables as in this example :
 	[core]
 	skipStackAccesses=true
 	threadCacheEntries=512
+	objectCodePinned=false
 
 	[info]
 	hidden=false
@@ -86,6 +87,7 @@ The `core` section support:
    you can disable this feature by changing this value to false.
  * `threadCacheEntries`: to avoid taking mutex too often numaprof use per thread caches an flush the entries
    by group. This option configure the size of this buffer.
+ * `objectCodePinned`: Define if the binary and so files global variables are considered as pinned or not pinned.
  
 The `info` section support:
 

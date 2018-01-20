@@ -111,6 +111,7 @@ removeRatio=0.5
 [core]
 skipStackAccesses=true
 threadCacheEntries=512
+objectCodePinned=false
 
 [info]
 hidden=false

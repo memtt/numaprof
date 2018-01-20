@@ -55,6 +55,7 @@ struct Options
 	//core
 	bool coreSkipStackAccesses;
 	int coreThreadCacheEntries;
+	bool coreObjectCodePinned;
 	//info
 	bool infoHidden;
 };

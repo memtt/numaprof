@@ -27,6 +27,7 @@ namespace numaprof
 class ThreadTracker;
 typedef std::map<int,ThreadTracker *> ThreadTrackerMap;
 typedef std::vector<size_t> AllocatedPageCounter;
+typedef std::map<std::string,bool> LoadedObjectMap;
 
 /*******************  FUNCTION  *********************/
 void convertToJson(htopml::JsonState& json, const ThreadTrackerMap& value);
@@ -48,6 +49,7 @@ class ProcessTracker
 		void onMunmap(size_t baseAddr,size_t size);
 		NumaTopo & getNumaTopo(void);
 		void onThreadSetAffinity(int pid,cpu_set_t * mask,int size);
+		void markObjectFiledAsNotPinned(void);
 	private:
 		void removeSmall(InstrInfoMap & map, float cutoff);
 	private:
@@ -61,6 +63,7 @@ class ProcessTracker
 		AllocatedPageCounter currentAllocatedPages;
 		AllocatedPageCounter maxAllocatedPages;
 		ClockValue clockAtEnd;
+		LoadedObjectMap loadedObjects;
 };
 
 }

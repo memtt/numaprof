@@ -110,6 +110,7 @@ class PageTable
 		void setHugePageFromPinnedThread(size_t addr, int numa,bool pinned);
 		void setHugePageNuma(size_t addr,int numa);
 		void onMbind(void * addr,size_t size,bool pinned);
+		void markObjectFileAsNotPinned(void * addr,size_t size);
 	private:
 		void regAllocPointerSmall(size_t baseAddr,size_t size,void * value);
 	private:

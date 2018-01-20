@@ -494,6 +494,12 @@ VOID beforeMain(void)
 }
 
 /*******************  FUNCTION  *********************/
+VOID instrImageLoad(IMG img,VOID * v)
+{
+	gblProcessTracker->markObjectFiledAsNotPinned();
+}
+
+/*******************  FUNCTION  *********************/
 VOID instrImageNew(IMG img, VOID *v)
 {
 	// Instrument the malloc() and free() functions.  Print the input argument
@@ -1023,6 +1029,7 @@ int main(int argc, char *argv[])
 		PIN_ExitProcess(1);
 	}
 
+	IMG_AddInstrumentFunction(instrImageLoad,0);
 	IMG_AddInstrumentFunction(instrImage, 0);
 	INS_AddInstrumentFunction(Instruction, 0);
 	#ifdef NUMAPROG_CALLSTACK

@@ -351,6 +351,24 @@ void PageTable::onMbind(void * addr,size_t size,bool pinned)
 }
 
 /*******************  FUNCTION  *********************/
+void PageTable::markObjectFileAsNotPinned(void * addr,size_t size)
+{
+	//seutp
+	uint64_t end = (uint64_t)addr + size;
+	uint64_t start = ((uint64_t)addr) & (~NUMAPROF_PAGE_MASK);
+	
+	//loop 
+	for (size_t cur = start ; cur < end ; cur += NUMAPROF_PAGE_SIZE)
+	{
+		//get page
+		Page & page = getPage(cur);
+		
+		//update pinning
+		page.fromPinnedThread = false;
+	}
+}
+
+/*******************  FUNCTION  *********************/
 void PageTable::freeAllocPointer(size_t baseAddr,size_t size,void * value)
 {
 	regAllocPointer(baseAddr,size,NULL);

@@ -92,18 +92,25 @@ it with debug symbols (<code>-g</code>) and also to disable inlining to get more
 
 <h2 id="OPTIONS">OPTIONS</h2>
 
-<dl>
-<dt><code>-c</code>, <code>--config</code></dt><dd>Provide a config file as parameters with formats described in the next part
-of this manpage. You can also get a dump of the default configuration with <code>-d</code>.</dd>
-<dt><code>--callgrind</code></dt><dd>After generating the profile to native format, automatically convert it to
-callgrind compatible format.</dd>
-<dt><code>-d</code>, <code>--dumpconfig</code></dt><dd>Dump the current NUMAPROF configuration in a file with the same name as profile file.
-It helps for quick start in the configuration by getting all the options and default value.</dd>
-<dt class="flush"><code>-o</code></dt><dd>Permit to pass some specific options from the config file in the command line.
+<ul>
+<li><code>-c</code>, <code>--config</code>:
+Provide a config file as parameters with formats described in the next part
+of this manpage. You can also get a dump of the default configuration with <code>-d</code>.</li>
+<li><code>--callgrind</code>:
+After generating the profile to native format, automatically convert it to
+callgrind compatible format.</li>
+<li><code>-d</code>, <code>--dumpconfig</code>:
+Dump the current NUMAPROF configuration in a file with the same name as profile file.
+It helps for quick start in the configuration by getting all the options and default value.</li>
+<li><code>-o</code>:
+Permit to pass some specific options from the config file in the command line.
 The value is a list of options separated by commas and formatted like <code>SECTION:NAME=VALUE</code>.
-See the configuration file format (INI format) to find the available sections and names.</dd>
-<dt><code>-h</code>, <code>--help</code></dt><dd>Display help message with a list of available command line options.</dd>
-</dl>
+See the configuration file format (INI format) to find the available sections and names.</li>
+<li><code>-h</code>, <code>--help</code>:
+Display help message with a list of available command line options.</li>
+<li><code>-V</code>, <code>--verbose</code>
+Enable more printing for debugging.</li>
+</ul>
 
 
 <h2 id="GET-THE-GUI">GET THE GUI</h2>
@@ -128,6 +135,7 @@ removeRatio=0.5
 [core]
 skipStackAccesses=true
 threadCacheEntries=512
+objectCodePinned=false
 
 [info]
 hidden=false
@@ -155,6 +163,7 @@ This lower a lot the size of the output file but lose some information.</dd>
 you can disable this feature by changing this value to false.</li>
 <li><code>threadCacheEntries</code>: to avoid taking mutex too often numaprof use per thread caches an flush the entries
 by group. This option configure the size of this buffer.</li>
+<li><code>objectCodePinned</code>: Define if the binary and so files global variables are considered as pinned or not pinned.</li>
 </ul>
 
 
