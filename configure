@@ -291,11 +291,6 @@ else
 fi
 
 ######################################################
-mkdir -p integration/scripts
-cp "${SOURCE_DIR}/integration/scripts/numaprof-pintool.sh" integration/scripts
-sed -e "s#NUMAPROF_PREFIX=#NUMAPROF_PREFIX=${PREFIX_PATH}#g" -e "s#PINTOOL_PREFIX=#PINTOOL_PREFIX=${PINTOOL_PREFIX}#g" -i integration/scripts/numaprof-pintool.sh
-
-######################################################
 if [ -z "${PINTOOL_PREFIX}" ]; then
 	echo "Missing pintool prefix, please provide path with --with-pintool=PREFIX"
 	exit 1
@@ -324,9 +319,6 @@ test:
 install: all
 	make -C build install
 	install -D integration/pintool/obj-intel64/libnumaprof-pintool.so ${PREFIX_PATH}/lib/libnumaprof-pintool.so
-	install -D ${SOURCE_DIR}/integration/scripts/numaprof-to-callgrind.py ${PREFIX_PATH}/bin/numaprof-to-callgrind
-	install -D integration/scripts/numaprof-pintool.sh ${PREFIX_PATH}/bin/numaprof-pintool
-	install -D integration/scripts/numaprof-pintool.sh ${PREFIX_PATH}/bin/numaprof
 EOF
 
 ######################################################
@@ -335,7 +327,7 @@ cd build
 
 ######################################################
 #Gen final command
-COMMAND="`gen_clean_command "${CMAKE}" "-DCMAKE_BUILD_TYPE=${BUILD_TYPE}" "${PREFIX}" "${EXTRA_CXX}" \
+COMMAND="`gen_clean_command "${CMAKE}" "-DCMAKE_BUILD_TYPE=${BUILD_TYPE}" "-DPINTOOL_PREFIX=${PINTOOL_PREFIX}" "${PREFIX}" "${EXTRA_CXX}" \
 	"${EXTRA_CXXFLAGS}" "${EXTRA_LDFLAGS}" "${EXTRA_CC}" "${EXTRA_CFLAGS}" \
 	"${ENABLE_SELF_TEST}" "${ENABLE_JUNIT_OUT}" "${ENABLE_VALGRIND}" "${ENABLE_GCC_COVERAGE}" "${DISABLE_TESTS}" \
 	"${LIB_SUFFIX}" "${HWLOC_PREFIX}" "${NUMACTL_PREFIX}" "${ENABLE_WEBVIEW}" "${MPI_CXX_COMPILER}" "${SOURCE_DIR}"`" 
