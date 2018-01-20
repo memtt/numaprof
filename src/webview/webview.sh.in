@@ -12,7 +12,7 @@ if [ ! -f ${HOME}/.numaprof/htpasswd ]; then
 	echo "==========================================================="
 	echo -e "\e[31mYou first need to define a user/password to secure the GUI.\e[00m"
 	read -p "User: " user
-	@WEBVIEW_PATH@/../../../bin/numaprof-passwd $user
+	@CMAKE_INSTALL_PREFIX@/bin/numaprof-passwd $user
 	echo "==========================================================="
 fi
 

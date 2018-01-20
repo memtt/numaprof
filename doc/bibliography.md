@@ -26,3 +26,10 @@ Biblio
  * https://github.com/wapiflapi/villoc/issues/3
  * http://optumsoft.com/dangers-of-using-dlsym-with-rtld_next/
  * http://doi.acm.org/10.1145/1806651.1806667
+
+ Looking for python + qt webkit to build gui
+ -------------------------------------------
+ 
+  * https://pawelmhm.github.io/python/pyqt/qt/webkit/2015/09/08/browser.html
+  * https://github.com/agateau/pyqt-webkit-tutorial/blob/master/tut1/tut1.markdown
+  * https://wiki.python.org/moin/PyQt/Using%20a%20Custom%20Protocol%20with%20QtWebKit
