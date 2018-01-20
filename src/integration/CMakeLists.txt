@@ -7,4 +7,10 @@
 ######################################################
 
 ######################################################
+find_package(Pintool)
+
+######################################################
 add_subdirectory(scripts)
+if (PINTOOL_FOUND)
+	add_subdirectory(pintool)
+endif (PINTOOL_FOUND)

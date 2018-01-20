@@ -33,6 +33,7 @@ ENABLE_GCC_COVERAGE=''
 ENABLE_JUNIT_OUT=''
 ENABLE_VALGRIND=''
 ENABLE_WEBVIEW=''
+ENABLE_NINJA=''
 LIB_SUFFIX=''
 #prefix
 HLWOC_PREFIX=''
@@ -78,6 +79,7 @@ Optional Features:
    --disable-tests           Disable unit tests of the lib (-DENABLE_TESTS=no).
    --enable-jenkins          Enable all checking modes (unit, valgrind, coverage...).
    --disable-webview         Disable installation of webview (-DENABLE_WEBVIEW=no).
+   --enable-ninja            Enable usage of Ninja with cmake instead of Make.
 
 To find libs and commands :
    --with-cmake={command}    Define the cmake command to use [cmake].
@@ -164,6 +166,9 @@ do
 			;;
 		--enable-debug)
 			BUILD_TYPE='Debug'
+			;;
+		--enable-ninja)
+			ENABLE_NINJA="-GNinja"
 			;;
 		--enable-internal-launcher)
 			INTERNAL_LAUNCHER="-DENABLE_INTERNAL_LAUNCHER=ON"
@@ -303,34 +308,11 @@ if [ ! -f ${PINTOOL_PREFIX}/pin ]; then
 fi
 
 ######################################################
-#setup makefile
-cat > Makefile <<EOF
-all:
-	make -C build
-	make -C integration/pintool PIN_ROOT=${PINTOOL_PREFIX}
-
-clean:
-	make -C build clean
-	make -C integration/pintool PIN_ROOT=${PINTOOL_PREFIX} clean
-
-test:
-	make -C build test
-
-install: all
-	make -C build install
-	install -D integration/pintool/obj-intel64/libnumaprof-pintool.so ${PREFIX_PATH}/lib/libnumaprof-pintool.so
-EOF
-
-######################################################
-mkdir -p build
-cd build
-
-######################################################
 #Gen final command
 COMMAND="`gen_clean_command "${CMAKE}" "-DCMAKE_BUILD_TYPE=${BUILD_TYPE}" "-DPINTOOL_PREFIX=${PINTOOL_PREFIX}" "${PREFIX}" "${EXTRA_CXX}" \
 	"${EXTRA_CXXFLAGS}" "${EXTRA_LDFLAGS}" "${EXTRA_CC}" "${EXTRA_CFLAGS}" \
 	"${ENABLE_SELF_TEST}" "${ENABLE_JUNIT_OUT}" "${ENABLE_VALGRIND}" "${ENABLE_GCC_COVERAGE}" "${DISABLE_TESTS}" \
-	"${LIB_SUFFIX}" "${HWLOC_PREFIX}" "${NUMACTL_PREFIX}" "${ENABLE_WEBVIEW}" "${MPI_CXX_COMPILER}" "${SOURCE_DIR}"`" 
+	"${LIB_SUFFIX}" "${HWLOC_PREFIX}" "${NUMACTL_PREFIX}" "${ENABLE_WEBVIEW}" "${MPI_CXX_COMPILER}" "${ENABLE_NINJA}" "${SOURCE_DIR}"`" 
 
 ######################################################
 #execute or display

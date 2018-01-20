@@ -4,8 +4,10 @@
 #
 ##############################################################
 
-SRCDIR=./
-CST_DEBUG_FLAGS=-g -O0
+PIN_ROOT=$(shell dirname @PINTOOL_PIN@)
+MAKE+=-f Makefile.pin
+SRCDIR=@CMAKE_CURRENT_SOURCE_DIR@
+CST_DEBUG_FLAGS=@PINTOOL_CFLAGS@
 
 # If the tool is built out of the kit, PIN_ROOT must be specified in the make invocation and point to the kit root.
 ifdef PIN_ROOT
