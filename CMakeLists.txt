@@ -38,10 +38,6 @@ endif(ENABLE_GCC_COVERAGE)
 numaprof_enable_cxx_11()
 
 ######################################################
-#find_package(Hwloc REQUIRED)
-include_directories(${HWLOC_INCLUDE_DIRS})
-
-######################################################
 add_subdirectory(src)
 add_subdirectory(extern-deps)
 
