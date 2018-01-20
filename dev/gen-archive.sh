@@ -29,7 +29,7 @@ git archive --format=tar --prefix=${prefix}/ HEAD | bzip2 > /tmp/${prefix}.tar.b
 current=$PWD
 cd /tmp
 tar -xf ${prefix}.tar.bz2
-cd /tmp/${prefix}/webview
+cd /tmp/${prefix}/src/webview
 ./prepare.sh
 rm -rfd node_modules
 cd /tmp
