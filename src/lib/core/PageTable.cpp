@@ -364,7 +364,8 @@ void PageTable::markObjectFileAsNotPinned(void * addr,size_t size)
 		Page & page = getPage(cur);
 		
 		//update pinning
-		page.fromPinnedThread = false;
+		if (page.numaNode < 0)
+			page.fromPinnedThread = false;
 	}
 }
 
