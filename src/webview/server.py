@@ -344,7 +344,7 @@ def asmFiles(user,path):
 		abort(404)
 
 if args.webkit == 0:
-	app.run(host="127.0.0.1", port=port, threaded=True)
+	app.run(host="localhost", port=port, threaded=True)
 else:
 	#from https://mrl33h.de/post/23
 	
