@@ -363,5 +363,6 @@ else:
 	url.setPassword(webkitPasswd)
 	w.load(url)
 	w.show()
+	w.showMaximized()
 	qt_app.exec_()
 	os.remove(authFile)
