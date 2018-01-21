@@ -48,7 +48,7 @@ app = Flask(__name__, static_url_path='')
 ######################################################
 webkitUser = ''.join(choice(string.ascii_uppercase + string.digits) for _ in range(32))
 webkitPasswd = ''.join(choice(string.ascii_uppercase + string.digits) for _ in range(32))
-print webkitUser + " " + webkitPasswd
+#print webkitUser + " " + webkitPasswd
 
 ######################################################
 authFile = expanduser("~")+'/.numaprof/htpasswd'
