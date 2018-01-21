@@ -25,6 +25,8 @@ http://localhost:8080.
    Search file with non-full path in this list of directories : */home/orig/a,/tmp/b*.
  * `-h`, `--help`:
    Display a short help message to summarize the available options.
+ * `-w`, '--wekbit`:
+   Automatically open a QT4 webkit view to browser in the profile.
 
 ## REMOTE USAGE THROUGH SSH
 

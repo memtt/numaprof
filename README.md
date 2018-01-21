@@ -77,6 +77,12 @@ If you run the webview on a remote node, you can forward the http session to you
 ssh myhost -L8080:localhost:8080
 ```
 
+If you have PyQt5 installed you can also automatically open a bowser view by using :
+
+```
+numaprof-webview --webkit numaprof-1234.json
+```
+
 Kcachgrind compatibility
 ------------------------
 
