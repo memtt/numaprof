@@ -19,20 +19,9 @@ import argparse
 import sys
 import subprocess
 from os.path import expanduser
-
-######################################################
-app = Flask(__name__, static_url_path='')
-#app.config["CACHE_TYPE"] = "null"
-#cache = Cache(app,config={'CACHE_TYPE': 'null'})
-#cache.init_app(app)
-
-######################################################
-#config
-app.config['FLASK_HTPASSWD_PATH'] = expanduser("~")+'/.numaprof/htpasswd'
-app.config['FLASK_SECRET'] = 'numaprof auth'
-
-#build
-htpasswd = HtPasswdAuth(app)
+from random import randint
+from random import choice
+import string
 
 ######################################################
 parser = argparse.ArgumentParser(description='Numaprof web server.')
@@ -44,8 +33,68 @@ parser.add_argument('--search-path', '-S', dest='search',
                     help='Search file with non full path in this list of directory : "/home/orig/a,/tmp/b"')
 parser.add_argument('--port', '-p', dest='port',
                     help='Port to use to export display to browser')
+parser.add_argument('--webkit', '-w' ,dest='webkit', action='store_const',
+                    const=1, default=0,
+                    help='Automatically open a browser view using Qt webkit.')
 
 args = parser.parse_args()
+
+######################################################
+app = Flask(__name__, static_url_path='')
+#app.config["CACHE_TYPE"] = "null"
+#cache = Cache(app,config={'CACHE_TYPE': 'null'})
+#cache.init_app(app)
+
+######################################################
+webkitUser = ''.join(choice(string.ascii_uppercase + string.digits) for _ in range(32))
+webkitPasswd = ''.join(choice(string.ascii_uppercase + string.digits) for _ in range(32))
+print webkitUser + " " + webkitPasswd
+
+######################################################
+authFile = expanduser("~")+'/.numaprof/htpasswd'
+if args.webkit == 1:
+	import htpasswd
+	from tempfile import mkstemp
+	tmp = mkstemp()
+	authFile = tmp[1]
+	os.fdopen(tmp[0],'w').close()
+	with htpasswd.Basic(authFile) as userdb:
+		try:
+			userdb.add(webkitUser, webkitPasswd)
+		except htpasswd.basic.UserExists, e:
+			userdb.change_password(webkitUser,webkitPasswd)
+
+######################################################
+#config
+app.config['FLASK_HTPASSWD_PATH'] = authFile
+app.config['FLASK_SECRET'] = 'numaprof auth'
+
+#build
+htpasswd = HtPasswdAuth(app)
+
+######################################################
+if args.webkit == 1:
+	#from https://mrl33h.de/post/23
+	import platform
+	import threading
+	from PyQt5.QtCore import QUrl
+	from PyQt5.QtWidgets import *
+	from PyQt5.QtWebKitWidgets import QWebView
+	
+	#if int(platform.python_version_tuple()[1]) >= 6:
+		#import asyncio
+		#import asyncio.base_futures
+		#import asyncio.base_tasks
+		#import asyncio.compat
+		#import asyncio.base_subprocess
+		#import asyncio.proactor_events
+		#import asyncio.constants
+		#import asyncio.selector_events
+		#import asyncio.windows_utils
+		#import asyncio.windows_events
+
+		#import jinja2.asyncsupport
+		#import jinja2.ext
 
 ######################################################
 port = 8080
@@ -82,16 +131,16 @@ def findSourceFile(name):
 
 
 ######################################################
-print " * Loading file..."
+print (" * Loading file...")
 profile = ProfileHandler(args.profileFile)
 
 ######################################################
 #prepare some outputs
-print " * Prepare func list..."
+print (" * Prepare func list...")
 functionsCache = json.dumps(profile.getFuncList())
-print " * Prepare asm func list..."
+print (" * Prepare asm func list...")
 asmFunctionsCache = json.dumps(profile.getAsmFuncList())
-print " * Done"
+print (" * Done")
 
 ######################################################
 @app.route('/')
@@ -240,10 +289,10 @@ def apiSourcesNoPathFileStats(user,path):
 @nocache
 def sourceFiles(user,path):
 	path = "/"+path
-	print path
+	print (path)
 	if profile.hasFile(path):
 		path = replaceInPath(path)
-		print path
+		print (path)
 		data=open(path).read()
 		return data
 	else:
@@ -255,7 +304,7 @@ def sourceFiles(user,path):
 def sourceNoPathFiles(user,path):
 	fname = path.split('/')[-1]
 	full = findSourceFile(fname)
-	print full
+	print (full)
 	if full != False:
 		data=open(full).read()
 		return data
@@ -285,7 +334,7 @@ def apiAsmFileStats(user,path):
 def asmFiles(user,path):
 	path = "/"+path
 	func = request.args.get('func')
-	print func
+	print (func)
 	if profile.hasBinary(path):
 		path = replaceInPath(path)
 		#data = subprocess.check_output(['objdump', '-d',path]).decode("utf-8") 
@@ -294,4 +343,25 @@ def asmFiles(user,path):
 	else:
 		abort(404)
 
-app.run(host="127.0.0.1", port=port, threaded=True)
+if args.webkit == 0:
+	app.run(host="127.0.0.1", port=port, threaded=True)
+else:
+	#from https://mrl33h.de/post/23
+	
+	#select a port
+	port = randint(1025, 65535)
+	
+	#start server
+	thread = threading.Thread(target=app.run, args=['localhost', port])
+	thread.daemon = True
+	thread.start()
+
+	qt_app = QApplication([])
+	w = QWebView()
+	url = QUrl('http://localhost:'+str(port))
+	url.setUserName(webkitUser)
+	url.setPassword(webkitPasswd)
+	w.load(url)
+	w.show()
+	qt_app.exec_()
+	os.remove(authFile)

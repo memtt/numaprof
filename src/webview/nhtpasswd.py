@@ -17,13 +17,21 @@ from os.path import expanduser
 ######################################################
 #help
 if len(sys.argv) == 1:
-	print "Missing argument, usage : numaprof-htpasswd {USER}"
+	print "Missing argument, usage : numaprof-htpasswd {USER} [PASSWORD]"
 	sys.exit(1)
 
 ######################################################
 #extract infos
 user = sys.argv[1]
-password = getpass.getpass()
+
+#pass
+if len(sys.argv) == 2:
+	password = getpass.getpass()
+elif len(sys.argv) == 3:
+	password = sys.argv[2]
+else:
+	print "Too many arguments !"
+	sys.exit(1)
 
 ######################################################
 #add or set in db

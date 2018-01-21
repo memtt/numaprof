@@ -30,6 +30,9 @@ Biblio
  Looking for python + qt webkit to build gui
  -------------------------------------------
  
+ In python :
   * https://pawelmhm.github.io/python/pyqt/qt/webkit/2015/09/08/browser.html
   * https://github.com/agateau/pyqt-webkit-tutorial/blob/master/tut1/tut1.markdown
   * https://wiki.python.org/moin/PyQt/Using%20a%20Custom%20Protocol%20with%20QtWebKit
+  * https://riverbankcomputing.com/pipermail/pyqt/2016-September/038076.html
+  
