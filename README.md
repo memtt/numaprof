@@ -118,6 +118,7 @@ removeRatio=0.5
 skipStackAccesses=true
 threadCacheEntries=512
 objectCodePinned=false
+skipBinaries=
 
 [info]
 hidden=false

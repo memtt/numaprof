@@ -13,6 +13,7 @@
 //internals
 #include "Debug.hpp"
 #include "Options.hpp"
+#include "Helper.hpp"
 #include "../../../extern-deps/from-htopml/json/ConvertToJson.h"
 
 /*******************  NAMESPACE  ********************/
@@ -40,6 +41,7 @@ Options::Options(void)
 	this->coreSkipStackAccesses   = true;
 	this->coreThreadCacheEntries     = 512;
 	this->coreObjectCodePinned    = false;
+	this->coreSkipBinaries           = "";
 	//info
 	this->infoHidden              = false;
 }
@@ -62,6 +64,7 @@ bool Options::operator==(const Options& value) const
 	if (this->coreSkipStackAccesses != value.coreSkipStackAccesses) return false;
 	if (this->coreThreadCacheEntries != value.coreThreadCacheEntries) return false;
 	if (this->coreObjectCodePinned != value.coreObjectCodePinned) return false;
+	if (this->coreSkipBinaries != value.coreSkipBinaries) return false;
 	//info
 	if (this->infoHidden != value.infoHidden) return false;
 	
@@ -162,9 +165,20 @@ void Options::loadFromIniDic ( dictionary* iniDic )
 	this->coreSkipStackAccesses = iniparser_getboolean(iniDic,"core:skipStackAccesses",this->coreSkipStackAccesses);
 	this->coreThreadCacheEntries = iniparser_getint(iniDic,"core:threadCacheEntries",this->coreThreadCacheEntries);
 	this->coreObjectCodePinned = iniparser_getint(iniDic,"core:objectCodePinned",this->coreObjectCodePinned);
+	this->coreSkipBinaries = iniparser_getstring(iniDic,"core:skipBinaries",(char*)this->coreSkipBinaries.c_str());
 	
 	//info
 	this->infoHidden          = iniparser_getboolean(iniDic,"info:hidden",this->infoHidden);
+}
+
+/*******************  FUNCTION  *********************/
+void Options::cache ( void )
+{
+	bool status;
+	char buffer[4096];
+	int i = 0;
+	while((status = Helper::extractNth(buffer,coreSkipBinaries.c_str(),';',i++)))
+		coreSkipBinariesVect.push_back(buffer);
 }
 
 /*******************  FUNCTION  *********************/
@@ -214,6 +228,7 @@ void convertToJson(htopml::JsonState & json,const Options & value)
 			json.printField("skipStackAccesses",value.coreSkipStackAccesses);
 			json.printField("threadCacheEntries",value.coreThreadCacheEntries);
 			json.printField("ojectCodePinned",value.coreObjectCodePinned);
+			json.printField("skipBinaries",value.coreSkipBinaries);
 		json.closeFieldStruct("core");
 		
 		json.openFieldStruct("info");
@@ -245,6 +260,7 @@ void Options::dumpConfig(const char* fname) const
 	IniParserHelper::setEntry(dic,"core:skipStackAccesses",this->coreSkipStackAccesses);
 	IniParserHelper::setEntry(dic,"core:threadCacheEntries",this->coreThreadCacheEntries);
 	IniParserHelper::setEntry(dic,"core:objectCodePinned",this->coreObjectCodePinned);
+	IniParserHelper::setEntry(dic,"core:skipFiled",this->coreSkipBinaries.c_str());
 	
 	//info
 	IniParserHelper::setEntry(dic,"info:hidden",this->infoHidden);

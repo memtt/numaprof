@@ -47,6 +47,15 @@ using namespace std;
 //See : https://github.com/wapiflapi/villoc/issues/3
 #define TRACK_MALLOC true
 
+/********************  ENUM  ************************/
+enum InstrStatus
+{
+	INSTR_STATUS_UNKNOWN,
+	INSTR_STATUS_YES,
+	INSTR_STATUS_NO
+};
+
+/*******************  NAMESPACE  ********************/
 using namespace numaprof;
 
 /*******************  STRUCT  ***********************/
@@ -119,7 +128,7 @@ static VOID ThreadFini(THREADID threadid, const CONTEXT *ctxt, INT32 code, VOID 
 
 /*******************  FUNCTION  *********************/
 // Print a memory read record
-static VOID RecordMemRead(VOID * ip, VOID * addr,THREADID threadid)
+static VOID RecordMemRead(VOID * ip, VOID * addr,bool skip,THREADID threadid)
 {
 	/*if (id == 0)
 	{
@@ -127,12 +136,12 @@ static VOID RecordMemRead(VOID * ip, VOID * addr,THREADID threadid)
 		cnt++;
 	}
 	fprintf(trace,"%p: R %p, thread %d NUMA %d thread ID %d\n", ip, addr,id,numaprof::getNumaOfPage(addr),threadid);*/
-	getTls(threadid).tracker->onAccess((size_t)ip,(size_t)addr,false);
+	getTls(threadid).tracker->onAccess((size_t)ip,(size_t)addr,false,skip);
 }
 
 /*******************  FUNCTION  *********************/
 // Print a memory write record
-static VOID RecordMemWrite(VOID * ip, VOID * addr,THREADID threadid)
+static VOID RecordMemWrite(VOID * ip, VOID * addr,bool skip,THREADID threadid)
 {
 	/*if (id == 0)
 	{
@@ -140,7 +149,7 @@ static VOID RecordMemWrite(VOID * ip, VOID * addr,THREADID threadid)
 		cnt++;
 	}
 	fprintf(trace,"%p: W %p, thread %d NUMA %d\n", ip, addr,id,numaprof::getNumaOfPage(addr));*/
-	getTls(threadid).tracker->onAccess((size_t)ip,(size_t)addr,true);
+	getTls(threadid).tracker->onAccess((size_t)ip,(size_t)addr,true,skip);
 }
 
 /*******************  FUNCTION  *********************/
@@ -788,6 +797,26 @@ static VOID instrImageMBind(IMG img, VOID *v)
 }*/
 
 /*******************  FUNCTION  *********************/
+static InstrStatus checkInstrumentInstruction(INS ins)
+{
+	//extract binary
+	ADDRINT addr = INS_Address (ins);
+	IMG img = IMG_FindByAddress(addr);
+	
+	//ref
+	const std::vector<std::string> & vec = getGlobalOptions().coreSkipBinariesVect;
+	
+	if (IMG_Valid(img))
+	{
+		for (std::vector<std::string>::const_iterator it = vec.begin() ; it != vec.end() ; ++it)
+			if (Helper::contain(IMG_Name(img).c_str(),it->c_str()))
+				return INSTR_STATUS_NO;
+	}
+	
+	return INSTR_STATUS_YES;
+}
+
+/*******************  FUNCTION  *********************/
 // Is called for every instruction and instruments reads and writes
 static VOID Instruction(INS ins, VOID *v)
 {
@@ -797,16 +826,26 @@ static VOID Instruction(INS ins, VOID *v)
 	// On the IA-32 and Intel(R) 64 architectures conditional moves and REP 
 	// prefixed instructions appear as predicated instructions in Pin.
 	UINT32 memOperands = INS_MemoryOperandCount(ins);
+	
+	//check default status
+	InstrStatus status = INSTR_STATUS_UNKNOWN;
+	if (getGlobalOptions().coreSkipBinariesVect.empty())
+		status = INSTR_STATUS_YES;
 
 	// Iterate over each memory operand of the instruction.
 	for (UINT32 memOp = 0; memOp < memOperands; memOp++)
 	{
 		if (INS_MemoryOperandIsRead(ins, memOp) && (!INS_IsStackRead(ins) || !gblOptions->coreSkipStackAccesses))
 		{
+			//check
+			if (status == INSTR_STATUS_UNKNOWN)
+				status = checkInstrumentInstruction(ins);
+			
 			INS_InsertPredicatedCall(
 				ins, IPOINT_BEFORE, (AFUNPTR)RecordMemRead,
 				IARG_INST_PTR,
 				IARG_MEMORYOP_EA, memOp,
+				IARG_BOOL,(bool)(status == INSTR_STATUS_NO),
 				IARG_THREAD_ID,IARG_END);
 		}
 		// Note that in some architectures a single memory operand can be 
@@ -814,10 +853,15 @@ static VOID Instruction(INS ins, VOID *v)
 		// In that case we instrument it once for read and once for write.
 		if (INS_MemoryOperandIsWritten(ins, memOp) && (!INS_IsStackWrite(ins) || !gblOptions->coreSkipStackAccesses))
 		{
+			//check
+			if (status == INSTR_STATUS_UNKNOWN)
+				status = checkInstrumentInstruction(ins);
+			
 			INS_InsertPredicatedCall(
 				ins, IPOINT_BEFORE, (AFUNPTR)RecordMemWrite,
 				IARG_INST_PTR,
 				IARG_MEMORYOP_EA, memOp,
+				IARG_BOOL,(bool)(status == INSTR_STATUS_NO),
 				IARG_THREAD_ID,IARG_END);
 		}
 	}
@@ -1017,6 +1061,7 @@ int main(int argc, char *argv[])
 	const char * envOptions = getenv("NUMAPROF_OPTIONS");
 	if (envOptions != NULL)
 		options.loadFromString(envOptions);
+	options.cache();
 
 	//setup
 	gblProcessTracker = new ProcessTracker();

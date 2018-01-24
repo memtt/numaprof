@@ -139,7 +139,7 @@ inline bool ThreadTracker::isMemBind(void)
 }
 
 /*******************  FUNCTION  *********************/
-void ThreadTracker::onAccess(size_t ip,size_t addr,bool write)
+void ThreadTracker::onAccess(size_t ip,size_t addr,bool write,bool skip)
 {
 	//printf("Access %p => %p\n",(void*)ip,(void*)addr);
 	//get numa location of page form page table
@@ -194,6 +194,10 @@ void ThreadTracker::onAccess(size_t ip,size_t addr,bool write)
 		if (pageNode >= 0)
 			process->onAfterFirstTouch(pageNode,touchedPages);
 	} 
+	
+	//if we skip we take care of the first touch (previous lines) but we do not account
+	if (skip)
+		return;
 	
 	//extrct mini stack
 	#ifdef NUMAPROF_CALLSTACK

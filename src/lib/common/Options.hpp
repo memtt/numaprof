@@ -13,6 +13,7 @@
 //std
 #include <string>
 #include <cassert>
+#include <vector>
 
 /********************  HEADERS  *********************/
 //iniparser
@@ -43,6 +44,7 @@ struct Options
 	void loadFromString(const char * value);
 	void loadFromIniDic(dictionary * iniDic);
 	void dumpConfig(const char * fname) const;
+	void cache(void);
 	bool operator==(const Options & value) const;
 	//output
 	std::string outputName;
@@ -56,6 +58,8 @@ struct Options
 	bool coreSkipStackAccesses;
 	int coreThreadCacheEntries;
 	bool coreObjectCodePinned;
+	std::string coreSkipBinaries;
+	std::vector<std::string> coreSkipBinariesVect;
 	//info
 	bool infoHidden;
 };

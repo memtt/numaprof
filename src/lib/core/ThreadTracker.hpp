@@ -50,7 +50,7 @@ class ThreadTracker
 		ThreadTracker(ProcessTracker * process);
 		void flushAllocCache(void);
 		void flush(void);
-		void onAccess(size_t ip,size_t addr,bool write);
+		void onAccess(size_t ip,size_t addr,bool write,bool skip = false);
 		void onSetAffinity(cpu_set_t * mask,int size);
 		void onStop(void);
 		void onMunmap(size_t addr,size_t size);
