@@ -136,6 +136,7 @@ removeRatio=0.5
 skipStackAccesses=true
 threadCacheEntries=512
 objectCodePinned=false
+skipBinaries=
 
 [info]
 hidden=false
@@ -164,6 +165,7 @@ you can disable this feature by changing this value to false.</li>
 <li><code>threadCacheEntries</code>: to avoid taking mutex too often numaprof use per thread caches an flush the entries
 by group. This option configure the size of this buffer.</li>
 <li><code>objectCodePinned</code>: Define if the binary and so files global variables are considered as pinned or not pinned.</li>
+<li><code>skipBinaries</code>: Permit to not instrument certain binaries (eg. libgomp). You can provide a list with semi-column separator.</li>
 </ul>
 
 
