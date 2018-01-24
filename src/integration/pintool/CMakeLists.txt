@@ -7,11 +7,11 @@
 ######################################################
 
 ######################################################
-if (${CMAKE_BUILD_TYPE} EQUAL "Debug")
+if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
 	set(PINTOOL_CFLAGS "-O3 -g")
-elseif (${CMAKE_BUILD_TYPE} EQUAL "Debug")
+elseif (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
 	set(PINTOOL_CFLAGS "-O3 -DNDEBUG")
-endif (${CMAKE_BUILD_TYPE} EQUAL "Debug")
+endif (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
 
 ######################################################
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/Makefile.pin.in ${CMAKE_CURRENT_BINARY_DIR}/Makefile.pin @ONLY)

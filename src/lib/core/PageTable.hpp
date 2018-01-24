@@ -106,7 +106,7 @@ struct AllocPointerPageMap
 
 /********************  STRUCT  **********************/
 /**
- * Define a page to build the page table.
+ * Define a page to build the page table and Options.
 **/
 struct Page
 {
