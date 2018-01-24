@@ -47,20 +47,62 @@ struct Options
 	void cache(void);
 	bool operator==(const Options & value) const;
 	//output
+	/**
+	 * Format used to save all the output files. You can use some variables :
+	 *  - %1 : will be replaced by executable name 
+	 *  - %2 : will be replaced by PID
+	 *  - %3 : will be replaced by file extension.
+	**/
 	std::string outputName;
+	/** Enable indentation in the JSON or LUA format **/
 	bool outputIndent;
+	/** Enable JSON output format **/
 	bool outputJson;
+	/** Dump the current config into a ini file at the end of the profiling **/
 	bool outputDumpConfig;
+	/** 
+	 * Disable NUMAPROF outputs, usefull if you instrument a program from 
+	 * which you use the output 
+	**/
 	bool outputSilent;
+	/** 
+	 * Remove all small values before dumping the profile file. This might lead to
+	 * a large reduction of the file size. The cutoff limit will be outputRemoveRatio.
+	**/
 	bool outputRemoveSmall;
+	/** Define the cutoff for outputRemoveSmall **/
 	float outputRemoveRatio;
 	//core
+	/** 
+	 * If true (default), do not instrument the accesses to the local stack.
+	 * This provide a speed-up of a factor roughtly 2.
+	**/
 	bool coreSkipStackAccesses;
+	/**
+	 * Size of the buffer to cache the per thread metrics before synchronizing
+	 * them with the global process one. This increase scalability by limiting
+	 * locks and atomic operations.
+	**/
 	int coreThreadCacheEntries;
+	/**
+	 * Define if the binary objects (code) is considered pinned or not pinned by default.
+	 * This is to be used for data from executable and so files loaded in memory without a first 
+	 * touch access.
+	**/
 	bool coreObjectCodePinned;
+	/**
+	 * Do not track memory accesses of the given memory. Use semi-column to separate.
+	 * You provide a string which is search so you are not forced to use the full path or
+	 * full name.
+	**/
 	std::string coreSkipBinaries;
+	/**
+	 * Conversion of coreSkipBinaries in a list to be efficiently used. It has
+	 * no relation with the direct entries in the config file.
+	**/
 	std::vector<std::string> coreSkipBinariesVect;
 	//info
+	/** Hide paths and machine name if you don't want critical informations to be leaked. **/
 	bool infoHidden;
 };
 
