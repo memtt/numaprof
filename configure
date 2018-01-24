@@ -285,17 +285,6 @@ then
 fi
 
 ######################################################
-mkdir -p integration/pintool
-cp "${SOURCE_DIR}/src/integration/pintool/Makefile" integration/pintool
-ln -fs "${SOURCE_DIR}/src/integration/pintool/makefile.rules" integration/pintool
-sed -e "s#SRCDIR=./#SRCDIR=${SOURCE_DIR}/src/integration/pintool#g" -i integration/pintool/Makefile
-if [ "$BUILD_TYPE" = "Debug" ]; then
-	sed -e "s#CST_DEBUG_FLAGS=.*#CST_DEBUG_FLAGS=-O3 -g#g" -i integration/pintool/Makefile
-else
-	sed -e "s#CST_DEBUG_FLAGS=.*#CST_DEBUG_FLAGS=-O3 -DNDEBUG#g" -i integration/pintool/Makefile
-fi
-
-######################################################
 if [ -z "${PINTOOL_PREFIX}" ]; then
 	echo "Missing pintool prefix, please provide path with --with-pintool=PREFIX"
 	exit 1
