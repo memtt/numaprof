@@ -31,7 +31,7 @@ parser.add_argument('--override', '-O', dest='override',
                     help='Override file path, format: "/orig/:/new/,/orig2/:/new2/"')
 parser.add_argument('--search-path', '-S', dest='search',
                     help='Search file with non full path in this list of directory : "/home/orig/a,/tmp/b"')
-parser.add_argument('--port', '-p', dest='port',
+parser.add_argument('--port', '-p', dest='port', type=int,
                     help='Port to use to export display to browser')
 parser.add_argument('--webkit', '-w' ,dest='webkit', action='store_const',
                     const=1, default=0,
