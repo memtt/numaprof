@@ -26,6 +26,10 @@ namespace numaprof
 {
 
 /*******************  FUNCTION  *********************/
+/**
+ * Constructor of the process tracker, mostly setup all the internal states, loading
+ * the NUMA topology and allocates per NUMA node variables.
+**/
 ProcessTracker::ProcessTracker(void)
 {
 	//setup page counters
@@ -44,6 +48,11 @@ ProcessTracker::ProcessTracker(void)
 }
 
 /*******************  FUNCTION  *********************/
+/**
+ * Allocate a thread tracker and register if to the process.
+ * @param threadId Define the thread ID provided by pintool. If ID is recycled the
+ * function return the old thread tracker to resuse it.
+**/
 ThreadTracker * ProcessTracker::createThreadTracker(int threadId)
 {
 	//lock
@@ -69,6 +78,12 @@ ThreadTracker * ProcessTracker::createThreadTracker(int threadId)
 }
 
 /*******************  FUNCTION  *********************/
+/**
+ * Use by thread tracker to merge its instruction counter cache
+ * when it becomes full. Caution it take locks so should limit
+ * usage.
+ * @param stats Cache to be merged into the global conatainer.
+**/
 void ProcessTracker::mergeInstruction(InstrInfoMap & stats)
 {
 	mutex.lock();
@@ -78,6 +93,12 @@ void ProcessTracker::mergeInstruction(InstrInfoMap & stats)
 }
 
 /*******************  FUNCTION  *********************/
+/**
+ * Use by thread tracker to merge its allocation sites counter cache
+ * when it becomes full. Caution it take locks so should limit
+ * usage.
+ * @param stats Cache to be merged into the global conatainer.
+**/
 void ProcessTracker::mergeAllocInstruction(InstrInfoMap & stats)
 {
 	mutex.lock();
@@ -87,30 +108,54 @@ void ProcessTracker::mergeAllocInstruction(InstrInfoMap & stats)
 }
 
 /*******************  FUNCTION  *********************/
+/**
+ * Use the topology to summarize the NUMA mapping from the given 
+ * mask. If the thread is able to run on multiple NUMA node the function
+ * return -1.
+ * @param cpuBindList List of CPUs on which the thread can run on.
+**/
 int ProcessTracker::getNumaAffinity(CpuBindList * cpuBindList)
 {
 	return topo.getCurrentNumaAffinity(cpuBindList);
 }
 
 /*******************  FUNCTION  *********************/
+/**
+ * Use the topology to summarize the NUMA mapping from the given 
+ * mask. If the thread is able to run on multiple NUMA node the function
+ * return -1.
+ * @param mask Define the mask parameter from sched_setaffinity interception
+ * @param size Define size of mask (also comes from sched_setaffinity).
+ * @param cpuBindList List of CPUs on which the thread can run on.
+**/
 int ProcessTracker::getNumaAffinity(cpu_set_t * mask, int size,CpuBindList * cpuBindList)
 {
 	return topo.getCurrentNumaAffinity(mask,size,cpuBindList);
 }
 
 /*******************  FUNCTION  *********************/
+/**
+ * Return a reference to the NUMA topology container.
+**/
 NumaTopo & ProcessTracker::getNumaTopo(void)
 {
 	return topo;
 }
 
 /*******************  FUNCTION  *********************/
+/**
+ * Return a reference to the page table.
+**/
 PageTable * ProcessTracker::getPageTable(void)
 {
 	return &pageTable;
 }
 
 /*******************  FUNCTION  *********************/
+/**
+ * To be called by thread handler on first touch to update the number of pages
+ * allocated on each NUMA node.
+**/
 void ProcessTracker::onAfterFirstTouch(int pageNuma,size_t pages)
 {
 	size_t res = __sync_add_and_fetch(&currentAllocatedPages[pageNuma],pages,__ATOMIC_RELAXED);
@@ -119,6 +164,12 @@ void ProcessTracker::onAfterFirstTouch(int pageNuma,size_t pages)
 }
 
 /*******************  FUNCTION  *********************/
+/**
+ * To be called when munma is called by the process to update the page table
+ * and mark all the pages as freed.
+ * @param baseAddr Base address of the segment.
+ * @param size Size of the segment.
+**/
 void ProcessTracker::onMunmap(size_t baseAddr,size_t size)
 {
 	//seutp
@@ -138,6 +189,12 @@ void ProcessTracker::onMunmap(size_t baseAddr,size_t size)
 }
 
 /*******************  FUNCTION  *********************/
+/**
+ * Function to be called when using sched_setaffinity to bind another thread in the process.
+ * @param pid PID of the thread to move.
+ * @param mask New mapping of the thread.
+ * @param size Size of the mask.
+**/
 void ProcessTracker::onThreadSetAffinity(int pid,cpu_set_t * mask, int size)
 {
 	bool found = false;
@@ -173,6 +230,9 @@ void ProcessTracker::onThreadSetAffinity(int pid,cpu_set_t * mask, int size)
 }
 
 /*******************  FUNCTION  *********************/
+/**
+ * To be called when the process exit to dump the final profile file.
+**/
 void ProcessTracker::onExit(void)
 {
 	//get clock
@@ -235,6 +295,13 @@ void ProcessTracker::onExit(void)
 }
 
 /*******************  FUNCTION  *********************/
+/**
+ * Before dumping the final profile, appli a cut-off on the counters.
+ * If the value of the counter is too small, the instruction if removed from the profile
+ * and its counters merge on the global "other" counters.
+ * @param map Instruction map too loop on.
+ * @param cutoff Value to use to cutoff (in percent).
+**/
 void ProcessTracker::removeSmall(InstrInfoMap & map,float cutoff)
 {
 	//vars
@@ -272,6 +339,9 @@ void ProcessTracker::removeSmall(InstrInfoMap & map,float cutoff)
 }
 
 /*******************  FUNCTION  *********************/
+/**
+ * Mark all the SO/binary ifles as unpinned.
+**/
 void ProcessTracker::markObjectFiledAsNotPinned(void)
 {
 	//check
@@ -297,6 +367,11 @@ void ProcessTracker::markObjectFiledAsNotPinned(void)
 }
 
 /*******************  FUNCTION  *********************/
+/**
+ * Convert the process tracker states into JSON output.
+ * @param json JSON state tracker.
+ * @param value Process tracker to convert.
+**/
 void convertToJson(htopml::JsonState& json, const ProcessTracker& value)
 {
 	json.openStruct();
@@ -329,6 +404,11 @@ void convertToJson(htopml::JsonState& json, const ProcessTracker& value)
 }
 
 /*******************  FUNCTION  *********************/
+/**
+ * Convert the thread map (all the thread handlers) into JSON format.
+ * @param json Json state to generate the output.
+ * @param value Degine the thread tracker.
+**/
 void convertToJson(htopml::JsonState& json, const ThreadTrackerMap& value)
 {
 	json.openArray();

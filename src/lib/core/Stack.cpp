@@ -15,6 +15,9 @@ namespace numaprof
 {
 
 /*******************  FUNCTION  *********************/
+/**
+ * Compute the hash of the mini stack. Mostly by summing all the entries.
+**/
 void MiniStack::computeHash(void)
 {
 	size_t final = 0;
@@ -24,6 +27,9 @@ void MiniStack::computeHash(void)
 }
 
 /*******************  FUNCTION  *********************/
+/**
+ * Compare two mini stracks to permit using a std:map.
+**/
 bool MiniStack::operator == (const MiniStack & node) const
 {
 	if (hash != node.hash)
@@ -35,6 +41,9 @@ bool MiniStack::operator == (const MiniStack & node) const
 }
 
 /*******************  FUNCTION  *********************/
+/**
+ * Less than operator to permit to put the MiniStack as index of a std::map.
+**/
 bool MiniStack::operator < (const MiniStack & node) const
 {
 	if (hash < node.hash)
@@ -52,17 +61,27 @@ bool MiniStack::operator < (const MiniStack & node) const
 }
 
 /*******************  FUNCTION  *********************/
+/**
+ * Strack constructor, do nothing 
+**/
 Stack::Stack(void)
 {
 }
 
 /*******************  FUNCTION  *********************/
+/**
+ * Push a called child function.
+ * @param value Address of the callee.
+**/
 void Stack::push(void * value)
 {
 	stack.push_back(value);
 }
 
 /*******************  FUNCTION  *********************/
+/**
+ * Pop the last callee;
+**/
 void Stack::pop(void)
 {
 	if (stack.size() == 0)
@@ -71,6 +90,10 @@ void Stack::pop(void)
 }
 
 /*******************  FUNCTION  *********************/
+/**
+ * Fill the ministack with the last calls from the current stack.
+ * @param miniStack Ministack to fill.
+**/
 void Stack::fillMiniStack(MiniStack & miniStack)
 {
 	//case
@@ -94,6 +117,9 @@ void Stack::fillMiniStack(MiniStack & miniStack)
 }
 
 /*******************  FUNCTION  *********************/
+/**
+ * Convert the mini stack to JSON format.
+**/
 void convertToJson(htopml::JsonState& json, const MiniStack& value)
 {
 	json.openArray();

@@ -23,6 +23,9 @@ namespace numaprof
 {
 
 /*********************  STRUCT  *********************/
+/**
+ * Stats counters to be attached to each instructions and call sites.
+**/
 struct Stats
 {
 	//functions
@@ -32,18 +35,28 @@ struct Stats
 	bool asOneLargerThan(Stats & info);
 
 	//members
+	/** Count how many pages have been first touched by a pinned thread **/
 	size_t firstTouch;
+	/** Count how many pages have been first touched by a non pinned thread **/
 	size_t unpinnedFirstTouch;
+	/** Count how accesses have been done on unpinned pages **/
 	size_t unpinnedPageAccess;
+	/** Count how many pages have been done in a non binned thread **/
 	size_t unpinnedThreadAccess;
+	/** Count how many page have been done in a non pinned thread for a non pinned page. **/
 	size_t unpinnedBothAccess;
+	/** Count the local memory accesses **/
 	size_t localAccess;
+	/** Count the remote memory acesses **/
 	size_t remoteAccess;
+	/** Counte the memory accesses to the Intel KNL MCDRAM **/
 	size_t mcdramAccess;
+	/** Count hte memory accesses to non dyanmically allocated objects (stack, global varaibles, consts) **/
 	size_t nonAlloc;
 };
 
 /*********************  TYPES  **********************/
+/**Define the instruction map index. **/
 #ifdef NUMAPROF_CALLSTACK
 typedef std::map<MiniStack,Stats> InstrInfoMap;
 #else
@@ -55,6 +68,12 @@ void convertToJson(htopml::JsonState& json, const Stats& value);
 void convertToJson(htopml::JsonState& json, const InstrInfoMap& value);
 
 /*******************  FUNCTION  *********************/
+/**
+ * Check if one of the value is larger than the ref. This function is
+ * used by the cutoff function (removeSmall) to filter the instructions
+ * we keep in the final profile.
+ * @param info Define the reference to compare with.
+**/
 inline bool Stats::asOneLargerThan(Stats & info)
 {
 	//check if one is biffer than ref

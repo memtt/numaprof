@@ -22,20 +22,32 @@ namespace numaprof
 {
 
 /*********************  TYPES  **********************/
+/**
+ * Vector to store the stack pointers.
+**/
 typedef std::vector<void*> StackStorage;
 
 /*********************  CLASS  **********************/
+/** 
+ * Ministrack of a fixed size used in the thread and process handler
+ * to identify the instructions.
+**/
 struct MiniStack
 {
 	MiniStack(void) {for (int i = 0 ; i < NUMAPROG_MINI_STACk_SIZE ; i++) stack[i] = NULL; hash = 0;};
 	void computeHash(void);
 	bool operator == (const MiniStack & node) const;
 	bool operator < (const MiniStack & node) const;
+	/** Store the N last element of the real stack, with caller first. **/
 	void * stack[NUMAPROG_MINI_STACk_SIZE];
+	/** hash of the stack to quicly access and construct the parent hash map **/
 	size_t hash;
 };
 
 /*********************  CLASS  **********************/
+/**
+ * Keep track of the call stacks.
+**/
 class Stack
 {
 	public:
@@ -44,6 +56,7 @@ class Stack
 		void pop(void);
 		void fillMiniStack(MiniStack & miniStack);
 	private:
+		/** Store the stack pointer with caller first **/
 		StackStorage stack;
 };
 

@@ -25,25 +25,46 @@ namespace numaprof
 {
 
 /*********************  STRUCT  *********************/
+/**
+ * Entrise of the log of thread pinning.
+**/
 struct ThreadBindingLogEntry
 {
+	/** At which time the thread as moved. **/
 	ClockValue at;
+	/** The NUMA node to which it is assigigned (-1 if not binded) . **/
 	int numa;
 };
 
 /*********************  STRUCT  *********************/
+/**
+ * Entry the the memory  binding pinning log.
+**/
 struct ThreadMemBindingLogEntry
 {
+	/** At which time the memory has been pinned **/
 	ClockValue at;
+	/** The policy it uses in set_mempolicy **/
 	MemPolicy policy;
 };
 
 /*********************  TYPES  **********************/
+/** 
+ * Build cache of instruction and alloc counters. 
+ * it is indexed by the real counter address so we can dump
+ * quicly the cache into the final struct wihtout running
+ * over the std::map. So we can use directly atomics.
+**/
 typedef std::map<Stats *,Stats> AllocCacheMap;
+/** List to build the thread binding log **/
 typedef std::list<ThreadBindingLogEntry> ThreadBindingLog;
+/** Lst to build the thread memory binding log **/
 typedef std::list<ThreadMemBindingLogEntry> MemPolicyLog;
 
 /*********************  CLASS  **********************/
+/**
+ * Object to track the states of a thread.
+**/
 class ThreadTracker
 {
 	public:
@@ -70,30 +91,55 @@ class ThreadTracker
 		void logBinding(MemPolicy & policy);
 		bool isMemBind(void);
 	private:
+		/** Linux thread ID **/
 		int tid;
+		/** Pointer to the parrent process tracker **/
 		ProcessTracker * process;
+		/** Instruction counter cache. **/
 		InstrInfoMap instructions;
+		/** Allocation cache **/
 		AllocCacheMap allocCache;
+		/** Globl access counters for the thread. **/
 		Stats stats;
+		/** NUMA node thread pinning. **/
 		int numa;
+		/** Pointer to the process page table. **/
 		PageTable * table;
+		/** Allocation tracker. We build one per thread to eliminate locks. **/
 		MallocTracker allocTracker;
+		/** Counter for dummy allocations (static objects like global variables, consts...). **/
 		Stats dummyAlloc;
+		/** Pointer to the NUMA topology **/
 		NumaTopo * topo;
+		/** Track the call stack of the thread. **/
 		Stack stack;
+		/** Access matrix of the current thread **/
 		AccessMatrix accessMatrix;
+		/** CPU on which the thread is allowed to run on **/
 		CpuBindList cpuBindList;
+		/** Mutex to protect access to the binding logs **/
 		Mutex bindingLogMutex;
+		/** Log to keep track of the thread binding **/
 		ThreadBindingLog bindingLog;
+		/** Remeber when the thread was born. **/
 		ClockValue clockStart;
+		/** Remember when the thread died. **/
 		ClockValue clockEnd;
+		/** Keep track of current memory policy. **/
 		MemPolicy memPolicy;
+		/** Log the the thread memory policy changes **/
 		MemPolicyLog memPolicyLog;
+		/** Count number of pages touches for each NUMA node. **/
 		size_t * cntTouchedPages;
+		/** Number of calls to mbind **/
 		size_t mbindCalls;
+		/** Count how instruction flush we made to warn the user if there is too many. **/
 		size_t instructionFlush;
+		/** Count how allocation flush we made to warn the user if there is too many. **/		
 		size_t allocFlush;
+		/** Number of entries in the instruction cache **/
 		size_t cacheEntries;
+		/** Counters of access for every NUMA distance. **/
 		size_t * distanceCnt;
 };
 
