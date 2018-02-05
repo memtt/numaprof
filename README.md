@@ -1,6 +1,8 @@
 Numaprof
 ========
 
+[![Build Status](https://travis-ci.org/memtt/numaprof.svg?branch=master)](https://travis-ci.org/memtt/numaprof)
+
 What is it ?
 ------------
 
