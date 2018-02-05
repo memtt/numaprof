@@ -28,7 +28,7 @@ install(FILES numaprof.1.bz2 numaprof-passwd.1.bz2 numaprof-webview.1.bz2
         DESTINATION share/man/man1)
 
 #optional
-if (Qt5Widgets_FOUND AND Qt5WebEngineWidgets_FOUND)
+if (QT5_FOUND)
 	install(FILES numaprof-qt5.1.bz2
             DESTINATION share/man/man1)
-endif (Qt5Widgets_FOUND AND Qt5WebEngineWidgets_FOUND)
+endif (QT5_FOUND)
