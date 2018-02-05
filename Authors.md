@@ -1,4 +1,4 @@
 List of authors
 ===============
 
- * Sébastien Valat (CERN)
+ * Sébastien Valat (CERN) [2017-*]

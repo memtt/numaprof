@@ -115,4 +115,4 @@ In that case you can setup some environment variables to configure NUMAPROF :
 
 ## SEE ALSO
 
-numaprof-webview(1), numaprof-passwd(1)
+numaprof-webview(1), numaprof-qt5(1), numaprof-passwd(1)

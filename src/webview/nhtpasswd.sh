@@ -8,13 +8,21 @@
 ######################################################
 
 ######################################################
+if [ -z "$3" ]; then
+	authFile=${HOME}/.numaprof/htpasswd
+else
+	authFile=$3
+fi
+
+######################################################
 if [ ! -d ${HOME}/.numaprof ]; then
 	mkdir ${HOME}/.numaprof
 fi
 
 ######################################################
-if [ ! -f ${HOME}/.numaprof/htpasswd ]; then
-	touch ${HOME}/.numaprof/htpasswd
+if [ ! -f "$authFile" ]; then
+	touch "$authFile"
+	chmod 600 "$authFile"
 fi
 
 ######################################################

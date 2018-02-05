@@ -36,6 +36,8 @@ parser.add_argument('--port', '-p', dest='port', type=int,
 parser.add_argument('--webkit', '-w' ,dest='webkit', action='store_const',
                     const=1, default=0,
                     help='Automatically open a browser view using Qt webkit.')
+parser.add_argument('--authfile', '-A', dest='authfile',
+                    help='Provide the authentification file, used by QT GUI.')
 
 args = parser.parse_args()
 
@@ -63,6 +65,8 @@ if args.webkit == 1:
 			userdb.add(webkitUser, webkitPasswd)
 		except htpasswd.basic.UserExists, e:
 			userdb.change_password(webkitUser,webkitPasswd)
+elif args.authfile:
+	authFile = args.authfile
 
 ######################################################
 #config

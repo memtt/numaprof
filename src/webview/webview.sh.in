@@ -17,7 +17,20 @@ if [ ! -f ${HOME}/.numaprof/htpasswd ]; then
 fi
 
 ######################################################
+function forwardSigterm()
+{
+	#echo "Send KILL to python $CHILD !"
+	kill $CHILD
+}
+
+######################################################
+trap forwardSigterm SIGTERM
+trap forwardSigterm SIGINT
+
+######################################################
 #export FLASK_APP=server.py
 export PYTHONPATH=@WEBVIEW_PATH@/deps/:$PYTHONPATH
-python @WEBVIEW_PATH@/server.py "$@"
+python @WEBVIEW_PATH@/server.py "$@" &
+CHILD=$!
+wait $!
 exit $?

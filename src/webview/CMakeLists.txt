@@ -18,6 +18,7 @@ if (NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/bower_components/ OR NOT EXISTS ${CMA
 	add_custom_command (OUTPUT deps-loaded
 					COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/prepare.sh ${CMAKE_CURRENT_BINARY_DIR}
 					COMMENT "Fetching webview python/javascript dependencies..."
+					DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/prepare.sh
 					WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/)
 	add_custom_target(run ALL DEPENDS deps-loaded)
 	INSTALL(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/deps DESTINATION share/numaprof/webview)

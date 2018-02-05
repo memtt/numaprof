@@ -8,7 +8,7 @@
 
 ######################################################
 RONN=ronn
-TARGETS=numaprof-passwd.1.bz2 numaprof-webview.1.bz2 numaprof.1.bz2 numaprof-passwd.1.html numaprof-webview.1.html numaprof.1.html
+TARGETS=numaprof-passwd.1.bz2 numaprof-webview.1.bz2 numaprof.1.bz2 numaprof-qt5.1.bz2 numaprof-passwd.1.html numaprof-webview.1.html numaprof.1.html numaprof-qt5.1.html
 RM=rm -f
 BZIP2=bzip2
 

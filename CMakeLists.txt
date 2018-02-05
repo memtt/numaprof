@@ -8,6 +8,7 @@
 
 ######################################################
 #Usage of OBJECT keyword in add_library require 2.8.8 (or something like that, need to check)
+#QT5 requires 2.8.3 mini, recommanded 3.1.0
 cmake_minimum_required(VERSION 2.8.8)
 project(numaprof)
 
@@ -40,4 +41,3 @@ numaprof_enable_cxx_11()
 ######################################################
 add_subdirectory(src)
 add_subdirectory(extern-deps)
-

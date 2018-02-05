@@ -1,15 +1,15 @@
-numaprof-webview(1) -- Webserver for the NUMAPROF web GUI
-===========================================================
+numaprof-qt5(1) -- QT5 wrapper GUI
+==================================
 
 ## SYNOPSIS
 
-`numaprof-webview` [OPTIONS] {numaprof-profile.json}
+`numaprof-qt5` [OPTIONS] {numaprof-profile.json}
 
 ## DESCRIPTION
 
-The NUMAPROF web GUI is hosted by a python script managed by `numaprof-webview` command. It will
-by default open a socket listening on `localhost` and port `8080` so reachable with address
-http://localhost:8080.
+The NUMAPROF QT GUI use the QT-Webkit plugin to open a browser and automatically connect if to
+the `numaprof-webview` web server. The server is launched in background on a randome port
+with a temporary generated authfile to be used only from the GUI.
 
 ## OPTIONS
 
@@ -30,20 +30,11 @@ http://localhost:8080.
  * `-A`, `--authfile`:
    Provide a custom auth file (to be used by QT wrapper).
 
-## REMOTE USAGE THROUGH SSH
-
-On clusters you might be interested by launching the `numaprof-webview` remotly and forward
-it through ssh to get it on your local machine. You can achieve this port redirection with
-ssh options :
-
- ssh {YOUR_HOST} -L 8080:localhost:8080
-
-Where the first 8080 is the local port and the second one the remote.
-
 ## VERSION
 
    This is the manpage of NUMAPROF version 0.0.0-dev.
 
 ## SEE ALSO
 
-numaprof-qt5(1), numaprof-passwd(1), numaprof(1)
+numaprof-webview(1), numaprof-passwd(1), numaprof(1)
+

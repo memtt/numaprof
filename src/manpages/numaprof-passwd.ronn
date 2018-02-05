@@ -21,4 +21,4 @@ more details : https://www.npmjs.com/package/htpasswd.
 
 ## SEE ALSO
 
-numaprof-webview(1), numaprof(1)
+numaprof(1), numaprof-webview(1), numaprof-qt5(1) 
