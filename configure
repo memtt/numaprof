@@ -87,6 +87,7 @@ To find libs and commands :
    --with-hwloc={prefix}     Define prefix to find hwloc [/usr].
    --with-numactl={perfix}   Define prefix of numactl/libnuma [/usr]
    --with-pintool={prefix}   Define prefix of pintool (REQUIRED).
+   --without-pintool         Skip pintool check for continuous integration.
 
 To get the generated cmake command :
    --show                  Display the cmake command and didn't execute it.
@@ -160,6 +161,9 @@ do
 			;;
 		--with-pintool=*)
 			PINTOOL_PREFIX="`get_arg_value \"$arg\" --with-pintool`"
+			;;
+		--without-pintool)
+			PINTOOL_PREFIX="NO"
 			;;
 		--with-numactl=*)
 			NUMACTL_PREFIX="`get_arg_value \"$arg\" --with-numactl`"
@@ -291,7 +295,7 @@ if [ -z "${PINTOOL_PREFIX}" ]; then
 fi
 
 ######################################################
-if [ ! -f ${PINTOOL_PREFIX}/pin ]; then
+if [ ! -f ${PINTOOL_PREFIX}/pin ] && [ "${PINTOOL_PREFIX}" != "NO" ]; then
 	echo "Invalid path for pintool : $PINTOOL_PREFIX, please set with --with-pintool=PATH"
 # 	exit 1
 fi

@@ -10,7 +10,7 @@ before_install:
 script: 
   - mkdir -p build 
   - cd build 
-  - ../configure --enable-debug --enable-gcc-coverage --disable-webview
+  - ../configure --enable-debug --enable-gcc-coverage --disable-webview --without-pintool
   - make 
   - make test
 
