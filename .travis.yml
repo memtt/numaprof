@@ -12,7 +12,7 @@ script:
   - cd build 
   - ../configure --enable-debug --enable-gcc-coverage --disable-webview --without-pintool
   - make 
-  - make test
+#  - make test
 
 #after_success:
 #  - if [ "$CXX" == "g++" ]; then coveralls -r ../ -e src/tests --gcov-options '\-lp'; fi
