@@ -32,7 +32,7 @@ set(ENABLE_WEBVIEW "ON" CACHE BOOL "Enable installation of webview")
 #Some global setup
 setup_internal_gmock_and_gtest()
 if (ENABLE_GCC_COVERAGE)
-        daq_enable_gcc_coverage()
+        numaprof_enable_gcc_coverage()
 endif(ENABLE_GCC_COVERAGE)
 
 ######################################################
