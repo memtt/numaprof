@@ -15,6 +15,9 @@ find_package(Qt5Network QUIET)
 ######################################################
 if (Qt5Widgets_FOUND AND Qt5WebEngineWidgets_FOUND AND Qt5Network_FOUND)
 	set(QT5_FOUND OK)
+	message(STATUS "Find QT5 to build view")
+else (Qt5Widgets_FOUND AND Qt5WebEngineWidgets_FOUND AND Qt5Network_FOUND)
+	message(STATUS "QT5 webkit not found, skip QT5 view")
 endif (Qt5Widgets_FOUND AND Qt5WebEngineWidgets_FOUND AND Qt5Network_FOUND)
 
 ######################################################
