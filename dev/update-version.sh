@@ -69,6 +69,12 @@ do
 			;;
 	esac
 
+	#exclude non MALT files
+	if [ -z "$(cat $file | grep NUMAPROF)" ] && [ -z "$(cat $file | grep numaprof)" ]
+	then
+		continue;
+	fi
+
 	#do replacement
 	sed -i -r -e "s#  DATE     : [0-9]{2}/[0-9]{4}#  ${newdate}#g" \
 	          -e "s#  $V  : .{16}#  ${newversion}#" \
