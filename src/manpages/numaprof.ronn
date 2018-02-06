@@ -111,7 +111,7 @@ In that case you can setup some environment variables to configure NUMAPROF :
 
 ## VERSION
 
-   This is the manpage of NUMAPROF version 0.0.0-dev.
+   This is the manpage of NUMAPROF version 1.0.0.
 
 ## SEE ALSO
 

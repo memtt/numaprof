@@ -17,7 +17,7 @@ more details : https://www.npmjs.com/package/htpasswd.
 
 ## VERSION
 
-   This is the manpage of NUMAPROF version 0.0.0-dev
+   This is the manpage of NUMAPROF version 1.0.0
 
 ## SEE ALSO
 

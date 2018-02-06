@@ -42,7 +42,7 @@ Where the first 8080 is the local port and the second one the remote.
 
 ## VERSION
 
-   This is the manpage of NUMAPROF version 0.0.0-dev.
+   This is the manpage of NUMAPROF version 1.0.0.
 
 ## SEE ALSO
 

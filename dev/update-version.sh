@@ -1,8 +1,8 @@
 #!/bin/bash
 ######################################################
 #            PROJECT  : numaprof                     #
-#            VERSION  : 0.0.0-dev                    #
-#            DATE     : 07/2017                      #
+#            VERSION  : 1.0.0                        #
+#            DATE     : 02/2018                      #
 #            AUTHOR   : Valat Sébastien  - CERN      #
 #            LICENSE  : CeCILL-C                     #
 ######################################################
@@ -96,7 +96,7 @@ cd $cur
 ######################################################
 #update bower and package
 sed -i -r -e "s/^version=[0-9A-Za-z.-]+$/version=${version}/g" dev/gen-archive.sh
-sed -i -r -e "s/^PROJECT_NUMBER         = ${OLD_VERSION_SAFE}$/PROJECT_NUMBER         = ${version}/g" Doxyfile
+#sed -i -r -e "s/^PROJECT_NUMBER         = ${OLD_VERSION_SAFE}$/PROJECT_NUMBER         = ${version}/g" Doxyfile
 sed -i -r -e "s/${OLD_VERSION_SAFE}/${versionStrict}/g" src/lib/CMakeLists.txt
 #sed -i -r -e "s/${OLD_VERSION}/${version}/g" packaging/README.md
 #sed -i -r -e "s/${OLD_VERSION}/${version}/g" dev/packaging.sh
@@ -106,5 +106,5 @@ sed -i -r -e "s/${OLD_VERSION_SAFE}/${versionStrict}/g" src/lib/CMakeLists.txt
 ######################################################
 #serach not updated
 echo "=================== Check not updated list ======================"
-grep -RHn "$(echo "${OLD_VERSION}" | sed -e 's/-dev//g' -e 's/\./\\./g')" ./ | grep -v node_modules | grep -v extern-deps | grep -v "\.git" | grep -v bower_components | grep -v deps | grep "${OLD_VERSION}"
+grep -RHn "$(echo "${OLD_VERSION}" | sed -e 's/-dev//g' -e 's/\./\\./g')" ./ | grep -v node_modules | grep -v extern-deps | grep -v "\.git" | grep -v bower_components | grep -v deps | grep -v build | grep "$(echo ${OLD_VERSION} | sed -e 's/-dev//g')"
 echo "================================================================="
