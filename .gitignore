@@ -7,3 +7,4 @@ src/webview/bower_components/
 .kdev4
 *.kdev4
 .vscode
+doxygen
