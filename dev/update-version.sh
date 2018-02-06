@@ -63,7 +63,7 @@ do
 
 	#exclude some paths
 	case "$file" in
-		*.git*|*extern-deps*)
+		./.git/*|./build*)
 			#echo "exclude $file"
 			continue
 			;;
@@ -106,5 +106,5 @@ sed -i -r -e "s/${OLD_VERSION_SAFE}/${versionStrict}/g" src/lib/CMakeLists.txt
 ######################################################
 #serach not updated
 echo "=================== Check not updated list ======================"
-grep -RHn "$(echo "${OLD_VERSION}" | sed -e 's/\./\\./g')" ./ | grep -v node_modules | grep -v extern-deps | grep -v "\.git" | grep -v bower_components | grep -v deps | grep "${OLD_VERSION}"
+grep -RHn "$(echo "${OLD_VERSION}" | sed -e 's/-dev//g' -e 's/\./\\./g')" ./ | grep -v node_modules | grep -v extern-deps | grep -v "\.git" | grep -v bower_components | grep -v deps | grep "${OLD_VERSION}"
 echo "================================================================="
