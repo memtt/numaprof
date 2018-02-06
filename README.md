@@ -26,6 +26,15 @@ Numaprof extract the given metrics per call site and per malloc call site :
  * unpinnedThreadAccess : Accès depuis un thread non bindé à une page dont le thread ayant fait le first touch était bindé
  * unpinnedBothAccess : Accès depuis un thread non bindé à une page mise en place par un thread non bindé
  * mcdram : Accès à la mcdram sur KNL
+ 
+Dependencies
+------------
+
+NUMAPROF needs:
+
+ * Intel Pintool (required, tested : 3.5) : https://software.intel.com/en-us/articles/pin-a-binary-instrumentation-tool-downloads. Take care of the licence which is free only for non commercial use.
+ * Python (required). To run the webserver.
+ * Qt5-webkit (optional, greater than : 5.4). To provide a browser embedded view to use ssh X forward instead of the webserver port forwarding.
 
 Install
 -------
