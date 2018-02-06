@@ -31,8 +31,9 @@ Install
 -------
 
 First download the last version of pintool (tested : 3.5 on x86_64 arch : https://software.intel.com/en-us/articles/pin-a-binary-instrumentation-tool-downloads) and extract it somewhere.
+TAKE CARE, PINTOOL IS NOT OPEN-SOURCE AND IS FREE ONLY FOR NON-COMMERCIAL USE.
 
-Then use the configure script (for pintool mode do not use directly the cmake script, the configure script does extra things with pin):
+Then use the configure script :
 
 ```
 mkdir build
@@ -141,3 +142,4 @@ Licence
 -------
 
 Numaprof is distributed under CeCILL-C licence which is LGPL compatible.
+Take care, NUMAPROF currently strongly depend on Intel Pintool which is free only for non commercial use.
