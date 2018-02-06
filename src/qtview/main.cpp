@@ -8,7 +8,13 @@
 
 /*******************  HEADERS  **********************/
 #include <QApplication>
-#include <QWebEngineView>
+#ifdef HAVE_QT5_WEB_ENGINE_WIDGETS
+	#include <QWebEngineView>
+#elif defined(HAVE_QT5_WEBKIT_WIDGETS)
+	#include <QWebView>
+#else
+	#error "Missing webkit headers !"
+#endif
 #include <QUrl>
 #include <QTemporaryFile>
 #include <QProcess>
@@ -22,6 +28,15 @@
 /********************  MACRO  ***********************/
 #define PORT_MIN 1025
 #define PORT_MAX 65535
+
+/********************  MACROS  **********************/
+#ifdef HAVE_QT5_WEB_ENGINE_WIDGETS
+	#define Browser QWebEngineView
+#elif defined(HAVE_QT5_WEBKIT_WIDGETS)
+	#define Browser QWebView
+#else
+	#error "Missing webkit headers !"
+#endif
 
 /*********************  CONSTS  *********************/
 const char gblChars[] = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_*+()[]{}%?,";
@@ -105,7 +120,7 @@ int main(int argc, char *argv[])
 	}
 
 	//create browser & connect to webserver
-	QWebEngineView webview;
+	Browser webview;
 	QUrl url(QString("http://localhost:")+QString::number(port));
 	url.setUserName(user);
 	url.setPassword(pass);
