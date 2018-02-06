@@ -14,7 +14,7 @@
 #define CNT 5
 
 /*******************  FUNCTION  *********************/
-int func()
+void func()
 {
 	char * buffer = (char*)malloc(128);
 	sprintf(buffer,"Hellow world!");
@@ -37,4 +37,5 @@ int main()
 	printf("ok\n");
 	func();
 	func();
+	return EXIT_SUCCESS;
 }

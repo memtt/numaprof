@@ -20,7 +20,7 @@
 static char * global = NULL;
 
 /*******************  FUNCTION  *********************/
-int func()
+void func()
 {
 	char * buffer = (char*)malloc(128);
 	sprintf(buffer,"Hellow world!");
@@ -34,7 +34,7 @@ int func()
 }
 
 /*******************  FUNCTION  *********************/
-int func2(int id)
+void func2(int id)
 {
 	cpu_set_t set;
 	CPU_ZERO(&set);
@@ -86,4 +86,6 @@ int main(int argc, char ** argv)
 		lst[i] = std::thread([i](){func2(i);});
 	for (int i = 0 ; i < ncpu ; i++)
 		lst[i].join();
+	
+	return EXIT_SUCCESS;
 }

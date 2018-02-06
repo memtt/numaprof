@@ -52,7 +52,7 @@ TEST(Stack,fillMiniStack_1)
 	EXPECT_EQ((void*)0x3,mini.stack[1]);
 	EXPECT_EQ((void*)0x4,mini.stack[2]);
 	
-	EXPECT_EQ(9,mini.hash);
+	EXPECT_EQ(9ul,mini.hash);
 }
 
 /*******************  FUNCTION  *********************/
@@ -69,7 +69,7 @@ TEST(Stack,fillMiniStack_2)
 	EXPECT_EQ((void*)0x2,mini.stack[1]);
 	EXPECT_EQ((void*)0x0,mini.stack[2]);
 	
-	EXPECT_EQ(3,mini.hash);
+	EXPECT_EQ(3ul,mini.hash);
 }
 
 /*******************  FUNCTION  *********************/

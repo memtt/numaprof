@@ -101,4 +101,4 @@ void DebugMessage::print ( const char* format, ... )
 		abort();
 }
 
-};
+}

@@ -137,6 +137,6 @@ class DebugMessage
 /** To avoid some compiler warnings **/
 #define numaprofUnused(x)          ((void)x)
 
-};
+}
 
 #endif //DEBUG_HPP
