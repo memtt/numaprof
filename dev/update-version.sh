@@ -23,6 +23,8 @@ function extract_old_version()
 	OLD_VERSION=$(cat configure | grep VERSION | xargs echo | cut -d " " -f 4)
 	echo "Old version is ${OLD_VERSION}"
 	OLD_VERSION_SAFE=$(echo $OLD_VERSION | sed -e "s/\\./\\\\./g")
+	OLD_SHORT_VERSION=$(echo $OLD_VERSION | sed -e 's/-dev//g')
+	OLD_SHORT_VERSION_SAFE=$(echo $OLD_SHORT_VERSION | sed -e "s/\\./\\\\./g")
 }
 
 ######################################################
@@ -86,7 +88,7 @@ done
 #manpages
 for tmp in src/manpages/*.ronn
 do
-	sed -i -r -e "s/${OLD_VERSION_SAFE}/${version}/g" $tmp
+	sed -i -r -e "s/${OLD_SHORT_VERSION_SAFE}/${versionStrict}/g" $tmp
 done
 cur=$PWD
 cd src/manpages/
@@ -98,10 +100,10 @@ cd $cur
 sed -i -r -e "s/^version=[0-9A-Za-z.-]+$/version=${version}/g" dev/gen-archive.sh
 #sed -i -r -e "s/^PROJECT_NUMBER         = ${OLD_VERSION_SAFE}$/PROJECT_NUMBER         = ${version}/g" Doxyfile
 sed -i -r -e "s/${OLD_VERSION_SAFE}/${versionStrict}/g" src/lib/CMakeLists.txt
-#sed -i -r -e "s/${OLD_VERSION}/${version}/g" packaging/README.md
-#sed -i -r -e "s/${OLD_VERSION}/${version}/g" dev/packaging.sh
-#sed -i -r -e "s/${OLD_VERSION}/${version}/g" packaging/fedora/malt.spec
-#sed -i -r -e "s/${OLD_VERSION}/${version}/g" packaging/debian/changelog
+#sed -i -r -e "s/${OLD_SHORT_VERSION_SAFE}/${versionStrict}/g" packaging/README.md
+#sed -i -r -e "s/${OLD_SHORT_VERSION_SAFE}/${versionStrict}/g" dev/packaging.sh
+#sed -i -r -e "s/${OLD_SHORT_VERSION_SAFE}/${versionStrict}/g" packaging/fedora/malt.spec
+#sed -i -r -e "s/${OLD_SHORT_VERSION_SAFE}/${versionStrict}/g" packaging/debian/changelog
 
 ######################################################
 #serach not updated
