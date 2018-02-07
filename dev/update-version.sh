@@ -1,7 +1,7 @@
 #!/bin/bash
 ######################################################
 #            PROJECT  : numaprof                     #
-#            VERSION  : 1.0.0                        #
+#            VERSION  : 1.1.0-dev                    #
 #            DATE     : 02/2018                      #
 #            AUTHOR   : Valat Sébastien  - CERN      #
 #            LICENSE  : CeCILL-C                     #
@@ -71,7 +71,7 @@ do
 			;;
 	esac
 
-	#exclude non MALT files
+	#exclude non nupaprof files
 	if [ -z "$(cat $file | grep NUMAPROF)" ] && [ -z "$(cat $file | grep numaprof)" ]
 	then
 		continue;
@@ -104,6 +104,7 @@ sed -i -r -e "s/${OLD_VERSION_SAFE}/${versionStrict}/g" src/lib/CMakeLists.txt
 #sed -i -r -e "s/${OLD_SHORT_VERSION_SAFE}/${versionStrict}/g" dev/packaging.sh
 #sed -i -r -e "s/${OLD_SHORT_VERSION_SAFE}/${versionStrict}/g" packaging/fedora/malt.spec
 #sed -i -r -e "s/${OLD_SHORT_VERSION_SAFE}/${versionStrict}/g" packaging/debian/changelog
+sed -i -r -e "s/${OLD_SHORT_VERSION_SAFE}/${versionStrict}/g" Doxyfile
 
 ######################################################
 #serach not updated

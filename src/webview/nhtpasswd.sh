@@ -1,7 +1,7 @@
 #!/bin/bash
 ######################################################
 #            PROJECT  : numaprof                     #
-#            VERSION  : 1.0.0                        #
+#            VERSION  : 1.1.0-dev                    #
 #            DATE     : 02/2018                      #
 #            AUTHOR   : Valat Sébastien  - CERN      #
 #            LICENSE  : CeCILL-C                     #
