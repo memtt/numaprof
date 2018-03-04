@@ -61,6 +61,7 @@ class ProcessTracker
 		NumaTopo & getNumaTopo(void);
 		void onThreadSetAffinity(int pid,cpu_set_t * mask,int size);
 		void markObjectFiledAsNotPinned(void);
+		void flushAllThreadAccessBatch(void);
 	private:
 		void removeSmall(InstrInfoMap & map, float cutoff);
 	private:

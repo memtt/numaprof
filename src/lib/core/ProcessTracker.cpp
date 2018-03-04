@@ -243,6 +243,9 @@ void ProcessTracker::onExit(void)
 	if (options.outputDumpConfig)
 		options.dumpConfig(FormattedMessage(options.outputName).arg(OS::getExeName()).arg(OS::getPID()).arg("ini").toString().c_str());
 	
+	//flush all access batches
+	flushAllThreadAccessBatch();
+	
 	//flush alloc cache data
 	//this must be done before calling flush because otherwise
 	//we miss some data as this cache point on struct from every threads
@@ -364,6 +367,19 @@ void ProcessTracker::markObjectFiledAsNotPinned(void)
 		if (it->file.empty() == false)
 			if (it->file[0] != '[')
 				loadedObjects[it->file] = true;
+}
+
+/*******************  FUNCTION  *********************/
+/**
+ * When calling functions like malloc/munmap/sched_setaffinity... we need to flush
+ * all access batches from every threads
+**/
+void ProcessTracker::flushAllThreadAccessBatch(void)
+{
+	mutex.lock();
+	for (ThreadTrackerMap::iterator it = threads.begin() ; it != threads.end() ; ++it)
+		it->second->flushThreadAccessBatch();
+	mutex.unlock();
 }
 
 /*******************  FUNCTION  *********************/

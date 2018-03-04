@@ -12,6 +12,7 @@
 /********************  HEADERS  *********************/
 #include <map>
 #include <list>
+#include <vector>
 #include "../../../extern-deps/from-htopml/json/ConvertToJson.h"
 #include "ProcessTracker.hpp"
 #include "MallocTracker.hpp"
@@ -19,6 +20,7 @@
 #include "AccessMatrix.hpp"
 #include "../portability/Clock.hpp"
 #include "../portability/OS.hpp"
+#include "../portability/Mutex.hpp"
 
 /*******************  NAMESPACE  ********************/
 namespace numaprof
@@ -108,11 +110,13 @@ class ThreadTracker
 		void onMBind(void * addr,size_t len,size_t mode,const unsigned long *nodemask,size_t maxnode,size_t flags);
 		int getTID(void);
 		friend void convertToJson(htopml::JsonState& json, const ThreadTracker& value);
+		void flushThreadAccessBatch(void);
 	private:
 		void logBinding(int numa);
 		void logBinding(MemPolicy & policy);
 		bool isMemBind(void);
 		void flushAccessBatch(void);
+		void flushAllThreadAccessBatch(void);
 	private:
 		/** Linux thread ID **/
 		int tid;
@@ -166,6 +170,8 @@ class ThreadTracker
 		size_t * distanceCnt;
 		/** aggregate accesses to treat them as batch **/
 		AccessVector accessBatch;
+		/** Mutex to protect access batch vector **/
+		Mutex accessBatchMutex;
 };
 
 /*******************  FUNCTION  *********************/
