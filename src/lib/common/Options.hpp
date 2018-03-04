@@ -91,6 +91,10 @@ struct Options
 	**/
 	bool coreObjectCodePinned;
 	/**
+	 * Configure the access batch size
+	**/
+	int coreAccessBatchSize;
+	/**
 	 * Do not track memory accesses of the given memory. Use semi-column to separate.
 	 * You provide a string which is search so you are not forced to use the full path or
 	 * full name.

@@ -48,6 +48,22 @@ struct ThreadMemBindingLogEntry
 	MemPolicy policy;
 };
 
+/*********************  STRUCT  *********************/
+/**
+ * Used to aggregate accesses and handle many of them by batch.
+**/
+struct AccessEvent
+{
+	/** Instruction pointer **/
+	size_t ip;
+	/** Memory address accessed **/
+	size_t addr;
+	/** Is read of write **/
+	bool write;
+	/** Do we skip counter **/
+	bool skip;
+};
+
 /*********************  TYPES  **********************/
 /** 
  * Build cache of instruction and alloc counters. 
@@ -60,6 +76,11 @@ typedef std::map<Stats *,Stats> AllocCacheMap;
 typedef std::list<ThreadBindingLogEntry> ThreadBindingLog;
 /** Lst to build the thread memory binding log **/
 typedef std::list<ThreadMemBindingLogEntry> MemPolicyLog;
+/**
+ * used to batch accesses handling to avoid to interupt too much the
+ * program flow.
+**/
+typedef std::vector<AccessEvent> AccessVector;
 
 /*********************  CLASS  **********************/
 /**
@@ -72,6 +93,7 @@ class ThreadTracker
 		void flushAllocCache(void);
 		void flush(void);
 		void onAccess(size_t ip,size_t addr,bool write,bool skip = false);
+		void onAccessHandling(size_t ip,size_t addr,bool write,bool skip = false);
 		void onSetAffinity(cpu_set_t * mask,int size);
 		void onStop(void);
 		void onMunmap(size_t addr,size_t size);
@@ -90,6 +112,7 @@ class ThreadTracker
 		void logBinding(int numa);
 		void logBinding(MemPolicy & policy);
 		bool isMemBind(void);
+		void flushAccessBatch(void);
 	private:
 		/** Linux thread ID **/
 		int tid;
@@ -141,6 +164,8 @@ class ThreadTracker
 		size_t cacheEntries;
 		/** Counters of access for every NUMA distance. **/
 		size_t * distanceCnt;
+		/** aggregate accesses to treat them as batch **/
+		AccessVector accessBatch;
 };
 
 /*******************  FUNCTION  *********************/

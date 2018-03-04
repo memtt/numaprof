@@ -39,6 +39,9 @@ ThreadTracker::ThreadTracker(ProcessTracker * process)
 	logBinding(memPolicy);
 	logBinding(this->numa);
 	
+	//build access batch
+	this->accessBatch.reserve(getGlobalOptions().coreAccessBatchSize);
+	
 	//allocate and initial
 	this->distanceCnt = new size_t[topo->getDistanceMax()+2];
 	memset(distanceCnt,0,sizeof(size_t)*(topo->getDistanceMax()+2));
@@ -98,6 +101,7 @@ void ThreadTracker::flushAllocCache(void)
 void ThreadTracker::flush(void)
 {
 	assert(allocCache.empty());
+	flushAccessBatch();
 	this->process->mergeInstruction(instructions);
 	this->allocTracker.flush(process);
 }
@@ -105,6 +109,7 @@ void ThreadTracker::flush(void)
 /*******************  FUNCTION  *********************/
 void ThreadTracker::onSetAffinity(cpu_set_t * mask,int size)
 {
+	flushAccessBatch();
 	bindingLogMutex.lock();
 	this->numa = process->getNumaAffinity(mask,size,&cpuBindList);
 	this->logBinding(this->numa);
@@ -114,6 +119,7 @@ void ThreadTracker::onSetAffinity(cpu_set_t * mask,int size)
 /*******************  FUNCTION  *********************/
 void ThreadTracker::onSetMemPolicy(int mode,const unsigned long * mask,unsigned long maxNodes)
 {
+	flushAccessBatch();
 	memPolicy.mode = mode;
 	if (maxNodes % 8 != 0)
 		maxNodes += 8 - maxNodes%8;
@@ -139,7 +145,33 @@ inline bool ThreadTracker::isMemBind(void)
 }
 
 /*******************  FUNCTION  *********************/
+void ThreadTracker::flushAccessBatch()
+{
+	//flush all
+	for (size_t i = 0 ; i < accessBatch.size() ; i++)
+	{
+		AccessEvent & access = accessBatch[i];
+		onAccessHandling(access.ip,access.addr,access.write,access.skip);
+	}
+	
+	//clear
+	accessBatch.clear();
+}
+
+/*******************  FUNCTION  *********************/
 void ThreadTracker::onAccess(size_t ip,size_t addr,bool write,bool skip)
+{
+	//add
+	AccessEvent access = {ip,addr,write,skip};
+	accessBatch.push_back(access);
+	
+	//flush if full
+	if (accessBatch.size() == accessBatch.capacity())
+		flushAccessBatch();
+}
+
+/*******************  FUNCTION  *********************/
+void ThreadTracker::onAccessHandling(size_t ip,size_t addr,bool write,bool skip)
 {
 	//printf("Access %p => %p\n",(void*)ip,(void*)addr);
 	//get numa location of page form page table
@@ -316,6 +348,7 @@ void ThreadTracker::onAccess(size_t ip,size_t addr,bool write,bool skip)
 /*******************  FUNCTION  *********************/
 void ThreadTracker::onStop(void)
 {
+	flushAccessBatch();
 	this->process->mergeInstruction(instructions);
 	instructions.clear();
 	this->clockEnd = Clock::get();
@@ -324,12 +357,14 @@ void ThreadTracker::onStop(void)
 /*******************  FUNCTION  *********************/
 void ThreadTracker::onMunmap(size_t addr,size_t size)
 {
+	flushAccessBatch();
 	process->onMunmap(addr,size);
 }
 
 /*******************  FUNCTION  *********************/
 void ThreadTracker::onMmap(size_t addr,size_t size,size_t flags,size_t fd)
 {
+	flushAccessBatch();
 	if (flags == MAP_ANON)
 		fd = NUMAPROF_PAGE_ANON_FD;
 	table->trackMMap(addr,size,fd);
@@ -338,12 +373,14 @@ void ThreadTracker::onMmap(size_t addr,size_t size,size_t flags,size_t fd)
 /*******************  FUNCTION  *********************/
 void ThreadTracker::onMremap(size_t oldAddr,size_t oldSize,size_t newAddr, size_t newSize)
 {
+	flushAccessBatch();
 	table->mremap(oldAddr,oldSize,newAddr,newSize);
 }
 
 /*******************  FUNCTION  *********************/
 void ThreadTracker::onAlloc(size_t ip,size_t ptr,size_t size)
 {
+	flushAccessBatch();
 	//printf("%lu => %p => %lu\n",ip,(void*)ptr,size);
 	#ifdef NUMAPROF_CALLSTACK
 		MiniStack miniStack;
@@ -357,6 +394,7 @@ void ThreadTracker::onAlloc(size_t ip,size_t ptr,size_t size)
 /*******************  FUNCTION  *********************/
 void ThreadTracker::onRealloc(size_t ip, size_t oldPtr, size_t newPtr, size_t newSize)
 {
+	flushAccessBatch();
 	#ifdef NUMAPROF_CALLSTACK
 		MiniStack miniStack;
 		stack.fillMiniStack(miniStack);
@@ -371,6 +409,7 @@ void ThreadTracker::onRealloc(size_t ip, size_t oldPtr, size_t newPtr, size_t ne
 /*******************  FUNCTION  *********************/
 void ThreadTracker::onFree(size_t ptr)
 {
+	flushAccessBatch();
 	//printf("free %p\n",(void*)ptr);
 	allocTracker.onFree(ptr);
 }
@@ -390,6 +429,9 @@ void ThreadTracker::onExitFunction(void)
 /*******************  FUNCTION  *********************/
 void ThreadTracker::onMBind(void * addr,size_t len,size_t mode,const unsigned long *nodemask,size_t maxnode,size_t flags)
 {
+	//flusha access batch
+	flushAccessBatch();
+	
 	//basic capture
 	mbindCalls++;
 	
