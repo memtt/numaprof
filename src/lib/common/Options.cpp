@@ -41,7 +41,8 @@ Options::Options(void)
 	this->coreSkipStackAccesses   = true;
 	this->coreThreadCacheEntries     = 512;
 	this->coreObjectCodePinned    = false;
-	this->coreSkipBinaries           = "";
+	this->coreSkipBinaries        = "";
+	this->coreAccessBatchSize     = 64;
 	//info
 	this->infoHidden              = false;
 }
@@ -65,6 +66,7 @@ bool Options::operator==(const Options& value) const
 	if (this->coreThreadCacheEntries != value.coreThreadCacheEntries) return false;
 	if (this->coreObjectCodePinned != value.coreObjectCodePinned) return false;
 	if (this->coreSkipBinaries != value.coreSkipBinaries) return false;
+	if (this->coreAccessBatchSize != value.coreAccessBatchSize) return false;
 	//info
 	if (this->infoHidden != value.infoHidden) return false;
 	
@@ -166,6 +168,7 @@ void Options::loadFromIniDic ( dictionary* iniDic )
 	this->coreThreadCacheEntries = iniparser_getint(iniDic,"core:threadCacheEntries",this->coreThreadCacheEntries);
 	this->coreObjectCodePinned = iniparser_getint(iniDic,"core:objectCodePinned",this->coreObjectCodePinned);
 	this->coreSkipBinaries = iniparser_getstring(iniDic,"core:skipBinaries",(char*)this->coreSkipBinaries.c_str());
+	this->coreAccessBatchSize = iniparser_getint(iniDic,"core:accessBatchSize",this->coreAccessBatchSize);
 	
 	//info
 	this->infoHidden          = iniparser_getboolean(iniDic,"info:hidden",this->infoHidden);
@@ -229,6 +232,7 @@ void convertToJson(htopml::JsonState & json,const Options & value)
 			json.printField("threadCacheEntries",value.coreThreadCacheEntries);
 			json.printField("ojectCodePinned",value.coreObjectCodePinned);
 			json.printField("skipBinaries",value.coreSkipBinaries);
+			json.printField("accessBatchSize",value.coreAccessBatchSize);
 		json.closeFieldStruct("core");
 		
 		json.openFieldStruct("info");
@@ -261,6 +265,7 @@ void Options::dumpConfig(const char* fname) const
 	IniParserHelper::setEntry(dic,"core:threadCacheEntries",this->coreThreadCacheEntries);
 	IniParserHelper::setEntry(dic,"core:objectCodePinned",this->coreObjectCodePinned);
 	IniParserHelper::setEntry(dic,"core:skipFiled",this->coreSkipBinaries.c_str());
+	IniParserHelper::setEntry(dic,"core:accessBatchSize",this->coreAccessBatchSize);
 	
 	//info
 	IniParserHelper::setEntry(dic,"info:hidden",this->infoHidden);
