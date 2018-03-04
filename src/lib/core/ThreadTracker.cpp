@@ -147,6 +147,10 @@ inline bool ThreadTracker::isMemBind(void)
 /*******************  FUNCTION  *********************/
 void ThreadTracker::flushAccessBatch()
 {
+	//skip
+	if (accessBatch.capacity() == 0)
+		return;
+	
 	//flush all
 	for (size_t i = 0 ; i < accessBatch.size() ; i++)
 	{
@@ -161,6 +165,13 @@ void ThreadTracker::flushAccessBatch()
 /*******************  FUNCTION  *********************/
 void ThreadTracker::onAccess(size_t ip,size_t addr,bool write,bool skip)
 {
+	//no batch
+	if (accessBatch.capacity() == 0)
+	{
+		onAccessHandling(ip,addr,write,skip);
+		return;
+	}
+	
 	//add
 	AccessEvent access = {ip,addr,write,skip};
 	accessBatch.push_back(access);

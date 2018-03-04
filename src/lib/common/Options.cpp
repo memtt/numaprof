@@ -42,7 +42,7 @@ Options::Options(void)
 	this->coreThreadCacheEntries     = 512;
 	this->coreObjectCodePinned    = false;
 	this->coreSkipBinaries        = "";
-	this->coreAccessBatchSize     = 64;
+	this->coreAccessBatchSize     = 0;
 	//info
 	this->infoHidden              = false;
 }
