@@ -33,6 +33,10 @@ it with debug symbols (`-g`) and also to disable inlining to get more accurate s
    See the configuration file format (INI format) to find the available sections and names.
  * `-h`, `--help`:
    Display help message with a list of available command line options.
+ * `--batch`:
+   Enable treatement of the accesses by batch with a grouping factor of 32.
+   It provide instrumentation speed-up of a factor 2 but reduce the precision
+   on the first touch detection and counters for elements with low number of accesses.
  * `-V`, `--verbose`
    Enable more printing for debugging.
 
@@ -60,6 +64,7 @@ The config file use INI format with sections and variables as in this example :
 	threadCacheEntries=512
 	objectCodePinned=false
 	skipBinaries=
+	accessBatchSize=0
 
 	[info]
 	hidden=false
@@ -90,6 +95,9 @@ The `core` section support:
    by group. This option configure the size of this buffer.
  * `objectCodePinned`: Define if the binary and so files global variables are considered as pinned or not pinned.
  * `skipBinaries`: Permit to not instrument certain binaries (eg. libgomp). You can provide a list with semi-column separator.
+ * `accessBatchSize`: Enable treatement of the accesses by batch. It improves performance with up to a factor 2
+   but reduce the precision of the detection for elements with low number of accesses and can be non exact for first touch location.
+   A good value if 32 or 64.
  
 The `info` section support:
 

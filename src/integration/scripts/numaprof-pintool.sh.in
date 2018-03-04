@@ -37,6 +37,10 @@ do
 			export NUMAPROF_OPTIONS="${NUMAPROF_OPTIONS},output:silent=false"
 			shift 1
 			;;
+		--batch)
+			export NUMAPROF_OPTIONS="${NUMAPROF_OPTIONS},core:accessBatchSize=32"
+			shift 1
+			;;
 		-h|--help)
 			echo "Usage : numaprof-pintool [--callgrind] [--config file] [--help] [OPTIONS] [--] YOUR_COMMAND"
 			echo ""
@@ -46,6 +50,7 @@ do
 			#echo "           --mpi               Use MPI wrapper to get ranks in output file names."
 			#echo "           --prep-mpi [mpicxx] Build the mpi wrapper into $HOME/.matt/libmattmpi.so"
 			echo "   -d/--dumpconfig             Enable the dump of config file at exit."
+			echo "   --batch                     Enable treatement of accesses by batch."
 			echo "   -V/--verbose                Enable more printing for debugging."
 			echo "   -o SEC:NAME=VAL;...         Override configuration values."
 			echo "   -h/--help                   Show this help message."

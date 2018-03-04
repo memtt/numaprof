@@ -131,6 +131,7 @@ skipStackAccesses=true
 threadCacheEntries=512
 objectCodePinned=false
 skipBinaries=
+accessBatchSize=0
 
 [info]
 hidden=false
