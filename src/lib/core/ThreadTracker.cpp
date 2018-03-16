@@ -293,8 +293,8 @@ void ThreadTracker::onAccessHandling(size_t ip,size_t addr,bool write,bool skip)
 		allocStats = acache.get((size_t)allocStats);
 		if (allocStats == NULL)
 		{
-			allocStats = &(allocCache[allocStats]);
-			acache.set((size_t)allocStats,allocStats);
+			allocStats = &(allocCache[allocInfos->stats]);
+			acache.set((size_t)allocInfos->stats,allocStats);
 		}
 	}
 
