@@ -23,7 +23,7 @@ namespace numaprof
 /**
  * Constructor of the cache, it reset all the content of the cache.
 **/
-template<template class T,int ways,int rows>
+template<class T,int ways,int rows>
 StaticAssoCache<T,ways,rows>::StaticAssoCache(void)
 {
 	for (int r = 0 ; r < rows ; r++)
@@ -32,7 +32,7 @@ StaticAssoCache<T,ways,rows>::StaticAssoCache(void)
 		for (int w = 0 ; w < ways ; w++)
 		{
 			content[r][w] = NULL;
-			addr[r][w] = -1;
+			addr[r][w] = -1UL;
 		}
 	}
 }
@@ -41,33 +41,38 @@ StaticAssoCache<T,ways,rows>::StaticAssoCache(void)
 /**
  * Look in the cache and return the corresponding address.
 **/
-template<template class T,int ways,int rows>
-T * StaticAssoCache<T,ways,rows>::get(size_t addr)
+template<class T,int ways,int rows>
+T * StaticAssoCache<T,ways,rows>::get(size_t addr) const
 {
 	//compute row
 	int r = addr % rows;
-	
+
 	//loop on ways
 	for (int w = 0 ; w < ways ; w++)
-		if (addr[r][w] == addr)
+		if (this->addr[r][w] == addr)
 			return content[r][w];
+
+	//not in cache
+	return NULL;
 }
 
 /*******************  FUNCTION  *********************/
 /**
  * Look in the cache and return the corresponding address.
 **/
-template<template class T,int ways,int rows>
-T * StaticAssoCache<T,ways,rows>::set(size_t addr, T * value)
+template<class T,int ways,int rows>
+void StaticAssoCache<T,ways,rows>::set(size_t addr, T * value)
 {
 	//compute row
 	int r = addr % rows;
 	
-	//loop on ways
-	content[r][next[r]];
+	//setup
+	int w = next[r];
+	this->content[r][w] = value;
+	this->addr[r][w] = addr;
 	
 	//increment with round robin
-	next[r] = (next[r]+1)%ways;
+	next[r] = (w+1)%ways;
 }
 
 }

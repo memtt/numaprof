@@ -185,10 +185,10 @@ void ThreadTracker::onAccess(size_t ip,size_t addr,bool write,bool skip)
 void ThreadTracker::onAccessHandling(size_t ip,size_t addr,bool write,bool skip)
 {
 	//printf("Access %p => %p\n",(void*)ip,(void*)addr);
-	
+
 	//first check in TLB
 	Page * page = tlb.get(addr >> NUMAPROF_PAGE_OFFSET);
-	
+
 	//if not in TLB get numa location of page form page table
 	if (page == NULL)
 	{
@@ -273,7 +273,7 @@ void ThreadTracker::onAccessHandling(size_t ip,size_t addr,bool write,bool skip)
 	}
 
 	//get malloc relation
-	MallocInfos * allocInfos = (MallocInfos *)page->getAllocPointer(addr);
+	MallocInfos * allocInfos = (MallocInfos *)(page->getAllocPointer(addr));
 	Stats * allocStats;
 	if (allocInfos == NULL)
 	{
