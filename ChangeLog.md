@@ -4,6 +4,7 @@ Change log
 master
 ------
 
+ * Add instruction cache to go faster
  * Add a TLB cache to avoid walking in page table for every access.
  * Optionnaly handle access per batch, this provide a speed up of a factor 2 but loose in precision.
 

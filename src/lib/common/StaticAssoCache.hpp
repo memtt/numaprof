@@ -13,7 +13,8 @@
 //std
 #include <cstdlib>
 
-/********************  HEADERS  *********************/
+/********************  MACRO  ***********************/
+// #define NUMAPROF_CACHE_STATS
 
 /*******************  NAMESPACE  ********************/
 namespace numaprof
@@ -30,8 +31,10 @@ class StaticAssoCache
 {
 	public:
 		StaticAssoCache(void);
+		void flush(void);
 		T * get(size_t addr) const;
 		void set(size_t addr,T * value);
+		void printStats(const char * name) const;
 	private:
 		/** Store content **/
 		T * content[rows][ways];
@@ -39,6 +42,10 @@ class StaticAssoCache
 		size_t addr[rows][ways];
 		/** Used to round robin on rows to override **/
 		int next[rows];
+		/** count miss **/
+		mutable size_t miss;
+		/** counter hits **/
+		mutable size_t hits;
 };
 
 }

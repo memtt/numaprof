@@ -11,6 +11,7 @@
 
 /********************  HEADERS  *********************/
 //std
+#include <cstdio>
 #include "StaticAssoCache.hpp"
 
 /********************  HEADERS  *********************/
@@ -25,6 +26,13 @@ namespace numaprof
 **/
 template<class T,int ways,int rows>
 StaticAssoCache<T,ways,rows>::StaticAssoCache(void)
+{
+	flush();
+}
+
+/*******************  FUNCTION  *********************/
+template<class T,int ways,int rows>
+void StaticAssoCache<T,ways,rows>::flush(void)
 {
 	for (int r = 0 ; r < rows ; r++)
 	{
@@ -49,8 +57,23 @@ T * StaticAssoCache<T,ways,rows>::get(size_t addr) const
 
 	//loop on ways
 	for (int w = 0 ; w < ways ; w++)
+	{
 		if (this->addr[r][w] == addr)
+		{
+			//stats
+			#ifdef NUMAPROF_CACHE_STATS
+				hits++;
+			#endif
+
+			//ok
 			return content[r][w];
+		}
+	}
+	
+	//stats
+	#ifdef NUMAPROF_CACHE_STATS
+		miss++;
+	#endif
 
 	//not in cache
 	return NULL;
@@ -73,6 +96,16 @@ void StaticAssoCache<T,ways,rows>::set(size_t addr, T * value)
 	
 	//increment with round robin
 	next[r] = (w+1)%ways;
+}
+
+/*******************  FUNCTION  *********************/
+/**
+ * Constructor of the cache, it reset all the content of the cache.
+**/
+template<class T,int ways,int rows>
+void StaticAssoCache<T,ways,rows>::printStats(const char * name) const
+{
+	printf("%s cache hits: %lu, miss: %lu, ratio: %f\n",name,hits,miss,(float)hits/((float)hits+(float)miss));
 }
 
 }

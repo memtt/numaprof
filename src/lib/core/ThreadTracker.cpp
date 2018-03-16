@@ -260,9 +260,14 @@ void ThreadTracker::onAccessHandling(size_t ip,size_t addr,bool write,bool skip)
 
 	//get instr
 	#ifdef NUMAPROF_CALLSTACK
-		Stats & instr = instructions[miniStack];
+		Stats * instr = &instructions[miniStack];
 	#else
-		Stats & instr = instructions[ip];
+		Stats * instr = icache.get(ip);
+		if (instr == NULL)
+		{
+			instr = &instructions[ip];
+			icache.set(ip,instr);
+		}
 	#endif
 	
 	//acces matrix
@@ -279,13 +284,18 @@ void ThreadTracker::onAccessHandling(size_t ip,size_t addr,bool write,bool skip)
 	{
 		allocStats = &dummyAlloc;
 		stats.nonAlloc++;
-		instr.nonAlloc++;
+		instr->nonAlloc++;
 	} else {
 		allocStats = allocInfos->stats;
 		//pick from alloc cache, this is a track to keep data local to thread
 		//and not use atomics/locks everywhere. Hence it make good scalability
 		//on large number of cores and NUMA nodes.
-		allocStats = &(allocCache[allocStats]);
+		allocStats = acache.get((size_t)allocStats);
+		if (allocStats == NULL)
+		{
+			allocStats = &(allocCache[allocStats]);
+			acache.set((size_t)allocStats,allocStats);
+		}
 	}
 
 	//cases
@@ -299,11 +309,11 @@ void ThreadTracker::onAccessHandling(size_t ip,size_t addr,bool write,bool skip)
 		if (isMemBind() == false)
 		{
 			stats.unpinnedFirstTouch += touchedPages;
-			instr.unpinnedFirstTouch += touchedPages;
+			instr->unpinnedFirstTouch += touchedPages;
 			allocStats->unpinnedFirstTouch += touchedPages;
 		} else {
 			stats.firstTouch += touchedPages;
-			instr.firstTouch += touchedPages;
+			instr->firstTouch += touchedPages;
 			allocStats->firstTouch += touchedPages;
 		}
 	} else {
@@ -311,18 +321,18 @@ void ThreadTracker::onAccessHandling(size_t ip,size_t addr,bool write,bool skip)
 		if (topo->getIsMcdram(pageNode)) 
 		{
 			stats.mcdramAccess++;
-			instr.mcdramAccess++;
+			instr->mcdramAccess++;
 			allocStats->mcdramAccess++;
 		} else if (numa == -1) {
 			//check if page came from pin thread or not
 			if (page->fromPinnedThread)
 			{
 				stats.unpinnedThreadAccess++;
-				instr.unpinnedThreadAccess++;
+				instr->unpinnedThreadAccess++;
 				allocStats->unpinnedThreadAccess++;
 			} else {
 				stats.unpinnedBothAccess++;
-				instr.unpinnedBothAccess++;
+				instr->unpinnedBothAccess++;
 				allocStats->unpinnedBothAccess++;
 			}
 		} else {
@@ -330,17 +340,17 @@ void ThreadTracker::onAccessHandling(size_t ip,size_t addr,bool write,bool skip)
 			if (page->fromPinnedThread == false)
 			{
 				stats.unpinnedPageAccess++;
-				instr.unpinnedPageAccess++;
+				instr->unpinnedPageAccess++;
 				allocStats->unpinnedPageAccess++;
 			} else if (numa == pageNode) {
 				//if local
 				stats.localAccess++;
-				instr.localAccess++;
+				instr->localAccess++;
 				allocStats->localAccess++;
 			} else {
 				//if remote
 				stats.remoteAccess++;
-				instr.remoteAccess++;
+				instr->remoteAccess++;
 				allocStats->remoteAccess++;
 			}
 		}
@@ -353,6 +363,7 @@ void ThreadTracker::onAccessHandling(size_t ip,size_t addr,bool write,bool skip)
 			fprintf(stderr,"NUMAPROF: Caution, flushing instruction a lot of time, maybe you need to increase flush threshold, current is %ld, see core:threadCacheSize !\n",cacheEntries);
 		this->process->mergeInstruction(instructions);
 		instructions.clear();
+		icache.flush();
 	}
 
 	//flush to keep smell
@@ -363,6 +374,7 @@ void ThreadTracker::onAccessHandling(size_t ip,size_t addr,bool write,bool skip)
 		for (AllocCacheMap::iterator it = allocCache.begin() ; it != allocCache.end() ; ++it)
 			(it->first)->merge(it->second);
 		allocCache.clear();
+		acache.flush();
 	}
 }
 
@@ -492,6 +504,12 @@ void convertToJson(htopml::JsonState& json, const ThreadTracker& value)
 		json.printField("mbindCalls",value.mbindCalls);
 		json.printFieldArray("touchedPages",value.cntTouchedPages,value.topo->getNumaNodes());
 	json.closeStruct();
+	
+	#ifdef NUMAPROF_CACHE_STATS
+		value.tlb.printStats("tlb");
+		value.icache.printStats("icache");
+		value.acache.printStats("acache");
+	#endif
 }
 
 /*******************  FUNCTION  *********************/

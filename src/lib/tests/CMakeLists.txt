@@ -31,3 +31,7 @@ target_link_libraries(ReplayAllocTracker numaprof)
 ######################################################
 add_executable(BenchTBLVsPageTable BenchTBLVsPageTable.cpp)
 target_link_libraries(BenchTBLVsPageTable numaprof)
+
+######################################################
+add_executable(BenchInstrCache BenchInstrCache.cpp)
+target_link_libraries(BenchInstrCache numaprof)
