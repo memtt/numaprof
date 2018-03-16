@@ -19,6 +19,7 @@
 #include "AccessMatrix.hpp"
 #include "../portability/Clock.hpp"
 #include "../portability/OS.hpp"
+#include "../common/StaticAssoCache.hpp"
 
 /*******************  NAMESPACE  ********************/
 namespace numaprof
@@ -81,6 +82,10 @@ typedef std::list<ThreadMemBindingLogEntry> MemPolicyLog;
  * program flow.
 **/
 typedef std::vector<AccessEvent> AccessVector;
+/**
+ * Define a TLB cache to avoid running over all the page table every time.
+**/
+typedef StaticAssoCache<Page,4,32> TLB;
 
 /*********************  CLASS  **********************/
 /**
@@ -128,6 +133,8 @@ class ThreadTracker
 		int numa;
 		/** Pointer to the process page table. **/
 		PageTable * table;
+		/** TLB cache to avoid running into the page table every time **/
+		TLB tlb;
 		/** Allocation tracker. We build one per thread to eliminate locks. **/
 		MallocTracker allocTracker;
 		/** Counter for dummy allocations (static objects like global variables, consts...). **/

@@ -185,11 +185,21 @@ void ThreadTracker::onAccess(size_t ip,size_t addr,bool write,bool skip)
 void ThreadTracker::onAccessHandling(size_t ip,size_t addr,bool write,bool skip)
 {
 	//printf("Access %p => %p\n",(void*)ip,(void*)addr);
-	//get numa location of page form page table
-	Page & page = table->getPage(addr);
+	
+	//first check in TLB
+	Page * page = tlb.get(addr >> NUMAPROF_PAGE_OFFSET);
+	
+	//if not in TLB get numa location of page form page table
+	if (page == NULL)
+	{
+		//load
+		page = &(table->getPage(addr));
+		//store for next time
+		tlb.set(addr >> NUMAPROF_PAGE_OFFSET, page);
+	}
 
 	//extract
-	int pageNode = page.numaNode;
+	int pageNode = page->numaNode;
 	bool isWriteFirstTouch = false;
 	size_t touchedPages = 1;
 
@@ -209,7 +219,7 @@ void ThreadTracker::onAccessHandling(size_t ip,size_t addr,bool write,bool skip)
 			__sync_fetch_and_add((char*)addr,0);
 			
 			//check
-			if (page.canBeHugePage) {
+			if (page->canBeHugePage) {
 				//this sould not append
 				assert(false);
 			} else if (table->canBeHugePage(addr)) {
@@ -222,17 +232,17 @@ void ThreadTracker::onAccessHandling(size_t ip,size_t addr,bool write,bool skip)
 					table->setHugePageFromPinnedThread(addr,pageNode,isMemBind());
 					touchedPages = NUMAPROG_HUGE_PAGE_SIZE / NUMAPROF_PAGE_SIZE;
 				} else {
-					page.fromPinnedThread = isMemBind();
-					page.numaNode = pageNode;
+					page->fromPinnedThread = isMemBind();
+					page->numaNode = pageNode;
 				}
 			} else {
-				page.numaNode = pageNode;
-				page.fromPinnedThread = isMemBind();
+				page->numaNode = pageNode;
+				page->fromPinnedThread = isMemBind();
 			}
 		}
 		
 		if (pageNode >= 0)
-			page.numaNode = pageNode;
+			page->numaNode = pageNode;
 
 		if (pageNode >= 0)
 			process->onAfterFirstTouch(pageNode,touchedPages);
@@ -263,7 +273,7 @@ void ThreadTracker::onAccessHandling(size_t ip,size_t addr,bool write,bool skip)
 	}
 
 	//get malloc relation
-	MallocInfos * allocInfos = (MallocInfos *)page.getAllocPointer(addr);
+	MallocInfos * allocInfos = (MallocInfos *)page->getAllocPointer(addr);
 	Stats * allocStats;
 	if (allocInfos == NULL)
 	{
@@ -305,7 +315,7 @@ void ThreadTracker::onAccessHandling(size_t ip,size_t addr,bool write,bool skip)
 			allocStats->mcdramAccess++;
 		} else if (numa == -1) {
 			//check if page came from pin thread or not
-			if (page.fromPinnedThread)
+			if (page->fromPinnedThread)
 			{
 				stats.unpinnedThreadAccess++;
 				instr.unpinnedThreadAccess++;
@@ -317,7 +327,7 @@ void ThreadTracker::onAccessHandling(size_t ip,size_t addr,bool write,bool skip)
 			}
 		} else {
 			//check if page came from pin thread or not
-			if (page.fromPinnedThread == false)
+			if (page->fromPinnedThread == false)
 			{
 				stats.unpinnedPageAccess++;
 				instr.unpinnedPageAccess++;
