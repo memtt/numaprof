@@ -27,3 +27,7 @@ ENDFOREACH(test_name)
 ######################################################
 add_executable(ReplayAllocTracker ReplayAllocTracker.cpp)
 target_link_libraries(ReplayAllocTracker numaprof)
+
+######################################################
+add_executable(BenchTBLVsPageTable BenchTBLVsPageTable.cpp)
+target_link_libraries(BenchTBLVsPageTable numaprof)
