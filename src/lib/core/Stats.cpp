@@ -44,7 +44,8 @@ Stats::Stats(void)
 	unpinnedBothAccess = 0;
 	localAccess = 0;
 	remoteAccess = 0;
-	mcdramAccess = 0;
+	localMcdramAccess = 0;
+	remoteMcdramAccess = 0;
 	nonAlloc = 0;
 }
 
@@ -62,7 +63,8 @@ void Stats::merge(Stats & info)
 	__sync_fetch_and_add(&this->unpinnedBothAccess,info.unpinnedBothAccess,__ATOMIC_RELAXED);
 	__sync_fetch_and_add(&this->localAccess,info.localAccess,__ATOMIC_RELAXED);
 	__sync_fetch_and_add(&this->remoteAccess,info.remoteAccess,__ATOMIC_RELAXED);
-	__sync_fetch_and_add(&this->mcdramAccess,info.mcdramAccess,__ATOMIC_RELAXED);
+	__sync_fetch_and_add(&this->localMcdramAccess,info.localMcdramAccess,__ATOMIC_RELAXED);
+	__sync_fetch_and_add(&this->remoteMcdramAccess,info.remoteMcdramAccess,__ATOMIC_RELAXED);
 	__sync_fetch_and_add(&this->nonAlloc,info.nonAlloc,__ATOMIC_RELAXED);
 	
 	/*addAndCheckOverflow(this->firstTouch,info.firstTouch);
@@ -72,7 +74,8 @@ void Stats::merge(Stats & info)
 	addAndCheckOverflow(this->unpinnedBothAccess,info.unpinnedBothAccess);
 	addAndCheckOverflow(this->localAccess,info.localAccess);
 	addAndCheckOverflow(this->remoteAccess,info.remoteAccess);
-	addAndCheckOverflow(this->mcdramAccess,info.mcdramAccess);
+	addAndCheckOverflow(this->localMcdramAccess,info.localMcdramAccess);
+	addAndCheckOverflow(this->remoteMcdramAccess,info.remoteMcdramAccess);
 	addAndCheckOverflow(this->nonAlloc,info.nonAlloc);*/
 }
 
@@ -94,7 +97,8 @@ void Stats::applyCut(float cutoff)
 	unpinnedBothAccess = ((float)unpinnedBothAccess) *cutoff;
 	localAccess = ((float)localAccess)*cutoff;
 	remoteAccess = ((float)remoteAccess)*cutoff;
-	mcdramAccess = ((float)mcdramAccess)*cutoff;
+	localMcdramAccess = ((float)localMcdramAccess)*cutoff;
+	remoteMcdramAccess = ((float)remoteMcdramAccess)*cutoff;
 	nonAlloc = ((float)nonAlloc)*cutoff;
 }
 
@@ -121,8 +125,10 @@ void convertToJson(htopml::JsonState& json, const Stats& value)
 			json.printField("localAccess",value.localAccess);
 		if (value.remoteAccess > 0)
 			json.printField("remoteAccess",value.remoteAccess);
-		if (value.mcdramAccess > 0)
-			json.printField("mcdramAccess",value.mcdramAccess);
+		if (value.localMcdramAccess > 0)
+			json.printField("localMcdramAccess",value.localMcdramAccess);
+		if (value.remoteMcdramAccess > 0)
+			json.printField("remoteMcdramAccess",value.remoteMcdramAccess);
 		if (value.nonAlloc > 0)
 			json.printField("nonAlloc",value.nonAlloc);
 	json.closeStruct();

@@ -374,9 +374,16 @@ void ThreadTracker::onAccessHandling(size_t ip,size_t addr,bool write,bool skip)
 		assert(pageNode >= 0);
 		if (topo->getIsMcdram(pageNode)) 
 		{
-			stats.mcdramAccess++;
-			instr->mcdramAccess++;
-			allocStats->mcdramAccess++;
+			if (topo->getParentNode(pageNode) == numa)
+			{
+				stats.localMcdramAccess++;
+				instr->localMcdramAccess++;
+				allocStats->localMcdramAccess++;
+			} else {
+				stats.remoteMcdramAccess++;
+				instr->remoteMcdramAccess++;
+				allocStats->remoteMcdramAccess++;
+			}
 		} else if (numa == -1) {
 			//check if page came from pin thread or not
 			if (page->fromPinnedThread)

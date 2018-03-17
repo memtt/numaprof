@@ -49,8 +49,10 @@ struct Stats
 	size_t localAccess;
 	/** Count the remote memory acesses **/
 	size_t remoteAccess;
-	/** Counte the memory accesses to the Intel KNL MCDRAM **/
-	size_t mcdramAccess;
+	/** Count the memory accesses to the Intel KNL MCDRAM **/
+	size_t localMcdramAccess;
+	/** Count the memory accesses to the Intel KNL MCDRAM **/
+	size_t remoteMcdramAccess;
 	/** Count hte memory accesses to non dyanmically allocated objects (stack, global varaibles, consts) **/
 	size_t nonAlloc;
 };
@@ -91,7 +93,9 @@ inline bool Stats::asOneLargerThan(Stats & info)
 		return true;
 	if (remoteAccess > info.remoteAccess)
 		return true;
-	if (mcdramAccess > info.mcdramAccess)
+	if (localMcdramAccess > info.localMcdramAccess)
+		return true;
+	if (remoteMcdramAccess > info.remoteMcdramAccess)
 		return true;
 	if (nonAlloc > info.nonAlloc)
 		return true;
