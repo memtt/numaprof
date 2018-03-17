@@ -192,9 +192,13 @@ function genPieDataAccess(datas)
 			"value": numaprofHelper.valOrDefault(datas.unpinnedBothAccess,0),
 			"color": "rgb(31, 119, 180)",
 		},{
-			"label": "MCDRAM",
-			"value": numaprofHelper.valOrDefault(datas.mcdramAccess,0),
+			"label": "Local MCDRAM",
+			"value": numaprofHelper.valOrDefault(datas.localMcdramAccess,0),
 			"color": "#FF79DE"
+		},{
+			"label": "Remote MCDRAM",
+			"value": numaprofHelper.valOrDefault(datas.remoteMcdramAccess,0),
+			"color": "#54017a"
 		}
 	];
 }

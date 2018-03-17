@@ -100,9 +100,13 @@ function genFirstAccess(data)
 		"values": [],
 		"color": "red"
 	},{
-		"key": "mcdramAccess",
+		"key": "localMcdramAccess",
 		"values": [],
 		"color": "#FF79DE"
+	},{
+		"key": "remoteMcdramAccess",
+		"values": [],
+		"color": "#54017a"
 	}];
 	
 	//for all threads
@@ -114,7 +118,8 @@ function genFirstAccess(data)
 		out[2].values.push({label:"Thread "+i,value:numaprofHelper.valOrDefault(stats.unpinnedBothAccess,0)});
 		out[3].values.push({label:"Thread "+i,value:numaprofHelper.valOrDefault(stats.localAccess,0)});
 		out[4].values.push({label:"Thread "+i,value:numaprofHelper.valOrDefault(stats.remoteAccess,0)});
-		out[5].values.push({label:"Thread "+i,value:numaprofHelper.valOrDefault(stats.mcdramAccess,0)});
+		out[5].values.push({label:"Thread "+i,value:numaprofHelper.valOrDefault(stats.localMcdramAccess,0)});
+		out[6].values.push({label:"Thread "+i,value:numaprofHelper.valOrDefault(stats.remoteMcdramAccess,0)});
 	}
 	
 	return out;

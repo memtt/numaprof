@@ -265,9 +265,13 @@ function genPieDataAccess(data)
 			"value": data.metrics.unpinnedBothAccess,
 			"color": "rgb(31, 119, 180)",
 		},{
-			"label": "MCDRAM",
-			"value": data.metrics.mcdramAccess,
+			"label": "Local MCDRAM",
+			"value": data.metrics.localMcdramAccess,
 			"color": "#FF79DE"
+		},{
+			"label": "Remote MCDRAM",
+			"value": data.metrics.remoteMcdramAccess,
+			"color": "#54017a"
 		}
 	];
 }

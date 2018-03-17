@@ -14,11 +14,11 @@ NumaprofFuncMetrics.prototype.metrics = {
 	},
 	'access.allAccess': {
 		name: 'All access',
-		extractor: function(x) {return x.access.unpinnedPageAccess + x.access.unpinnedThreadAccess + x.access.unpinnedBothAccess + x.access.localAccess+x.access.remoteAccess+x.access.mcdramAccess;},
+		extractor: function(x) {return x.access.unpinnedPageAccess + x.access.unpinnedThreadAccess + x.access.unpinnedBothAccess + x.access.localAccess+x.access.remoteAccess+x.access.localMcdramAccess+x.access.remoteMcdramAccess;},
 		formalter: function(x) {return numaprofHelper.humanReadable(x,1,'',false);},
 		defaultOrder: 'desc',
 		ref: 'sum',
-		subMetrics: ['access.unpinnedPageAccess','access.unpinnedThreadAccess','access.unpinnedBothAccess','access.localAccess','access.remoteAccess','access.mcdramAccess']
+		subMetrics: ['access.unpinnedPageAccess','access.unpinnedThreadAccess','access.unpinnedBothAccess','access.localAccess','access.remoteAccess','access.localMcdramAccess','access.remoteMcdramAccess']
 	},
 	'separator1': {
 		name: '----------------------------------',
@@ -33,11 +33,11 @@ NumaprofFuncMetrics.prototype.metrics = {
 	},
 	'alloc.allAccess': {
 		name: 'All alloc access',
-		extractor: function(x) {return x.alloc.unpinnedPageAccess + x.alloc.unpinnedThreadAccess + x.alloc.unpinnedBothAccess + x.alloc.localAccess+x.alloc.remoteAccess+x.alloc.mcdramAccess;},
+		extractor: function(x) {return x.alloc.unpinnedPageAccess + x.alloc.unpinnedThreadAccess + x.alloc.unpinnedBothAccess + x.alloc.localAccess+x.alloc.remoteAccess+x.alloc.localMcdramAccess+x.alloc.remoteMcdramAccess;},
 		formalter: function(x) {return numaprofHelper.humanReadable(x,1,'',false);},
 		defaultOrder: 'desc',
 		ref: 'sum',
-		subMetrics: ['alloc.unpinnedPageAccess','alloc.unpinnedThreadAccess','alloc.unpinnedBothAccess','alloc.localAccess','alloc.remoteAccess','alloc.mcdramAccess']
+		subMetrics: ['alloc.unpinnedPageAccess','alloc.unpinnedThreadAccess','alloc.unpinnedBothAccess','alloc.localAccess','alloc.remoteAccess','alloc.localMcdramAccess','alloc.remoteMcdramAccess']
 	},
 	'separator2': {
 		name: '----------------------------------',
@@ -91,9 +91,16 @@ NumaprofFuncMetrics.prototype.metrics = {
 		defaultOrder: 'desc',
 		ref: 'sum'
 	},
-	'access.mcdramAccess': {
-		name: 'MCDRAM access',
-		extractor: function(x) {return x.access.mcdramAccess;},
+	'access.localMcdramAccess': {
+		name: 'Local MCDRAM access',
+		extractor: function(x) {return x.access.localMcdramAccess;},
+		formalter: function(x) {return numaprofHelper.humanReadable(x,1,'',false);},
+		defaultOrder: 'desc',
+		ref: 'sum'
+	},
+	'access.remoteMcdramAccess': {
+		name: 'Remote MCDRAM access',
+		extractor: function(x) {return x.access.remoteMcdramAccess;},
 		formalter: function(x) {return numaprofHelper.humanReadable(x,1,'',false);},
 		defaultOrder: 'desc',
 		ref: 'sum'
@@ -150,9 +157,16 @@ NumaprofFuncMetrics.prototype.metrics = {
 		defaultOrder: 'desc',
 		ref: 'sum'
 	},
-	'alloc.mcdramAccess': {
-		name: 'Alloc MCDRAM access',
-		extractor: function(x) {return x.alloc.mcdramAccess;},
+	'alloc.localMcdramAccess': {
+		name: 'Local alloc MCDRAM access',
+		extractor: function(x) {return x.alloc.localMcdramAccess;},
+		formalter: function(x) {return numaprofHelper.humanReadable(x,1,'',false);},
+		defaultOrder: 'desc',
+		ref: 'sum'
+	},
+	'alloc.remoteMcdramAccess': {
+		name: 'Remote alloc MCDRAM access',
+		extractor: function(x) {return x.alloc.remoteMcdramAccess;},
 		formalter: function(x) {return numaprofHelper.humanReadable(x,1,'',false);},
 		defaultOrder: 'desc',
 		ref: 'sum'

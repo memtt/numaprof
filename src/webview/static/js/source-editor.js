@@ -44,9 +44,14 @@ var tpl = "<table class='table table-borders source-popover-details'>\
 					<td><div width='20px' height='20px' style='background-color:rgb(31, 119, 180); width:20px; height:20px;'> </div></td>\
 				</tr>\
 				<tr>\
-					<th>MCDRAM</th>\
-					<td>{{mcdramAccess}}</td>\
+					<th>Local MCDRAM</th>\
+					<td>{{localMcdramAccess}}</td>\
 					<td><div width='20px' height='20px' style='background-color:#FF79DE; width:20px; height:20px;'> </div></td>\
+				</tr>\
+				<tr>\
+					<th>Remote MCDRAM</th>\
+					<td>{{remoteMcdramAccess}}</td>\
+					<td><div width='20px' height='20px' style='background-color:#54017a; width:20px; height:20px;'> </div></td>\
 				</tr>\
 				<tr>\
 					<th>Non allocated</th>\
@@ -438,7 +443,8 @@ NumaprofSourceEditor.prototype.genPieDataAccess = function(data)
 {
 	var mode = this.selector.metric.split('.')[0];
 	var dataset = [
-		{legend:"MCDRAM", value:data.data[mode]["mcdramAccess"], color:"#FF79DE"},
+		{legend:"Local MCDRAM", value:data.data[mode]["localMcdramAccess"], color:"#FF79DE"},
+		{legend:"Remote MCDRAM", value:data.data[mode]["remoteMcdramAccess"], color:"#54017a"},
 		{legend:"Remote", value:data.data[mode]["remoteAccess"], color:"red"},
 		{legend:"Local", value:data.data[mode]["localAccess"], color:"rgb(44, 160, 44)"},
 		{legend:"Un. Both", value:data.data[mode]["unpinnedBothAccess"], color:"rgb(31, 119, 180)"},
