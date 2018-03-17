@@ -14,6 +14,12 @@ namespace numaprof
 {
 
 /*******************  FUNCTION  *********************/
+/**
+ * This is more a check function for validation, it does an atomic add
+ * and check if the sum overflow and print warning if it append
+ * @param out Reference to the output number
+ * @param in what to add to the output number.
+**/
 static inline void addAndCheckOverflow(uint64_t & out,uint64_t in)
 {
 	uint64_t before = out;
@@ -26,6 +32,9 @@ static inline void addAndCheckOverflow(uint64_t & out,uint64_t in)
 }
 
 /*******************  FUNCTION  *********************/
+/**
+ * Constructor of the statistic structure. It init all the fields to 0.
+**/
 Stats::Stats(void)
 {
 	firstTouch = 0;
@@ -40,6 +49,10 @@ Stats::Stats(void)
 }
 
 /*******************  FUNCTION  *********************/
+/**
+ * Merge two stats structure by using atomic add on all fields.
+ * @param info Structure to add to the current one.
+**/
 void Stats::merge(Stats & info)
 {
 	__sync_fetch_and_add(&this->firstTouch,info.firstTouch,__ATOMIC_RELAXED);
@@ -64,6 +77,10 @@ void Stats::merge(Stats & info)
 }
 
 /*******************  FUNCTION  *********************/
+/**
+ * Apply a ratio to compute the cutoff value to cut small values.
+ * @param cutoff Cutoff in percent.
+**/
 void Stats::applyCut(float cutoff)
 {
 	//compute real cutoff from %
@@ -82,6 +99,11 @@ void Stats::applyCut(float cutoff)
 }
 
 /*******************  FUNCTION  *********************/
+/**
+ * Function to convert the stats structu into JSON format.
+ * @param json JSON state to output data.
+ * @param value Object to convert.
+**/
 void convertToJson(htopml::JsonState& json, const Stats& value)
 {
 	json.openStruct();
@@ -107,6 +129,11 @@ void convertToJson(htopml::JsonState& json, const Stats& value)
 }
 
 /*******************  FUNCTION  *********************/
+/**
+ * Function to convert the stats structu into JSON format.
+ * @param json JSON state to output data.
+ * @param value Object to convert.
+**/
 void convertToJson(htopml::JsonState& json, const InstrInfoMap& value)
 {
 	#ifdef NUMAPROF_CALLSTACK

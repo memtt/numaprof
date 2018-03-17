@@ -20,6 +20,12 @@ namespace numaprof
 {
 
 /*******************  FUNCTION  *********************/
+/**
+ * Constructor of a thread tracker. We should create one for each thread and store
+ * it into a TLS.
+ * @param process Define the global process tracker to sync the metrics and access 
+ * the NUMA topology of the machine.
+**/
 ThreadTracker::ThreadTracker(ProcessTracker * process)
               :allocTracker(process->getPageTable())
               ,accessMatrix(process->getNumaTopo().getNumaNodes())
@@ -59,12 +65,19 @@ ThreadTracker::ThreadTracker(ProcessTracker * process)
 }
 
 /*******************  FUNCTION  *********************/
+/**
+ * Return the ID of the thread.
+**/
 int ThreadTracker::getTID(void)
 {
 	return this->tid;
 }
 
 /*******************  FUNCTION  *********************/
+/**
+ * Add an entry to the binding log.
+ * @param policy Define the new memory policy to log.
+**/
 void ThreadTracker::logBinding(MemPolicy & policy)
 {
 	ThreadMemBindingLogEntry entry;
@@ -74,6 +87,10 @@ void ThreadTracker::logBinding(MemPolicy & policy)
 }
 
 /*******************  FUNCTION  *********************/
+/**
+ * Add an entry to the binding log.
+ * @parma numa Define the new NUMA binding to log.
+**/
 void ThreadTracker::logBinding(int numa)
 {
 	int last = -3;
@@ -89,6 +106,10 @@ void ThreadTracker::logBinding(int numa)
 }
 
 /*******************  FUNCTION  *********************/
+/**
+ * Flush all the allocation statistics stored into local cache. It merge
+ * all of them into the process storage and free the cache.
+**/
 void ThreadTracker::flushAllocCache(void)
 {
 	//flush to keep smell
@@ -98,6 +119,9 @@ void ThreadTracker::flushAllocCache(void)
 }
 
 /*******************  FUNCTION  *********************/
+/**
+ * To be used at thread exit, flush all the data from the thread.
+**/
 void ThreadTracker::flush(void)
 {
 	assert(allocCache.empty());
@@ -107,6 +131,12 @@ void ThreadTracker::flush(void)
 }
 
 /*******************  FUNCTION  *********************/
+/**
+ * Hook to be called when the thread call sched_setaffinity to move the thread
+ * on the topology.
+ * @param mask Define the CPU mask to be used to extarct the NUMA binding.
+ * @param size Define the size of the CPU mask.
+**/
 void ThreadTracker::onSetAffinity(cpu_set_t * mask,int size)
 {
 	flushAccessBatch();
@@ -117,6 +147,12 @@ void ThreadTracker::onSetAffinity(cpu_set_t * mask,int size)
 }
 
 /*******************  FUNCTION  *********************/
+/**
+ * Hook to be called when the thread call set_mempolicy.
+ * @param mode Define the new mode to use.
+ * @param mask Define the new mask
+ * @param maxNodes Defineht the maximum number of NUMA node to consider (size of mask).
+**/
 void ThreadTracker::onSetMemPolicy(int mode,const unsigned long * mask,unsigned long maxNodes)
 {
 	flushAccessBatch();
@@ -133,18 +169,20 @@ void ThreadTracker::onSetMemPolicy(int mode,const unsigned long * mask,unsigned 
 }
 
 /*******************  FUNCTION  *********************/
-char getAddrValue(char * ptr)
-{
-	return *ptr;
-}
-
-/*******************  FUNCTION  *********************/
+/**
+ * Check if the thread is assigned to a uniq NUMA node in therm of movement or
+ * memory policy. Return true if bound to a uniq NUMA node, false otherwise.
+**/
 inline bool ThreadTracker::isMemBind(void)
 {
 	return (numa != -1 || memPolicy.type != MEMBIND_NO_BIND);
 }
 
 /*******************  FUNCTION  *********************/
+/**
+ * When using batch the thread should call this function to flush the access
+ * batch.
+**/
 void ThreadTracker::flushAccessBatch()
 {
 	//skip
@@ -163,6 +201,14 @@ void ThreadTracker::flushAccessBatch()
 }
 
 /*******************  FUNCTION  *********************/
+/**
+ * Hook to be called by the instrumenter on memory accesses. The function will
+ * build a batch is enabled otherwise it will directly handle the access.
+ * @param ip Defnie the instruction pointer making the access.
+ * @param addr Define the memory address which is accessed.
+ * @param write True if it is a write, false if a read.
+ * @param skip Define if we just handle the first touch and not update the counters.
+**/
 void ThreadTracker::onAccess(size_t ip,size_t addr,bool write,bool skip)
 {
 	//no batch
@@ -182,6 +228,14 @@ void ThreadTracker::onAccess(size_t ip,size_t addr,bool write,bool skip)
 }
 
 /*******************  FUNCTION  *********************/
+/**
+ * Function to be called by onAccess or batch flush to really apply the memory
+ * accesses.
+ * @param ip Defnie the instruction pointer making the access.
+ * @param addr Define the memory address which is accessed.
+ * @param write True if it is a write, false if a read.
+ * @param skip Define if we just handle the first touch and not update the counters.
+**/
 void ThreadTracker::onAccessHandling(size_t ip,size_t addr,bool write,bool skip)
 {
 	//printf("Access %p => %p\n",(void*)ip,(void*)addr);
@@ -379,6 +433,9 @@ void ThreadTracker::onAccessHandling(size_t ip,size_t addr,bool write,bool skip)
 }
 
 /*******************  FUNCTION  *********************/
+/**
+ * Hook to be called when the thread stop.
+**/
 void ThreadTracker::onStop(void)
 {
 	flushAccessBatch();
@@ -388,6 +445,12 @@ void ThreadTracker::onStop(void)
 }
 
 /*******************  FUNCTION  *********************/
+/**
+ * Hook to be called when the thread call munmap. It transmit the operation
+ * to the process handler.
+ * @param addr Define the concerned address.
+ * @param size Define the size of the selected segement.
+**/
 void ThreadTracker::onMunmap(size_t addr,size_t size)
 {
 	flushAccessBatch();
@@ -395,6 +458,9 @@ void ThreadTracker::onMunmap(size_t addr,size_t size)
 }
 
 /*******************  FUNCTION  *********************/
+/**
+ * Hook to be called when then thread call mmap.
+**/
 void ThreadTracker::onMmap(size_t addr,size_t size,size_t flags,size_t fd)
 {
 	flushAccessBatch();
@@ -404,6 +470,9 @@ void ThreadTracker::onMmap(size_t addr,size_t size,size_t flags,size_t fd)
 }
 
 /*******************  FUNCTION  *********************/
+/**
+ * Hook to be called when the thread call mremap.
+**/
 void ThreadTracker::onMremap(size_t oldAddr,size_t oldSize,size_t newAddr, size_t newSize)
 {
 	flushAccessBatch();
@@ -411,6 +480,9 @@ void ThreadTracker::onMremap(size_t oldAddr,size_t oldSize,size_t newAddr, size_
 }
 
 /*******************  FUNCTION  *********************/
+/**
+ * Hook to be called by the instrumenter when the thread call malloc.
+**/
 void ThreadTracker::onAlloc(size_t ip,size_t ptr,size_t size)
 {
 	flushAccessBatch();
@@ -425,6 +497,9 @@ void ThreadTracker::onAlloc(size_t ip,size_t ptr,size_t size)
 }
 
 /*******************  FUNCTION  *********************/
+/**
+ * Hook to be called by the instrumenter when the thread call realloc.
+**/
 void ThreadTracker::onRealloc(size_t ip, size_t oldPtr, size_t newPtr, size_t newSize)
 {
 	flushAccessBatch();
@@ -440,6 +515,9 @@ void ThreadTracker::onRealloc(size_t ip, size_t oldPtr, size_t newPtr, size_t ne
 }
 
 /*******************  FUNCTION  *********************/
+/**
+ * Hook to be called by the instrumenter when the thread call free.
+**/
 void ThreadTracker::onFree(size_t ptr)
 {
 	flushAccessBatch();
@@ -448,18 +526,27 @@ void ThreadTracker::onFree(size_t ptr)
 }
 
 /*******************  FUNCTION  *********************/
+/**
+ * Hook to be called by the instrumenter when the thread enter in a function.
+**/
 void ThreadTracker::onEnterFunction(void * addr)
 {
 	stack.push(addr);
 }
 
 /*******************  FUNCTION  *********************/
+/**
+ * Hook to be called by the instrumenter when the thread exit a function.
+**/
 void ThreadTracker::onExitFunction(void)
 {
 	stack.pop();
 }
 
 /*******************  FUNCTION  *********************/
+/**
+ * Hook to be called when the thread call mbind to setup memory binding on segements.
+**/
 void ThreadTracker::onMBind(void * addr,size_t len,size_t mode,const unsigned long *nodemask,size_t maxnode,size_t flags)
 {
 	//flusha access batch
@@ -488,6 +575,9 @@ void ThreadTracker::onMBind(void * addr,size_t len,size_t mode,const unsigned lo
 }
 
 /*******************  FUNCTION  *********************/
+/**
+ * Dump the thread informations in a json format.
+**/
 void convertToJson(htopml::JsonState& json, const ThreadTracker& value)
 {
 	json.openStruct();
