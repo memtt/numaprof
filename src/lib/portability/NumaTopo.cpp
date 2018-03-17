@@ -63,6 +63,7 @@ NumaTopo::NumaTopo(void)
 	this->loadCpuNb();
 	this->loadNumaMap();
 	this->loadDistanceMap();
+	this->loadParendNode();
 }
 
 /*******************  FUNCTION  *********************/
@@ -428,6 +429,29 @@ void NumaTopo::staticComputeBindType(MemPolicy & policy)
 int NumaTopo::getNumaNodes ( void )
 {
 	return this->numaNodes;
+}
+
+/*******************  FUNCTION  *********************/
+void NumaTopo::loadParendNode(void)
+{
+	//allocate
+	this->parentNode = new int[numaNodes];
+	
+	//loop on all nodes
+	for (int i = 0 ; i < numaNodes ; i++)
+	{
+		//search lower distance
+		int distanceMin = getDistance(i,0);
+		int parent = 0;
+		for (int j = 1 ; j < numaNodes ; j++)
+		{
+			if (getDistance(i,j) < distanceMin)
+			{
+				distanceMin = getDistance(i,j);
+				parent = j;
+			}
+		}
+	}
 }
 
 /*******************  FUNCTION  *********************/

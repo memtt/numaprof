@@ -50,6 +50,7 @@ class NumaTopo
 		int getCurrentNumaAffinity(CpuBindList * cpuBindList = NULL);
 		int getCurrentNumaAffinity(cpu_set_t * mask,int size,CpuBindList * cpuBindList = NULL);
 		bool getIsMcdram(int cpuid) {assert(cpuid < cpus);return isMcdram[cpuid];};
+		int getParentNode(int numa) {assert(numa < numaNodes); return parentNode[numa];};
 		friend void convertToJson(htopml::JsonState& json, const NumaTopo& value);
 		int getNumaNodes(void);
 		MemPolicy getCurrentMemPolicy(void);
@@ -60,6 +61,7 @@ class NumaTopo
 		void loadCpuNb(void);
 		void loadNumaMap(void);
 		void loadDistanceMap(void);
+		void loadParendNode(void);
 		size_t findMemPolicyKernelSize(void);
 	private:
 		int cpus;
@@ -67,6 +69,7 @@ class NumaTopo
 		int * numaMap;
 		bool * isMcdram;
 		int * distanceMap;
+		int * parentNode;
 };
 
 /*******************  FUNCTION  *********************/
