@@ -20,6 +20,14 @@ NumaprofFuncMetrics.prototype.metrics = {
 		ref: 'sum',
 		subMetrics: ['access.unpinnedPageAccess','access.unpinnedThreadAccess','access.unpinnedBothAccess','access.localAccess','access.remoteAccess','access.localMcdramAccess','access.remoteMcdramAccess']
 	},
+	'access.allMCRAMAccess': {
+		name: 'All MCDRAM access',
+		extractor: function(x) {return x.access.unpinnedPageAccess + x.access.unpinnedThreadAccess + x.access.unpinnedBothAccess + x.access.localAccess+x.access.remoteAccess+x.access.localMcdramAccess+x.access.remoteMcdramAccess;},
+		formalter: function(x) {return numaprofHelper.humanReadable(x,1,'',false);},
+		defaultOrder: 'desc',
+		ref: 'sum',
+		subMetrics: ['access.unpinnedPageAccess','access.unpinnedThreadAccess','access.unpinnedBothAccess','access.localAccess','access.remoteAccess','access.localMcdramAccess','access.remoteMcdramAccess']
+	},
 	'separator1': {
 		name: '----------------------------------',
 	},
