@@ -14,7 +14,7 @@ import os
 
 ######################################################
 class ProfileHandler:
-	metrics = [ "firstTouch", "unpinnedFirstTouch", "unpinnedPageAccess", "unpinnedThreadAccess", "unpinnedBothAccess", "localAccess", "remoteAccess", "mcdramAccess", "nonAlloc" ]
+	metrics = [ "firstTouch", "unpinnedFirstTouch", "unpinnedPageAccess", "unpinnedThreadAccess", "unpinnedBothAccess", "localAccess", "remoteAccess", "localMcdramAccess", "remoteMcdramAccess", "nonAlloc" ]
 	
 	def __init__(self,filepath):
 		self.filepath = filepath

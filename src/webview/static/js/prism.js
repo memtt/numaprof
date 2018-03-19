@@ -909,6 +909,7 @@ Prism.plugins.codeAnnotator = {
 
 		var offset = +element.getAttribute('data-line-offset') || 0;
 		var parseMethod = isLineHeightRounded() ? parseInt : parseFloat;
+		//console.log(getComputedStyle(element).lineHeight);
 		var lineHeight = parseMethod(getComputedStyle(element).lineHeight);
 
 		var line = document.createElement('a');

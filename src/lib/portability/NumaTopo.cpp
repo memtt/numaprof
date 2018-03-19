@@ -451,6 +451,9 @@ void NumaTopo::loadParendNode(void)
 				parent = j;
 			}
 		}
+
+		//store
+		this->parentNode[i] = parent;
 	}
 }
 
