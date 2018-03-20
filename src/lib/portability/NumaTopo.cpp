@@ -441,15 +441,22 @@ void NumaTopo::loadParendNode(void)
 	for (int i = 0 ; i < numaNodes ; i++)
 	{
 		//search lower distance
-		int distanceMin = getDistance(i,0);
-		int parent = 0;
-		for (int j = 1 ; j < numaNodes ; j++)
+		int distanceMin = -1;
+		int parent = -1;
+		for (int j = 0 ; j < numaNodes ; j++)
 		{
-			if (getDistance(i,j) < distanceMin)
+			if ((getDistance(i,j) < distanceMin || distanceMin == -1) && isMcdram[j] == false)
 			{
 				distanceMin = getDistance(i,j);
 				parent = j;
 			}
+		}
+		
+		//warning
+		if (parent == -1)
+		{
+			numaprofWarning("Fail to find parent of MCDRAM NUMA node, use 0 !");
+			parent = 0;
 		}
 
 		//store
