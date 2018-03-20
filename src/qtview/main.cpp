@@ -39,7 +39,7 @@
 #endif
 
 /*********************  CONSTS  *********************/
-const char gblChars[] = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_*+()[]{}%?,";
+const char gblChars[] = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 /*******************  FUNCTION  *********************/
 int randint(int min, int max)
@@ -81,7 +81,7 @@ int main(int argc, char *argv[])
 	QStringList authFileArgs;
 	authFileArgs << user << pass << authFile.fileName();
 	QProcess passwd;
-	//qDebug() << NUMAPROF_PREFIX "/bin/numaprof-passwd" << authFileArgs;
+	qDebug() << NUMAPROF_PREFIX "/bin/numaprof-passwd" << authFileArgs;
 	passwd.setProcessChannelMode(QProcess::ForwardedChannels);
 	passwd.start(NUMAPROF_PREFIX "/bin/numaprof-passwd",authFileArgs);
 	bool status = passwd.waitForFinished();
