@@ -278,6 +278,7 @@ then
 		if ! which npm
 		then
 			echo "MISSING Nodejs 'npm' command required to fetch the webview client dependencies, please install 'nodejs' before proceeding or download a release archive instead of using master branch"
+			echo "Alternatively you can download a release archive of numaprof which already contain all the javascript files and do not need NodeJS."
 			miss="true"
 		fi
 		
