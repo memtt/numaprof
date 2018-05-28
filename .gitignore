@@ -4,6 +4,7 @@ package-lock.json
 src/webview/node_modules/
 src/webview/deps/
 src/webview/bower_components/
+src/webview/package.json
 .kdev4
 *.kdev4
 .vscode

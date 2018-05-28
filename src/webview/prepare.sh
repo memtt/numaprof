@@ -33,6 +33,17 @@ then
 fi
 
 ######################################################
+#to avoid npm warnings
+if [ ! -d 'package.json' ]
+then
+cat > 'package.json' << EOF
+{
+	"name": "numaprof-webview"
+}
+EOF
+fi
+
+######################################################
 set -e
 set -x
 pip install -t deps --no-compile flask flask_httpauth Flask-Cache htpasswd flask-htpasswd
