@@ -44,9 +44,19 @@ EOF
 fi
 
 ######################################################
+#There is an issue on recent ubuntu with pip --target
+#One workaround is to also use --system on the line
+#This work only on recent enougth version so we check
+PIP_EXTRA_SYSTEM=""
+if [ ! -z "$(pip install --help 2>&1 | grep -e --system)" ]
+then
+	PIP_EXTRA_SYSTEM="--system"
+fi
+
+######################################################
 set -e
 set -x
-pip install -t deps --no-compile flask flask_httpauth Flask-Cache htpasswd flask-htpasswd
+pip install -t deps ${PIP_EXTRA_SYSTEM} --no-compile flask flask_httpauth Flask-Cache htpasswd flask-htpasswd
 npm install bower
 bower install
 set +x
