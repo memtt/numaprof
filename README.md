@@ -38,10 +38,10 @@ NUMAPROF needs:
  * Qt5-webkit (optional, greater than : 5.4). To provide a browser embedded view to use ssh X forward instead of the webserver port forwarding.
  * libnuma or numactl devel package. This is required to use the profiler.
 
-If you use master branch :
+If you use the git repo (eg. master branch) instead of a release file :
 
- * You need NodeJS/npm to fetch the JavaScript libraries used by the web GUI. If you use a release archive, they already contain all the required JS files so you don't need anymore NodeJS.
- * You also need python pip to download the dependencies of the web server for the web GUI. Again you can use a release archive which already contain all those files.
+ * NodeJS/npm. To fetch the JavaScript libraries used by the web GUI. If you use a release archive, they already contain all the required JS files so you don't need anymore NodeJS.
+ * Python pip. To download the dependencies of the web server for the web GUI. Again you can use a release archive which already contain all those files.
 
 Install
 -------
