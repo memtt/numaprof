@@ -13,6 +13,8 @@ accesss time to compare it to the memory location of the data.
 The tool is currently based on Pintool, a dynamic instrumentation tool from Intel offering a little bit
 the same service than valgrind but supporting threads so faster for parallel applications.
 
+You can find more details and screenshots on the dedicated website: https://memtt.github.io/numaprof/.
+
 Metrics
 -------
 
