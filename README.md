@@ -45,6 +45,9 @@ If you use the git repo (eg. master branch) instead of a release file :
  * NodeJS/npm. To fetch the JavaScript libraries used by the web GUI. If you use a release archive, they already contain all the required JS files so you don't need anymore NodeJS.
  * Python pip. To download the dependencies of the web server for the web GUI. Again you can use a release archive which already contain all those files.
 
+If you don't have npm and pip on your server, prefer using the release archive which already contain all the required
+libraries and do not depend anymore on those two commands.
+
 Install
 -------
 
@@ -155,6 +158,29 @@ filtering option at profiling time by using option to remove all entries smaller
 
 ```
 numaprof-pintool -o output:removeSmall=true,output:removeRatio=0.2 ./benchmark --my-option
+```
+
+View on another machine
+-----------------------
+
+If you want to view the NUMAPROF profile on another machine than the one you profiled on, you can
+copy the json file and open it. Ideally the sources need to be placed at the same path than the one
+where you profiled.
+
+If this is not the case you can use the override option of the GUI to redirect some directories :
+
+```sh
+numaprof-webview -o /home/my_server_user/server_path/project:/home/my_local_user/loal_path/project ./numaprof-1234.json
+```
+
+numactl
+-------
+
+If you want to profile an application while using the `numactl` tool to setup the memory binding you need to use
+the command line in given order:
+
+```sh
+numactl {OPTIONS} numaprof-pintool ./MY_APP
 ```
 
 Licence
