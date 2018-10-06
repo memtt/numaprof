@@ -41,7 +41,7 @@ class StaticAssoCache
 		/** store addresses identifying content to match requests **/
 		size_t addr[rows][ways];
 		/** Used to round robin on rows to override **/
-		int next[rows];
+		unsigned char next[rows];
 		/** count miss **/
 		mutable size_t miss;
 		/** counter hits **/

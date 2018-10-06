@@ -12,6 +12,7 @@
 /********************  HEADERS  *********************/
 //std
 #include <cstdio>
+#include <cassert>
 #include "StaticAssoCache.hpp"
 
 /********************  HEADERS  *********************/
@@ -27,6 +28,7 @@ namespace numaprof
 template<class T,int ways,int rows>
 StaticAssoCache<T,ways,rows>::StaticAssoCache(void)
 {
+	assert(ways < 256);
 	flush();
 }
 
