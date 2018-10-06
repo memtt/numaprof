@@ -373,7 +373,9 @@ void PageTable::regAllocPointer(size_t baseAddr,size_t size,void * value)
 				delete (AllocPointerPageMap*)page.allocPtr;
 				page.allocStatus = PAGE_ALLOC_FULL;
 			} else {
-				printf("WARNING : Invalid page status %d => %p => %p !\n",page.allocStatus,page.allocPtr,value);
+				printf("WARNING : Invalid page status %d => %p => %p ! This migt introduce biases no malloc call site metrics\n",page.allocStatus,page.allocPtr,value);
+				if (baseAddr % 8 != 0 || size % 8 != 0)
+					printf("WARNING: This append because you are using allocation size or addresses non multiple of 8 (addr%%8=%lu, size%%8=%lu)\n",baseAddr % 8, size % 8);
 				continue;
 			}
 			
