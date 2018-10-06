@@ -97,7 +97,7 @@ The `core` section support:
  * `skipBinaries`: Permit to not instrument certain binaries (eg. libgomp). You can provide a list with semi-column separator.
  * `accessBatchSize`: Enable treatement of the accesses by batch. It improves performance with up to a factor 2
    but reduce the precision of the detection for elements with low number of accesses and can be non exact for first touch location.
-   A good value if 32 or 64.
+   A good value is 32 or 64.
  
 The `info` section support:
 
