@@ -69,6 +69,9 @@ The config file use INI format with sections and variables as in this example :
 	[info]
 	hidden=false
 
+	[cache]
+	type=dummy
+
 The `output` section support :
 
  * `name`:
@@ -107,6 +110,13 @@ The `info` section support:
    taking a look at the file for example to replace (sed(1)) the paths which might also be removed.
    This option target some companies which might want to hide their internal applications when exchanging
    with external partners.
+
+The `cache` section support:
+
+ * `type`:
+   Define the type of cache model used to simulate CPU caches. This permit to avoid for example reporting huge 
+   access numbers on spinlocks or constants which normaly stay in the cache and do not generate NUMA traffic.
+   Current possible values are : `dummy` to disable cache simulation.
 
 ## ENVIRONMENT
 

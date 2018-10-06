@@ -14,6 +14,7 @@
 #include "../portability/Clock.hpp"
 #include "../common/Options.hpp"
 #include "../common/FormattedMessage.hpp"
+#include "../caches/CpuCacheBuilder.hpp"
 #include <sys/types.h>
 #include <unistd.h>
 #include <fstream>
@@ -42,6 +43,9 @@ ProcessTracker::ProcessTracker(void)
 		currentAllocatedPages.push_back(0);
 		maxAllocatedPages.push_back(0);
 	}
+
+	//build cpu cache simulator
+	cpuCacheLayout = CpuCacheBuilder::buildLayout(getGlobalOptions().cacheType);
 
 	//to be sure clock is init
 	Clock::get();
@@ -364,6 +368,15 @@ void ProcessTracker::markObjectFiledAsNotPinned(void)
 		if (it->file.empty() == false)
 			if (it->file[0] != '[')
 				loadedObjects[it->file] = true;
+}
+
+/*******************  FUNCTION  *********************/
+/**
+ * Return the current CPU cache layout to build local thread CPU cache.
+**/
+void * ProcessTracker::getCpuCacheLayout(void)
+{
+	return cpuCacheLayout;
 }
 
 /*******************  FUNCTION  *********************/

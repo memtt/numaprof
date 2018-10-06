@@ -15,7 +15,7 @@ include_directories(../)
 #add_definitions(-DTEST_DATA_PATH="${CMAKE_CURRENT_SOURCE_DIR}/data")
 
 ######################################################
-set(TEST_NAMES TestPageTable TestHelper TestMovePages TestStack TestMallocTracker TestFormattedMessage TestStaticAssoCache)
+set(TEST_NAMES TestPageTable TestHelper TestMovePages TestStack TestMallocTracker TestFormattedMessage TestStaticAssoCache TestCpuCacheDummy TestCpuCacheBuilder)
 
 ######################################################
 FOREACH(test_name ${TEST_NAMES})

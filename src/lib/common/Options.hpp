@@ -105,6 +105,10 @@ struct Options
 	 * no relation with the direct entries in the config file.
 	**/
 	std::vector<std::string> coreSkipBinariesVect;
+	/** 
+	 * Define the type of cache to simulate.
+	**/
+	std::string cacheType;
 	//info
 	/** Hide paths and machine name if you don't want critical informations to be leaked. **/
 	bool infoHidden;

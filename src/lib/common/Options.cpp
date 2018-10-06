@@ -45,6 +45,8 @@ Options::Options(void)
 	this->coreAccessBatchSize     = 0;
 	//info
 	this->infoHidden              = false;
+	//cache
+	this->cacheType               = "dummy";
 }
 
 /*******************  FUNCTION  *********************/
@@ -69,6 +71,8 @@ bool Options::operator==(const Options& value) const
 	if (this->coreAccessBatchSize != value.coreAccessBatchSize) return false;
 	//info
 	if (this->infoHidden != value.infoHidden) return false;
+	//cache
+	if (this->cacheType != value.cacheType) return false;
 	
 	return true;
 }
@@ -172,6 +176,9 @@ void Options::loadFromIniDic ( dictionary* iniDic )
 	
 	//info
 	this->infoHidden          = iniparser_getboolean(iniDic,"info:hidden",this->infoHidden);
+
+	//cache
+	this->cacheType           = iniparser_getstring(iniDic,"cache:type",(char*)this->cacheType.c_str());
 }
 
 /*******************  FUNCTION  *********************/
@@ -238,6 +245,10 @@ void convertToJson(htopml::JsonState & json,const Options & value)
 		json.openFieldStruct("info");
 			json.printField("hidden",value.infoHidden);
 		json.closeFieldStruct("info");
+
+		json.openFieldStruct("cache");
+			json.printField("type",value.cacheType);
+		json.closeFieldStruct("cache");
 	json.closeStruct();
 }
 
@@ -269,6 +280,9 @@ void Options::dumpConfig(const char* fname) const
 	
 	//info
 	IniParserHelper::setEntry(dic,"info:hidden",this->infoHidden);
+
+	//cache
+	IniParserHelper::setEntry(dic,"cache:type",this->cacheType.c_str());
 
 	//write
 	FILE * fp = fopen(fname,"w");

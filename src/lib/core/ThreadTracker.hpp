@@ -20,6 +20,7 @@
 #include "../portability/Clock.hpp"
 #include "../portability/OS.hpp"
 #include "../common/StaticAssoCache.hpp"
+#include "../caches/CpuCache.hpp"
 
 /*******************  NAMESPACE  ********************/
 namespace numaprof
@@ -177,6 +178,10 @@ class ThreadTracker
 		size_t * distanceCnt;
 		/** aggregate accesses to treat them as batch **/
 		AccessVector accessBatch;
+		/** Store the local CPU cache simulator handler **/
+		CpuCache * cpuCache;
+		/** To gain one function call if cache simulator is set to dummy or not **/
+		bool hasCpuCache;
 };
 
 /*******************  FUNCTION  *********************/

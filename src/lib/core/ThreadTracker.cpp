@@ -13,6 +13,7 @@
 #include "../common/Debug.hpp"
 #include "../portability/OS.hpp"
 #include "../common/Options.hpp"
+#include "../caches/CpuCacheBuilder.hpp"
 #include "linux/mempolicy.h"
 
 /*******************  NAMESPACE  ********************/
@@ -52,16 +53,24 @@ ThreadTracker::ThreadTracker(ProcessTracker * process)
 	this->distanceCnt = new size_t[topo->getDistanceMax()+2];
 	memset(distanceCnt,0,sizeof(size_t)*(topo->getDistanceMax()+2));
 	
+	//check verbosity
 	if (!getGlobalOptions().outputSilent)
 	{
 		fprintf(stderr,"NUMAPROF: Numa initial mapping : %d\n",numa);
 		fprintf(stderr,"NUMAPROF: Numa initial mem mapping : %s\n",getMemBindTypeName(memPolicy.type));
 	}
 	
+	//build NUMA infos
 	int numaNodes = topo->getNumaNodes();
 	this->cntTouchedPages = new size_t[numaNodes];
 	for (int i = 0 ; i < numaNodes ; i++)
 		this->cntTouchedPages[i] = 0;
+
+	//build cache
+	std::string cacheType = getGlobalOptions().cacheType;
+	this->cpuCache = CpuCacheBuilder::buildCache(cacheType,process->getCpuCacheLayout());
+	this->cpuCache->onThreadMove(cpuBindList);
+	this->hasCpuCache = !(cacheType == "dummy");
 }
 
 /*******************  FUNCTION  *********************/
@@ -144,6 +153,7 @@ void ThreadTracker::onSetAffinity(cpu_set_t * mask,int size)
 	this->numa = process->getNumaAffinity(mask,size,&cpuBindList);
 	this->logBinding(this->numa);
 	bindingLogMutex.unlock();
+	cpuCache->onThreadMove(cpuBindList);
 }
 
 /*******************  FUNCTION  *********************/
@@ -239,6 +249,11 @@ void ThreadTracker::onAccess(size_t ip,size_t addr,bool write,bool skip)
 void ThreadTracker::onAccessHandling(size_t ip,size_t addr,bool write,bool skip)
 {
 	//printf("Access %p => %p\n",(void*)ip,(void*)addr);
+
+	//check cache, if contain data, just ignore
+	if (hasCpuCache)
+		if (this->cpuCache->onMemoryAccess(addr))
+			skip = true;
 
 	//first check in TLB
 	Page * page = tlb.get(addr >> NUMAPROF_PAGE_OFFSET);

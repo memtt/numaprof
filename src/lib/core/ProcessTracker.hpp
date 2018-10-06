@@ -61,6 +61,7 @@ class ProcessTracker
 		NumaTopo & getNumaTopo(void);
 		void onThreadSetAffinity(int pid,cpu_set_t * mask,int size);
 		void markObjectFiledAsNotPinned(void);
+		void * getCpuCacheLayout(void);
 	private:
 		void removeSmall(InstrInfoMap & map, float cutoff);
 	private:
@@ -90,6 +91,8 @@ class ProcessTracker
 		ClockValue clockAtEnd;
 		/** List of loaded object (binary & so files) to detect new ones **/
 		LoadedObjectMap loadedObjects;
+		/** Store the global cache layout **/
+		void * cpuCacheLayout;
 };
 
 }

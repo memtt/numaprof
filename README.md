@@ -149,6 +149,9 @@ accessBatchSize=0
 
 [info]
 hidden=false
+
+[cache]
+type=dummy
 ```
 
 On huge application
