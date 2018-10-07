@@ -20,6 +20,7 @@ Tools/Libs:
  * GoogleTest: https://github.com/google/googletest
  * Another NUMAPROF (not availble, just named into the article): https://link.springer.com/chapter/10.1007/978-3-319-27140-8_6
  * NumaMMA : https://github.com/numamma/numamma
+ * Numap: https://github.com/numap-library/numap
 
 Slides:
 -------
@@ -58,6 +59,7 @@ Papers/web articles:
  * MALT, A MALloc Tracker: https://doi.org/10.1145/3141865.3141867
  * A Data-Centric Tool to Improve the Performance of Multithreaded Program on NUMA: https://doi.org/10.1007/978-3-319-27140-8_6
  * NumaMMA: NUMA MeMory Analyzer: https://doi.org/10.1145/3225058.3225094
+ * numap: A Portable Library For Low Level Memory Profiling: https://hal.inria.fr/hal-01285522
 
 Technical help:
 ---------------
