@@ -183,6 +183,11 @@ the command line in given order:
 numactl {OPTIONS} numaprof-pintool ./MY_APP
 ```
 
+Pointers:
+---------
+
+If you search pointers about similar tools, interesting related papers, you can refer to the [docs/bibliography.md](https://github.com/memtt/numaprof/blob/master/doc/bibliography.md) file.
+
 License
 -------
 

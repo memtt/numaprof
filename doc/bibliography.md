@@ -18,6 +18,7 @@ Tools/Libs:
  * Pin: https://software.intel.com/en-us/articles/pin-a-dynamic-binary-instrumentation-tool
  * HwLoc: https://www.open-mpi.org/projects/hwloc/
  * GoogleTest: https://github.com/google/googletest
+ * Another NUMAPROF (not availble, just named into the article): https://link.springer.com/chapter/10.1007/978-3-319-27140-8_6
 
 Slides:
 
@@ -25,7 +26,7 @@ Slides:
  * A Data-centric Profiler for Parallel Programs: http://www.paradyn.org/CSCADS2013/slides/liu13.pdf
  * Scientific approaches: NUMA Profilers/analyzing runtime behavior Non-Uniform Memory Access (NUMA) Seminar: https://www.dcl.hpi.uni-potsdam.de/teaching/numasem/slides/NUMASem_Profiler.pdf
  
-Papers/web articules:
+Papers/web articles:
 ---------------------
 
  * A tool to analyze the performance of multithreaded programs on NUMA architectures: https://doi.org/10.1145/2692916.2555271
@@ -53,6 +54,7 @@ Papers/web articules:
  * SIMT/OMP: A Toolset to Study and Exploit Memory Locality of OpenMP Applications on NUMA Architectures : https://doi.org/10.1007/978-3-540-31832-3_5
  * A Flexible Data Model to Support Multi-domain Performance Analysis: https://doi.org/10.1007/978-3-319-16012-2_10
  * MALT, A MALloc Tracker: https://doi.org/10.1145/3141865.3141867
+ * A Data-Centric Tool to Improve the Performance of Multithreaded Program on NUMA: https://doi.org/10.1007/978-3-319-27140-8_6
 
 Technical help:
 ---------------
