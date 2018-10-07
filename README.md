@@ -15,6 +15,8 @@ the same service than valgrind but supporting threads so faster for parallel app
 
 You can find more details and screenshots on the dedicated website: https://memtt.github.io/numaprof/.
 
+![NUMAPROF GUI](https://memtt.github.io/numaprof/images/screenshots/screenshot-6-2.png)
+
 Metrics
 -------
 
