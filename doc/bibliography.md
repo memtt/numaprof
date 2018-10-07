@@ -19,6 +19,7 @@ Tools/Libs:
  * HwLoc: https://www.open-mpi.org/projects/hwloc/
  * GoogleTest: https://github.com/google/googletest
  * Another NUMAPROF (not availble, just named into the article): https://link.springer.com/chapter/10.1007/978-3-319-27140-8_6
+ * NumaMMA
 
 Slides:
 -------
@@ -56,6 +57,7 @@ Papers/web articles:
  * A Flexible Data Model to Support Multi-domain Performance Analysis: https://doi.org/10.1007/978-3-319-16012-2_10
  * MALT, A MALloc Tracker: https://doi.org/10.1145/3141865.3141867
  * A Data-Centric Tool to Improve the Performance of Multithreaded Program on NUMA: https://doi.org/10.1007/978-3-319-27140-8_6
+ * NumaMMA: NUMA MeMory Analyzer: https://doi.org/10.1145/3225058.3225094
 
 Technical help:
 ---------------
