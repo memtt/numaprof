@@ -194,6 +194,8 @@ License
 Numaprof is distributed under CeCILL-C licence which is LGPL compatible.
 Take care, NUMAPROF currently strongly depend on Intel Pintool which is free only for non commercial use.
 
+I would like to make a port to DynamoRIO to avoid this, if someone want to help !.
+
 Discussion
 ----------
 
