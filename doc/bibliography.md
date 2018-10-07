@@ -19,7 +19,7 @@ Tools/Libs:
  * HwLoc: https://www.open-mpi.org/projects/hwloc/
  * GoogleTest: https://github.com/google/googletest
  * Another NUMAPROF (not availble, just named into the article): https://link.springer.com/chapter/10.1007/978-3-319-27140-8_6
- * NumaMMA
+ * NumaMMA : https://github.com/numamma/numamma
 
 Slides:
 -------
