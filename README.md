@@ -183,8 +183,13 @@ the command line in given order:
 numactl {OPTIONS} numaprof-pintool ./MY_APP
 ```
 
-Licence
+License
 -------
 
 Numaprof is distributed under CeCILL-C licence which is LGPL compatible.
 Take care, NUMAPROF currently strongly depend on Intel Pintool which is free only for non commercial use.
+
+Discussion
+----------
+
+You can join the google group to exchange ideas and ask questions : https://groups.google.com/forum/#!forum/memtt-numaprof.
