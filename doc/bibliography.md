@@ -81,3 +81,11 @@ Technical help:
   * https://wiki.python.org/moin/PyQt/Using%20a%20Custom%20Protocol%20with%20QtWebKit
   * https://riverbankcomputing.com/pipermail/pyqt/2016-September/038076.html
   
+
+Docs on cache replacement policy for cache simulation
+-----------------------------------------------------
+
+ * http://www.csbio.unc.edu/mcmillan/Media/L20Spring2013.pdf
+ * https://stackoverflow.com/questions/23448528/how-is-an-lru-cache-implemented-in-a-cpu
+ * https://www.powershow.com/view/95163-NzkyO/4_4_20Page_20replacement_20algorithms_powerpoint_ppt_presentation
+ * https://www.cs.swarthmore.edu/~margarel/Papers/CS25.pdf

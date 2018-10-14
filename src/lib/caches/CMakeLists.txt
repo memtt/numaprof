@@ -9,5 +9,6 @@
 ######################################################
 add_library(numaprof-caches OBJECT CpuCache.cpp 
                                    CpuCacheDummy.cpp 
-                                   CpuCacheBuilder.cpp)
+                                   CpuCacheBuilder.cpp
+								   CpuSimpleFlatCache.cpp)
 SET_TARGET_PROPERTIES(numaprof-caches PROPERTIES COMPILE_FLAGS -fPIC)
