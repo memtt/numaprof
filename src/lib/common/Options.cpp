@@ -47,7 +47,7 @@ Options::Options(void)
 	this->infoHidden              = false;
 	//cache
 	this->cacheType               = "dummy";
-	this->cacheSize               = 32 * 1024;
+	this->cacheSize               = "32K";
 	this->cacheAssociativity      = 8;
 }
 
@@ -183,7 +183,7 @@ void Options::loadFromIniDic ( dictionary* iniDic )
 
 	//cache
 	this->cacheType           = iniparser_getstring(iniDic,"cache:type",(char*)this->cacheType.c_str());
-	this->cacheSize           = iniparser_getint(iniDic,"cache:size",this->cacheSize);
+	this->cacheSize           = iniparser_getstring(iniDic,"cache:size",(char*)this->cacheSize.c_str());
 	this->cacheAssociativity  = iniparser_getint(iniDic,"cache:associativity",this->cacheAssociativity);
 }
 
@@ -291,7 +291,7 @@ void Options::dumpConfig(const char* fname) const
 
 	//cache
 	IniParserHelper::setEntry(dic,"cache:type",this->cacheType.c_str());
-	IniParserHelper::setEntry(dic,"cache:size",this->cacheSize);
+	IniParserHelper::setEntry(dic,"cache:size",this->cacheSize.c_str());
 	IniParserHelper::setEntry(dic,"cache:associativity",this->cacheAssociativity);
 
 	//write

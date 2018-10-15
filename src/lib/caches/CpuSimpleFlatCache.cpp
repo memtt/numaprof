@@ -39,9 +39,9 @@ CpuSimpleFlatCache::CpuSimpleFlatCache(size_t size,size_t associativity)
 	this->bufSortAges = new SimpleFlatCacheLRUAge[associativity];
 
 	//init
-	for (int row = 0 ; row < waySize ; row++) {
+	for (size_t row = 0 ; row < waySize ; row++) {
 		this->tagCurrentAge[row] = associativity;
-		for (int way = 0 ; way < associativity ; way++) {
+		for (size_t way = 0 ; way < associativity ; way++) {
 			this->tagLineVirtIndex[getIndex(row,way)] = 0;
 			this->tagLineAge[getIndex(row,way)] = way;
 		}
@@ -70,7 +70,7 @@ bool CpuSimpleFlatCache::onMemoryAccess(size_t addr)
 
 	//check if is in cache
 	int hitWay = -1;
-	for (int way = 0 ; way < this->associativity; way++) {
+	for (size_t way = 0 ; way < this->associativity; way++) {
 		//if index match => hit
 		if (this->tagLineVirtIndex[base + way] == addrIndex) {
 			hitWay = way;
@@ -116,16 +116,16 @@ void CpuSimpleFlatCache::scaleDownAges(size_t row)
 	size_t base = row * associativity;
 
 	//build array
-	for (int way = 0 ; way < associativity ; way++)
+	for (size_t way = 0 ; way < associativity ; way++)
 		this->bufSortAges[way] = this->tagLineAge[base + way];
 
 	//sort
 	std::sort(this->bufSortAges,this->bufSortAges+associativity);
 
 	//apply
-	for (int newAge = 0 ; newAge < this->associativity ; newAge++) {
+	for (size_t newAge = 0 ; newAge < this->associativity ; newAge++) {
 		SimpleFlatCacheLRUAge oldAge = this->bufSortAges[newAge];
-		for (int way = 0 ; way < this->associativity ; way++) {
+		for (size_t way = 0 ; way < this->associativity ; way++) {
 			if (this->tagLineAge[base + way] == oldAge) {
 				//printf("Scale down row=%lu, way=%d, oldAge=%lu, newAge=%lu\n",row,way,(size_t)oldAge,(size_t)newAge);
 				this->tagLineAge[base + way] = newAge;
@@ -147,7 +147,7 @@ size_t CpuSimpleFlatCache::selectVictim(size_t row) const
 	size_t index = 0;
 
 	//search one with lowest age
-	for (int way = 1 ; way < this->associativity ; way++) {
+	for (size_t way = 1 ; way < this->associativity ; way++) {
 		SimpleFlatCacheLRUAge age = this->tagLineAge[base+way];
 		if (age < minAge) {
 			minAge = age;

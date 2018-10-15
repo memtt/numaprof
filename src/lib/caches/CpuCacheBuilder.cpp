@@ -8,6 +8,7 @@
 
 /*******************  HEADERS  **********************/
 #include <cstdio>
+#include "../common/Debug.hpp"
 #include "CpuCacheBuilder.hpp"
 #include "CpuCacheDummy.hpp"
 #include "CpuSimpleFlatCache.hpp"
@@ -89,7 +90,32 @@ CpuCache * CpuCacheBuilder::buildDummyCache(void)
 CpuCache * CpuCacheBuilder::buildSimpleFlatCache(void)
 {
 	const Options & options = getGlobalOptions();
-	return new CpuSimpleFlatCache(options.cacheSize,options.cacheAssociativity);
+	size_t cacheSize = convertHumanUnit(options.cacheSize);
+	return new CpuSimpleFlatCache(cacheSize,options.cacheAssociativity);
+}
+
+/*******************  FUNCTION  *********************/
+/**
+ * Extract value from given string human unit.
+ * Supported is K, M, G, T with multiple of 1024 (not 1000 !).
+**/
+size_t CpuCacheBuilder::convertHumanUnit(const std::string & value)
+{
+	size_t size;
+	if (sscanf(value.c_str(),"%luK",&size) == 1) {
+		return size * 1024UL;
+	} else if (sscanf(value.c_str(),"%luM",&size) == 1) {
+		return size * 1024UL * 1024UL;
+	} else if (sscanf(value.c_str(),"%luG",&size) == 1) {
+		return size * 1024UL * 1024UL * 1024UL;
+	} else if (sscanf(value.c_str(),"%luT",&size) == 1) {
+		return size * 1024UL * 1024UL * 1024UL * 1024UL;
+	} else if (sscanf(value.c_str(),"%lu",&size) == 1) {
+		return size;
+	} else {
+		numaprofFatal("Invalid format for cache:size in config : %s, should be {XXX}[K|M|G|T]\n",value.c_str());
+		return 0;
+	}
 }
 
 }

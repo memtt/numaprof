@@ -71,7 +71,7 @@ The config file use INI format with sections and variables as in this example :
 
 	[cache]
 	type=dummy
-  size=32768
+  size=32K
   associativity=8
 
 The `output` section support :
@@ -120,7 +120,7 @@ The `cache` section support:
    access numbers on spinlocks or constants which normaly stay in the cache and do not generate NUMA traffic.
    Current possible values are : `dummy` to disable cache simulation or 'L1' to run with a uniq L1 cache per thread.
  * `size`: If L1 cache is enabled, define the size of cache in bytes. Cache will use fixed 64 bytes cache lines.
-   by default 32KB.
+   by default 32KB. You can use K, M, G, T as unit (multiple of 1024, not 1000 !).
  * `associativity`: Define the L1 cache associativity to simulate, by default 8.
 
 ## ENVIRONMENT

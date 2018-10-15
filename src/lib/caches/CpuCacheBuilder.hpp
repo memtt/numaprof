@@ -10,6 +10,7 @@
 #define CPU_CACHE_BUILDER_HPP
 
 /********************  HEADERS  *********************/
+#include <string>
 #include "CpuCache.hpp"
 
 /********************  NAMESPACE  *******************/
@@ -30,6 +31,7 @@ class CpuCacheBuilder
 		CpuCacheBuilder(void);
 		static CpuCache * buildDummyCache(void);
 		static CpuCache * buildSimpleFlatCache(void);
+		static size_t convertHumanUnit(const std::string & value);
 };
 
 }

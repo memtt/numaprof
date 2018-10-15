@@ -31,7 +31,12 @@ OBJS=$(OBJDIR)numaprof-debug$(OBJ_SUFFIX)\
 	$(OBJDIR)numaprof-options$(OBJ_SUFFIX)\
 	$(OBJDIR)numaprof-formatted-message$(OBJ_SUFFIX)\
 	$(OBJDIR)iniparser-dictionary$(OBJ_SUFFIX)\
-	$(OBJDIR)iniparser-iniparser$(OBJ_SUFFIX)
+	$(OBJDIR)iniparser-iniparser$(OBJ_SUFFIX)\
+	$(OBJDIR)numaprof-cache-cpu-cache$(OBJ_SUFFIX)\
+	$(OBJDIR)numaprof-cache-builder$(OBJ_SUFFIX)\
+	$(OBJDIR)numaprof-cache-dummy$(OBJ_SUFFIX)\
+	$(OBJDIR)numaprof-cache-simple-flat$(OBJ_SUFFIX)
+
 
 # Build the intermediate object file.
 $(OBJDIR)libnumaprof-pintool$(OBJ_SUFFIX): $(SRCDIR)/numaprof.cpp 
@@ -104,6 +109,18 @@ $(OBJDIR)numaprof-malt-linux-proc-map$(OBJ_SUFFIX): $(SRCDIR)/../../../extern-de
 	$(CXX) $(NUMAPROF_TOOL_CXXFLAGS) $(COMP_OBJ)$@ $< $(CST_CFLAGS)
 
 $(OBJDIR)numaprof-malt-symbol-registry$(OBJ_SUFFIX): $(SRCDIR)/../../../extern-deps/from-malt-v2/SymbolRegistry.cpp 
+	$(CXX) $(NUMAPROF_TOOL_CXXFLAGS) $(COMP_OBJ)$@ $< $(CST_CFLAGS)
+
+$(OBJDIR)numaprof-cache-cpu-cache$(OBJ_SUFFIX): $(SRCDIR)/../../lib/caches/CpuCache.cpp 
+	$(CXX) $(NUMAPROF_TOOL_CXXFLAGS) $(COMP_OBJ)$@ $< $(CST_CFLAGS)
+
+$(OBJDIR)numaprof-cache-builder$(OBJ_SUFFIX): $(SRCDIR)/../../lib/caches/CpuCacheBuilder.cpp 
+	$(CXX) $(NUMAPROF_TOOL_CXXFLAGS) $(COMP_OBJ)$@ $< $(CST_CFLAGS)
+
+$(OBJDIR)numaprof-cache-dummy$(OBJ_SUFFIX): $(SRCDIR)/../../lib/caches/CpuCacheDummy.cpp 
+	$(CXX) $(NUMAPROF_TOOL_CXXFLAGS) $(COMP_OBJ)$@ $< $(CST_CFLAGS)
+
+$(OBJDIR)numaprof-cache-simple-flat$(OBJ_SUFFIX): $(SRCDIR)/../../lib/caches/CpuSimpleFlatCache.cpp 
 	$(CXX) $(NUMAPROF_TOOL_CXXFLAGS) $(COMP_OBJ)$@ $< $(CST_CFLAGS)
 
 # Build the tool as a dll (shared object).

@@ -153,7 +153,7 @@ hidden=false
 [cache]
 ;can be 'dummy' or 'L1'
 type=dummy
-size=32768
+size=32K
 associativity=8
 ```
 
