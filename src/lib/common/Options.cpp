@@ -47,6 +47,8 @@ Options::Options(void)
 	this->infoHidden              = false;
 	//cache
 	this->cacheType               = "dummy";
+	this->cacheSize               = 32 * 1024;
+	this->cacheAssociativity      = 8;
 }
 
 /*******************  FUNCTION  *********************/
@@ -73,6 +75,8 @@ bool Options::operator==(const Options& value) const
 	if (this->infoHidden != value.infoHidden) return false;
 	//cache
 	if (this->cacheType != value.cacheType) return false;
+	if (this->cacheSize != value.cacheSize) return false;
+	if (this->cacheAssociativity != value.cacheAssociativity) return false;
 	
 	return true;
 }
@@ -179,6 +183,8 @@ void Options::loadFromIniDic ( dictionary* iniDic )
 
 	//cache
 	this->cacheType           = iniparser_getstring(iniDic,"cache:type",(char*)this->cacheType.c_str());
+	this->cacheSize           = iniparser_getint(iniDic,"cache:size",this->cacheSize);
+	this->cacheAssociativity  = iniparser_getint(iniDic,"cache:associativity",this->cacheAssociativity);
 }
 
 /*******************  FUNCTION  *********************/
@@ -248,6 +254,8 @@ void convertToJson(htopml::JsonState & json,const Options & value)
 
 		json.openFieldStruct("cache");
 			json.printField("type",value.cacheType);
+			json.printField("size",value.cacheSize);
+			json.printField("associativity",value.cacheAssociativity);
 		json.closeFieldStruct("cache");
 	json.closeStruct();
 }
@@ -283,6 +291,8 @@ void Options::dumpConfig(const char* fname) const
 
 	//cache
 	IniParserHelper::setEntry(dic,"cache:type",this->cacheType.c_str());
+	IniParserHelper::setEntry(dic,"cache:size",this->cacheSize);
+	IniParserHelper::setEntry(dic,"cache:associativity",this->cacheAssociativity);
 
 	//write
 	FILE * fp = fopen(fname,"w");

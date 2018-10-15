@@ -29,6 +29,7 @@ class CpuCacheBuilder
 	private:
 		CpuCacheBuilder(void);
 		static CpuCache * buildDummyCache(void);
+		static CpuCache * buildSimpleFlatCache(void);
 };
 
 }

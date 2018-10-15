@@ -10,6 +10,12 @@
 #include <cstdio>
 #include "CpuCacheBuilder.hpp"
 #include "CpuCacheDummy.hpp"
+#include "CpuSimpleFlatCache.hpp"
+#include "../common/Options.hpp"
+
+/*******************  CONSTS  ***********************/
+#define BUILDER_MODE_DUMMY "dummy"
+#define BUILDER_MODE_SIMPLE_FLAT "L1"
 
 /*******************  NAMESPACE  ********************/
 namespace numaprof
@@ -24,7 +30,9 @@ namespace numaprof
 **/
 void * CpuCacheBuilder::buildLayout(const std::string & type)
 {
-	if (type == "dummy") {
+	if (type == BUILDER_MODE_DUMMY) {
+		return NULL;
+	} else if (type == BUILDER_MODE_SIMPLE_FLAT) {
 		return NULL;
 	} else {
 		fprintf(stderr,"NUMARPOF: Invalid cache type, cannot build cache layout: '%s'\n",type.c_str());
@@ -38,7 +46,9 @@ void * CpuCacheBuilder::buildLayout(const std::string & type)
 **/
 void CpuCacheBuilder::destroyLayout(const std::string & type,void * layout)
 {
-	if (type == "dummy") {
+	if (type == BUILDER_MODE_DUMMY) {
+		//nothing to do
+	} else if (type == BUILDER_MODE_SIMPLE_FLAT) {
 		//nothing to do
 	} else {
 		fprintf(stderr,"NUMARPOF: Invalid cache type, cannot destroy cache layout: '%s'\n",type.c_str());
@@ -53,8 +63,10 @@ void CpuCacheBuilder::destroyLayout(const std::string & type,void * layout)
 **/
 CpuCache * CpuCacheBuilder::buildCache(const std::string & type,void * layout)
 {
-	if (type == "dummy") {
+	if (type == BUILDER_MODE_DUMMY) {
 		return buildDummyCache();
+	} else if (type == BUILDER_MODE_SIMPLE_FLAT) {
+		return buildSimpleFlatCache();
 	} else {
 		fprintf(stderr,"NUMARPOF: Invalid cache type, cannot build : '%s'\n",type.c_str());
 		exit(1);
@@ -68,6 +80,16 @@ CpuCache * CpuCacheBuilder::buildCache(const std::string & type,void * layout)
 CpuCache * CpuCacheBuilder::buildDummyCache(void)
 {
 	return new CpuCacheDummy();
+}
+
+/*******************  FUNCTION  *********************/
+/**
+ * Build dummy cache.
+**/
+CpuCache * CpuCacheBuilder::buildSimpleFlatCache(void)
+{
+	const Options & options = getGlobalOptions();
+	return new CpuSimpleFlatCache(options.cacheSize,options.cacheAssociativity);
 }
 
 }

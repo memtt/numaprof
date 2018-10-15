@@ -151,7 +151,10 @@ accessBatchSize=0
 hidden=false
 
 [cache]
+;can be 'dummy' or 'L1'
 type=dummy
+size=32768
+associativity=8
 ```
 
 On huge application

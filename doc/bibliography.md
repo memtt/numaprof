@@ -89,3 +89,4 @@ Docs on cache replacement policy for cache simulation
  * https://stackoverflow.com/questions/23448528/how-is-an-lru-cache-implemented-in-a-cpu
  * https://www.powershow.com/view/95163-NzkyO/4_4_20Page_20replacement_20algorithms_powerpoint_ppt_presentation
  * https://www.cs.swarthmore.edu/~margarel/Papers/CS25.pdf
+ * http://blog.stuffedcow.net/2013/01/ivb-cache-replacement/

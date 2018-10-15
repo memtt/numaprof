@@ -112,6 +112,10 @@ struct Options
 	//info
 	/** Hide paths and machine name if you don't want critical informations to be leaked. **/
 	bool infoHidden;
+	/** Define cache size **/
+	int cacheSize;
+	/** Define cache assoiativity **/
+	int cacheAssociativity;
 };
 
 /********************  GLOBALS  *********************/
