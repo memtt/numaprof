@@ -191,6 +191,26 @@ the command line in given order:
 numactl {OPTIONS} numaprof-pintool ./MY_APP
 ```
 
+Cache simulation
+----------------
+
+NUMAPROF report all the memory accesses to account local/remote/MCDRAM. But this is biased compared to the
+reallity as your processor has CPU caches which reduce a lot the accesses to the RAM. If you want to take
+this into account there is currently a slight cache simulation infrastructure embedded into NUMAOROF.
+It currently only provide one L1 cache per thread (32K by default) with LRU replacement policy.
+This does not match with the multi-level and shared caches of current architectures but can be used
+for example to eliminate spinlocks and access to global variables from the profile as it for sure finish
+in the cache.
+
+Caution, this is currently an **experimental feature**.
+
+You can enable it by using command line option and can optionally change its size using
+the standard way to override config file options via command line (or provide a config file) :
+
+```sh
+numaprof-pintool --cache L1 -o cache:size=32K -o cache:associativity=8 {YOUR_APP}
+```
+
 Pointers:
 ---------
 
