@@ -37,6 +37,10 @@ it with debug symbols (`-g`) and also to disable inlining to get more accurate s
    Enable treatement of the accesses by batch with a grouping factor of 32.
    It provide instrumentation speed-up of a factor 2 but reduce the precision
    on the first touch detection and counters for elements with low number of accesses.
+ * `--cache`:
+   Define type of cache simulation to run. Default is 'dummy'. Available alternative
+   is 'L1' which offer a per thread L1 simulated cache with LRU replacement policy. 
+   Look in the config file to see how to configure size and associativity of the cache.
  * `-V`, `--verbose`
    Enable more printing for debugging.
 
@@ -118,7 +122,8 @@ The `cache` section support:
  * `type`:
    Define the type of cache model used to simulate CPU caches. This permit to avoid for example reporting huge 
    access numbers on spinlocks or constants which normaly stay in the cache and do not generate NUMA traffic.
-   Current possible values are : `dummy` to disable cache simulation or 'L1' to run with a uniq L1 cache per thread.
+   Current possible values are : `dummy` to disable cache simulation or 'L1' to run with a uniq L1 cache per thread
+   with LRU replacement policy.
  * `size`: If L1 cache is enabled, define the size of cache in bytes. Cache will use fixed 64 bytes cache lines.
    by default 32KB. You can use K, M, G, T as unit (multiple of 1024, not 1000 !).
  * `associativity`: Define the L1 cache associativity to simulate, by default 8.
