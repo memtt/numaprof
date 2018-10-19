@@ -7,6 +7,8 @@
 #            LICENSE  : CeCILL-C                     #
 ######################################################
 
+set -e
+
 ######################################################
 # This script provide a simple wrapper to cmake to fix
 # the missing --help equivalent to autotools. And it
@@ -15,39 +17,211 @@
 
 ######################################################
 #script setup
-PROJECT_NAME='numaprof'
+CFG_PROJECT_NAME='numaprof'
+CFG_DEFAULT_BUILD_TYPE='Release'
+CFG_DEFAULT_PREFIX='/usr/local'
+#compiler default flags
+CFG_EXTRA_CC=''
+CFG_EXTRA_CXX=''
+CFG_EXTRA_CFLAGS=''
+CFG_EXTRA_CXXFLAGS=''
+CFG_EXTRA_LDFLAGS=''
 # State variables
-PREFIX='-DCMAKE_INSTALL_PREFIX=/usr/local'
-PREFIX_PATH="/usr/local"
-CMAKE='cmake'
-EXTRA_CC=''
-EXTRA_CXX=''
-EXTRA_CFLAGS=''
-EXTRA_CXXFLAGS=''
-EXTRA_LDFLAGS=''
-BUILD_TYPE='Release'
-#compiler
-MPI_CXX_COMPILER=''
+CFG_CMAKE_COMMAND='cmake'
 #features
-ENABLE_GCC_COVERAGE=''
-ENABLE_JUNIT_OUT=''
-ENABLE_VALGRIND=''
-ENABLE_WEBVIEW=''
-ENABLE_NINJA=''
-LIB_SUFFIX=''
-#prefix
-HLWOC_PREFIX=''
-PINTOOL_PREFIX=''
-NUMACTL_PREFIX=''
-#select transport
-TRANSPORT=''
+CFG_LIB_SUFFIX=''
+#help formatting
+CFG_HELP_OPT_LENGTH=23
+
+######################################################
+CFG_TMP='/tmp'
+CFG_FEATURES_HELP_FILE="`mktemp ${CFG_TMP}/configure_help_enable_disable.XXXXXXXXXX`"
+CFG_CASE_PARSE_OPT_FILE="`mktemp ${CFG_TMP}/configure_case_parse_opt.XXXXXXXXXX`"
+CFG_CMAKE_OPTS="`mktemp ${CFG_TMP}/configure_cmake_opts.XXXXXXXXXX`"
 
 ######################################################
 #Find default source dir
-SOURCE_DIR="$PWD/`dirname \"$0\"`"
+CFG_SOURCE_DIR="$PWD/`dirname \"$0\"`"
 
 ######################################################
-HELP_MESSAGE="'configure' is a cmake wrapper to build ${PROJECT_NAME}
+#function defining all the options available to configure the project
+cfg_setup_options()
+{
+	#debug
+	cfg_add_enable_option --name='debug' \
+	                      --on-enable='-DBUILD_TYPE=Debug' \
+	                      --on-disable='-DBUILD_TYPE=Release' \
+	                      --doc='Enable debugging support (-DCMAKE_BUILD_TYPE=Debug).'
+	#test
+	cfg_add_enable_option --name='test' \
+	                      --on='-DENABLE_TESTS=${ON}' \
+	                      --doc='Disable unit tests' \
+	                      --invert-help
+	#gcc test coverage
+	cfg_add_enable_option --name='gcc-coverage'  \
+	                      --on='-DENABLE_GCC_COVERAGE=${ON}' \
+	                      --doc='Enable GCC option to generate test coverage of the lib.' \
+	#junit xml out
+	cfg_add_enable_option --name='junit-output'  \
+	                      --on='-DENABLE_JUNIT_OUTPUT=${ON}' \
+	                      --doc='Save test output in JUnit format (only in self-test mode).' 
+	#valgrind
+	cfg_add_enable_option --name='valgrind' \
+	                      --on='-DENABLE_VALGRIND=${ON}' \
+	                      --doc 'Enable running unit tests into valgrind to generate reports.'
+	#jenkins full features
+	cfg_add_enable_option --name='jenkins' \
+	                      --on-enable-inherit='--enable-valgrind --enable-junit-output --enable-debug "CXXFLAGS=-Wall -fprofile-arcs -ftest-coverage"' \
+	                      --doc='Enable all checking modes (unit, valgrind, coverage...).' \
+	                      --only='enable'
+	#webview
+	cfg_add_enable_option --name='webview' \
+	                      --on='-DENABLE_WEBVIEW=${ON}' \
+	                      --doc='Disable installation of webview (-DENABLE_WEBVIEW=no).'
+	#ninja
+	cfg_add_enable_option --name='ninja' \
+	                      --on-enable='-GNinja' \
+	                      --doc='Enable usage of Ninja with cmake instead of Make.' \
+						  --only=enable
+}
+
+######################################################
+cfg_exit()
+{
+	cat "${CFG_CASE_PARSE_OPT_FILE}"
+	cat "${CFG_CMAKE_OPTS}"
+	rm -f "${CFG_FEATURES_HELP_FILE}"
+	rm -f "${CFG_CASE_PARSE_OPT_FILE}"
+	rm -f "${CFG_CMAKE_OPTS}"
+	exit $1
+}
+
+######################################################
+cfg_fail()
+{
+	echo "$@" 1>&2
+	cfg_exit 1
+}
+
+######################################################
+# Add an --enable-*|--disable-* option to the list of available options.
+# The command take a command line like parameters to setup the option :
+#
+# Params:
+#  --name={NAME}           Provide option name (will be added to --enable-{NAME} and --sidable-{NAME})
+#  --doc={DOC}             Provide documentation string for --help
+#  --on-enable={OPT}       Add a cmake option to the option list when --enable-{NAME} is triggered
+#  --on-diable={OPT}       Add a cmake option to the option list when --enable-{NAME} is triggered
+#  --on={-DVAR=${ON}}      Setup the given cmake variable to ON/OFF depending on the enable/disable.
+#  --on-enable-inherit={}  List of inherited configure option to trigger when used.
+#  --on-disable-inherit={} List of inherited configure option to trigger when used.
+#  --invert-help           In help message, do it for disable instead of enable.
+#  --only={enable|disable} Provide only one of the two command.
+#
+# In commands you can use variables :
+#  ${ON}                   Will be 'ON' on enable and 'OFF' on disable
+#  ${OFF}                  Will be 'OFF' on enable and 'ON' on disable
+#  ${ENABLE}               Will be 'ENABLE' on enable and 'DISABLE' on disable
+#  ${DISABLE}              Will be 'DISABLE' on enable and 'ENABLE' on disable
+cfg_add_enable_option()
+{
+	#vars
+	opt_help_mode='enable'
+	opt_mode='both'
+	opt_enable=''
+	opt_disable=''
+
+	#scan options
+	for opt in "$@"
+	do
+		#extract
+		v=`echo $opt | cut -f 2- -d =`
+
+		#case
+		case $opt in
+			--name=*)
+				opt_name="${v}"
+				;;
+			--doc=*)
+				opt_doc="${v}"
+				;;
+			--on-enable=*)
+				opt_enable="cfg_push_cmake_opt \"${v}\""
+				;;
+			--on-disable=*)
+				opt_disable="cfg_push_cmake_opt \"${v}\""
+				;;
+			--on=*)
+				opt_enable="cfg_push_cmake_opt \"${v}\""
+				opt_disable="cfg_push_cmake_opt \"${v}\""
+				;;
+			--on-enable-inherit=*)
+				opt_enable="cfg_parse_global_args ${v}"
+				;;
+			--on-disable-inherit=*)
+				opt_disable="cfg_parse_global_args ${v}"
+				;;
+			--invert-help)
+				opt_help_mode='disable'
+				;;
+			--only=enable|--only=disable)
+				opt_help_mode="${v}"
+				opt_mode="${v}"
+				;;
+			*)
+				#cfg_fail "Invalid internal option to build enable option ${opt} while calling cfg_add_enable_option()"
+				;;
+		esac
+	done
+
+	#generate doc
+	printf "   --%-${CFG_HELP_OPT_LENGTH}s %s\n" "${opt_mode}-${opt_name}" "${opt_doc}" >> ${CFG_FEATURES_HELP_FILE}
+
+	#generate enable action
+	if test ! -z "${opt_enable}"; then
+		if test "${opt_mode}" = "both" || test "${opt_mode}" = "enable"; then
+			echo "			--enable-${opt_name})" >> ${CFG_CASE_PARSE_OPT_FILE}
+			echo "				${opt_enable}" >> ${CFG_CASE_PARSE_OPT_FILE}
+			echo "				;;" >> ${CFG_CASE_PARSE_OPT_FILE}
+		fi
+	fi
+
+	#generate disable action
+	if test ! -z "${opt_disable}"; then
+		if test "${opt_mode}" = "both" || test "${opt_mode}" = "disable"; then
+			echo "			--disable-${opt_name})" >> ${CFG_CASE_PARSE_OPT_FILE}
+			echo "				${opt_disable}" >> ${CFG_CASE_PARSE_OPT_FILE}
+			echo "				;;" >> ${CFG_CASE_PARSE_OPT_FILE}
+		fi
+	fi
+}
+
+######################################################
+CFG_PARSE_OPT_HEADER="#!/bin/sh
+
+cfg_parse_user_opts()
+{
+	for user_opt in \"\$@\"
+	do
+		case \$user_opt in"
+CFG_PARSE_OPT_FOOTER="
+			*)
+				return 1
+				;;
+		esac
+	done
+}
+"
+
+######################################################
+#build configuration
+echo "${CFG_PARSE_OPT_HEADER}" > ${CFG_CASE_PARSE_OPT_FILE}
+cfg_setup_options
+echo "${CFG_PARSE_OPT_FOOTER}" >> ${CFG_CASE_PARSE_OPT_FILE}
+. ${CFG_CASE_PARSE_OPT_FILE}
+
+######################################################
+CFG_HELP_MESSAGE="'configure' is a cmake wrapper to build ${CFG_PROJECT_NAME}
 For more control, prefer to use cmake directely, this wrapper only aims
 to ease your life for standard cases.
 
@@ -60,26 +234,19 @@ Defaults for the options are specified in brackets.
 
 Configuration:
   -h, --help                 display this help and exit
-      --srcdir=DIR           find the sources in DIR [configure dir or '${SOURCE_DIR}']
+      --srcdir=DIR           find the sources in DIR [configure dir or '${CFG_SOURCE_DIR}']
 
 Installation directories:
-   --prefix=PREFIX           install files in PREFIX [${PREFIX}]
-   --lib-suffix=SUFFIX       used to force suffix for lib directory. [empty].
+   --prefix=PREFIX           install files in PREFIX [${CFG_DEFAULT_PREFIX}]
+   --lib-suffix=SUFFIX       used to force suffix for lib directory eg. lib64. [empty].
 
 By default, 'make install' will install all the files in
 '/usr/local/bin', '/usr/local/lib' etc.  You can specify
 an installation prefix other than '/usr/local' using '--prefix',
-for instance '--prefix=$HOME'.
+for instance '--prefix=$HOME/usr'.
 
 Optional Features:
-   --enable-debug            Enable debugging support (-DCMAKE_BUILD_TYPE=Debug).
-   --enable-gcc-coverage     Enable GCC option to generate test coverage of the lib.
-   --enable-junit-output     Save test output in JUnit format (only in self-test mode).
-   --enable-valgrind         Enable valgrind on unit tests (-DENABLE_VALGRIND=yes).
-   --disable-tests           Disable unit tests of the lib (-DENABLE_TESTS=no).
-   --enable-jenkins          Enable all checking modes (unit, valgrind, coverage...).
-   --disable-webview         Disable installation of webview (-DENABLE_WEBVIEW=no).
-   --enable-ninja            Enable usage of Ninja with cmake instead of Make.
+`cat ${CFG_FEATURES_HELP_FILE}`
 
 To find libs and commands :
    --with-cmake={command}    Define the cmake command to use [cmake].
@@ -92,6 +259,9 @@ To find libs and commands :
 To get the generated cmake command :
    --show                  Display the cmake command and didn't execute it.
 
+Extra cmake option:
+   -D{VARNAME}={VALUE}       Transmit direct cmake options in cmake format.
+
 Some influential environment variables:
    LDFLAGS     linker flags, e.g. -L<lib dir> if you have libraries in a
                nonstandard directory <lib dir>
@@ -101,133 +271,100 @@ Some influential environment variables:
    CXXFLAGS    C++ compiler flags"
 
 ######################################################
-#Function to extract value from args. It split on equals
-#Params :
-#  $1 : user argument with option
-#  $2 : Option (--prefix)
-get_arg_value()
+cfg_push_cmake_opt()
 {
-	echo "$1" | sed -e "s/^$2=//g"
-}
-
-######################################################
-#Convert enable/disable options into yes/no status
-#  $1 : user arguement (--enable-.... or --disable-....)
-#  $2 : Optional argument. Use value INVERT to permut yes/no mapping.
-enabl_disabl_to_yes_no()
-{
-	case "$1" in
-		--enable-*)
-			if [ "$2" = 'INVERT' ]; then echo 'no'; else echo 'yes'; fi
-			;;
-		--disable-*)
-			if [ "$2" = 'INVERT' ]; then echo 'yes'; else echo 'no'; fi
-			;;
-		*)
-			echo "Invalid value in enabl_disabl_to_yes_no(), require --disable-* or --enable-*." 1>&2
-			echo 'unknown'
-			;;
-	esac
+	echo "$@" >> ${CFG_CMAKE_OPTS}
 }
 
 ######################################################
 #parse arguments
-for arg in "$@"
-do
-	case "$arg" in
-		-h | --help)
-			echo "$HELP_MESSAGE"
-			exit 0
-			;;
-		--prefix=*)
-			PREFIX="-DCMAKE_INSTALL_PREFIX=`get_arg_value \"$arg\" --prefix`"
-			PREFIX_PATH="`get_arg_value \"$arg\" --prefix`"
-			;;
-		--srcdir=*)
-			SOURCE_DIR="`get_arg_value \"$arg\" --srcdir`"
-			;;
-		--lib-suffix=*)
-			LIB_SUFFIX="`get_arg_value \"$arg\" --lib-suffix`"
-			if [ ! -z "${LIB_SUFFIX}" ]; then LIB_SUFFIX="-DLIB_SUFFIX=${LIB_SUFFIX}"; fi
-			;;
-		--with-cmake=*)
-			CMAKE="`get_arg_value \"$arg\" --with-cmake`"
-			;;
-		--with-mpicxx=*)
-			MPI_CXX_COMPILER="-DMPI_CXX_COMPILER=`get_arg_value \"$arg\" --with-mpicxx`"
-			;;
-		--with-hwloc=*)
-			HWLOC_PREFIX="-DHWLOC_PREFIX=`get_arg_value \"$arg\" --with-hwloc`"
-			;;
-		--with-pintool=*)
-			PINTOOL_PREFIX="`get_arg_value \"$arg\" --with-pintool`"
-			;;
-		--without-pintool)
-			PINTOOL_PREFIX="NO"
-			;;
-		--with-numactl=*)
-			NUMACTL_PREFIX="`get_arg_value \"$arg\" --with-numactl`"
-			;;
-		--enable-debug)
-			BUILD_TYPE='Debug'
-			;;
-		--enable-ninja)
-			ENABLE_NINJA="-GNinja"
-			;;
-		--enable-internal-launcher)
-			INTERNAL_LAUNCHER="-DENABLE_INTERNAL_LAUNCHER=ON"
-			;;
-		--disable-internal-launcher)
-			INTERNAL_LAUNCHER="-DENABLE_INTERNAL_LAUNCHER=OFF"
-			;;
-		--enable-gcc-coverage | --disable-gcc-coverage)
-			ENABLE_GCC_COVERAGE="-DENABLE_GCC_COVERAGE=`enabl_disabl_to_yes_no $arg`"
-			;;
-		--enable-junit-output | --disable-junit-output)
-			ENABLE_JUNIT_OUT="-DENABLE_JUNIT_OUTPUT=`enabl_disabl_to_yes_no $arg`"
-			;;
-		--enable-valgrind | --disable-valgrind)
-			ENABLE_VALGRIND="-DENABLE_VALGRIND=`enabl_disabl_to_yes_no $arg`"
-			;;
-		--disable-tests | --enable-tests)
-			DISABLE_TESTS="-DENABLE_TESTS=`enabl_disabl_to_yes_no $arg`";
-			;;
-		--enable-webview)
-			ENABLE_WEBVIEW="-DENABLE_WEBVIEW=ON"
-			;;
-		--disable-webview)
-			ENABLE_WEBVIEW="-DENABLE_WEBVIEW=OFF"
-			;;
-		--enable-jenkins)
-			ENABLE_JUNIT_OUT='-DENABLE_JUNIT_OUTPUT=yes'
-			ENABLE_VALGRIND='-DENABLE_VALGRIND=yes'
-			BUILD_TYPE='Debug'
-			EXTRA_CXXFLAGS="${EXTRA_CXXFLAGS} -Wall -fprofile-arcs -ftest-coverage"
-			;;
-		--show)
-			ENABLE_DISPLAY_COMMAND='true'
-			;;
-		CC=*)
-			EXTRA_CC="`get_arg_value \"$arg\" CC`"
-			;;
-		CFLAGS=*)
-			EXTRA_CFLAGS="`get_arg_value \"$arg\" CFLAGS`"
-			;;
-		CXX=*)
-			EXTRA_CXX="`get_arg_value \"$arg\" CXX`"
-			;;
-		CXXFLAGS=*)
-			EXTRA_CXXFLAGS="${EXTRA_CXXFLAGS} `get_arg_value \"$arg\" CXXFLAGS`"
-			;;
-		LDFLAGS=*)
-			EXTRA_LDFLAGS="${EXTRA_CFLAGS} `get_arg_value \"$arg\" LDFLAGS`"
-			;;
-		*)
-			echo "Invalid argument : $arg, please check in --help." 1>&2
-			exit 1
-			;;
-	esac
-done
+cfg_parse_global_args()
+{
+	for arg in "$@"
+	do
+		#extract
+		val="`echo \"$arg\" | cut -f 2- -d =`"
+		case $arg in
+			--enable-*)
+				ON='ON'
+				OFF='OFF'
+				;;
+			--disable-*)
+				ON='OFF'
+				OFF='ON'
+				;;
+		esac
+
+		#loop on args
+		case "$arg" in
+			-h | --help)
+				echo "$CFG_HELP_MESSAGE"
+				cfg_exit 0
+				;;
+			--prefix=*)
+				cfg_push_cmake_opt "-DCMAKE_INSTALL_PREFIX=$val"
+				;;
+			--srcdir=*)
+				SOURCE_DIR="`get_arg_value \"$arg\" --srcdir`"
+				;;
+			--lib-suffix=*)
+				LIB_SUFFIX="`get_arg_value \"$arg\" --lib-suffix`"
+				if [ ! -z "${LIB_SUFFIX}" ]; then LIB_SUFFIX="-DLIB_SUFFIX=${LIB_SUFFIX}"; fi
+				;;
+			--with-cmake=*)
+				CMAKE="`get_arg_value \"$arg\" --with-cmake`"
+				;;
+			--with-mpicxx=*)
+				MPI_CXX_COMPILER="-DMPI_CXX_COMPILER=`get_arg_value \"$arg\" --with-mpicxx`"
+				;;
+			--with-hwloc=*)
+				HWLOC_PREFIX="-DHWLOC_PREFIX=`get_arg_value \"$arg\" --with-hwloc`"
+				;;
+			--with-pintool=*)
+				PINTOOL_PREFIX="`get_arg_value \"$arg\" --with-pintool`"
+				;;
+			--without-pintool)
+				PINTOOL_PREFIX="NO"
+				;;
+			--with-numactl=*)
+				NUMACTL_PREFIX="`get_arg_value \"$arg\" --with-numactl`"
+				;;
+			--show)
+				ENABLE_DISPLAY_COMMAND='true'
+				;;
+			CC=*)
+				EXTRA_CC="${val}"
+				;;
+			CFLAGS=*)
+				EXTRA_CFLAGS="${val}"
+				;;
+			CXX=*)
+				EXTRA_CXX="${val}"
+				;;
+			CXXFLAGS=*)
+				EXTRA_CXXFLAGS="${EXTRA_CXXFLAGS} ${val}"
+				;;
+			LDFLAGS=*)
+				EXTRA_LDFLAGS="${EXTRA_CFLAGS} ${val}"
+				;;
+			*)
+				cfg_parse_user_opts "$arg" || cfg_fail "Invalid argument : $arg, please check in --help."
+				;;
+		esac
+	done
+}
+
+######################################################
+cfg_push_defaults()
+{
+	cfg_push_cmake_opt "-DCMAKE_INSTALL_PREFIX=${CFG_DEFAULT_PREFIX}"
+	cfg_push_cmake_opt "-DCMAKE_BUILD_TYPE=${CFG_DEFAULT_BUILD_TYPE}"
+}
+
+######################################################
+#push defults
+cfg_push_defaults
+cfg_parse_global_args "$@"
 
 ######################################################
 #Check current directory
@@ -236,7 +373,7 @@ if [ -f 'CMakeLists.txt' ] && [ -f 'configure' ]; then
 	echo "directory. Prefer to create a subdirectory to build."
 	echo ""
 	echo "Example : mkdir build && cd build && ../configure"
-	exit 1
+	cfg_exit 1
 fi
 
 ######################################################
@@ -284,7 +421,7 @@ then
 		
 		if [ ! -z "$miss" ]; then
 			echo "If you cannot install them you can disable the webview with --disable-webview"
-			exit 1
+			cfg_exit 1
 		fi
 	fi
 fi
@@ -292,28 +429,29 @@ fi
 ######################################################
 if [ -z "${PINTOOL_PREFIX}" ]; then
 	echo "Missing pintool prefix, please provide path with --with-pintool=PREFIX"
-	exit 1
+	cfg_exit 1
 fi
 
 ######################################################
 if [ ! -f ${PINTOOL_PREFIX}/pin ] && [ "${PINTOOL_PREFIX}" != "NO" ]; then
 	echo "Invalid path for pintool : $PINTOOL_PREFIX, please set with --with-pintool=PATH"
-# 	exit 1
+ 	cfg_exit 1
 fi
 
 ######################################################
 #Gen final command
-COMMAND="`gen_clean_command "${CMAKE}" "-DCMAKE_BUILD_TYPE=${BUILD_TYPE}" "-DPINTOOL_PREFIX=${PINTOOL_PREFIX}" "${PREFIX}" "${EXTRA_CXX}" \
+COMMAND="`gen_clean_command "${CFG_CMAKE_COMMAND}" "-DCMAKE_BUILD_TYPE=${BUILD_TYPE}" "-DPINTOOL_PREFIX=${PINTOOL_PREFIX}" "${PREFIX}" "${EXTRA_CXX}" \
 	"${EXTRA_CXXFLAGS}" "${EXTRA_LDFLAGS}" "${EXTRA_CC}" "${EXTRA_CFLAGS}" \
 	"${ENABLE_SELF_TEST}" "${ENABLE_JUNIT_OUT}" "${ENABLE_VALGRIND}" "${ENABLE_GCC_COVERAGE}" "${DISABLE_TESTS}" \
-	"${LIB_SUFFIX}" "${HWLOC_PREFIX}" "${NUMACTL_PREFIX}" "${ENABLE_WEBVIEW}" "${MPI_CXX_COMPILER}" "${ENABLE_NINJA}" "${SOURCE_DIR}"`" 
+	"${LIB_SUFFIX}" "${HWLOC_PREFIX}" "${NUMACTL_PREFIX}" "${ENABLE_WEBVIEW}" "${MPI_CXX_COMPILER}" "${ENABLE_NINJA}" "${CFG_SOURCE_DIR}"`" 
 
 ######################################################
 #execute or display
 if [ "${ENABLE_DISPLAY_COMMAND}" = 'true' ]; then
 	echo "${COMMAND}"
+	cfg_exit 0
 else
 	echo ">>${COMMAND}"
 	eval "${COMMAND}"
-	exit $?
+	cfg_exit $?
 fi
