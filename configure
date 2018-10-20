@@ -23,9 +23,9 @@ CFG_DEFAULT_PREFIX='/usr/local'
 #compiler default flags
 CFG_EXTRA_CC=''
 CFG_EXTRA_CXX=''
-CFG_EXTRA_CFLAGS=''
-CFG_EXTRA_CXXFLAGS=''
-CFG_EXTRA_LDFLAGS=''
+CFG_EXTRA_CFLAGS="${CFLAGS}"
+CFG_EXTRA_CXXFLAGS="${CXXFLAGS}"
+CFG_EXTRA_LDFLAGS="${LDFLAGS}"
 # State variables
 CFG_CMAKE_COMMAND='cmake'
 #features
@@ -37,7 +37,7 @@ CFG_HELP_OPT_LENGTH=23
 CFG_TMP='/tmp'
 CFG_FEATURES_HELP_FILE="`mktemp ${CFG_TMP}/configure_help_enable_disable.XXXXXXXXXX`"
 CFG_CASE_PARSE_OPT_FILE="`mktemp ${CFG_TMP}/configure_case_parse_opt.XXXXXXXXXX`"
-CFG_CMAKE_OPTS="`mktemp ${CFG_TMP}/configure_cmake_opts.XXXXXXXXXX`"
+CFG_CMAKE_OPTS_FILE="`mktemp ${CFG_TMP}/configure_cmake_opts.XXXXXXXXXX`"
 
 ######################################################
 #Find default source dir
@@ -49,8 +49,8 @@ cfg_setup_options()
 {
 	#debug
 	cfg_add_enable_option --name='debug' \
-	                      --on-enable='-DBUILD_TYPE=Debug' \
-	                      --on-disable='-DBUILD_TYPE=Release' \
+	                      --on-enable='-DCMAKE_BUILD_TYPE=Debug' \
+	                      --on-disable='-DCMAKE_BUILD_TYPE=Release' \
 	                      --doc='Enable debugging support (-DCMAKE_BUILD_TYPE=Debug).'
 	#test
 	cfg_add_enable_option --name='test' \
@@ -88,11 +88,11 @@ cfg_setup_options()
 ######################################################
 cfg_exit()
 {
-	cat "${CFG_CASE_PARSE_OPT_FILE}"
-	cat "${CFG_CMAKE_OPTS}"
+	#cat "${CFG_CASE_PARSE_OPT_FILE}"
+	cat "${CFG_CMAKE_OPTS_FILE}"
 	rm -f "${CFG_FEATURES_HELP_FILE}"
 	rm -f "${CFG_CASE_PARSE_OPT_FILE}"
-	rm -f "${CFG_CMAKE_OPTS}"
+	rm -f "${CFG_CMAKE_OPTS_FILE}"
 	exit $1
 }
 
@@ -101,6 +101,30 @@ cfg_fail()
 {
 	echo "$@" 1>&2
 	cfg_exit 1
+}
+
+######################################################
+# add value to variable with space as separator
+#  - $1 : variable name
+#  - $2 : value to add
+cfg_add_to_var()
+{
+	#vars
+	var="${1}"
+	value="${2}"
+	eval "cur=\"\$${var}\""
+
+	echo "${var} => ${cur} => ${value}"
+
+	#concat
+	if test -z "${cur}"; then
+		final="${value}"
+	else
+		final="${cur} ${value}"
+	fi
+
+	#export
+	eval "${var}=\"${final}\""
 }
 
 ######################################################
@@ -273,7 +297,7 @@ Some influential environment variables:
 ######################################################
 cfg_push_cmake_opt()
 {
-	echo "$@" >> ${CFG_CMAKE_OPTS}
+	echo "$@" >> ${CFG_CMAKE_OPTS_FILE}
 }
 
 ######################################################
@@ -335,17 +359,17 @@ cfg_parse_global_args()
 			CC=*)
 				EXTRA_CC="${val}"
 				;;
-			CFLAGS=*)
-				EXTRA_CFLAGS="${val}"
-				;;
 			CXX=*)
-				EXTRA_CXX="${val}"
+				CFG_EXTRA_CXX="${val}"
+				;;
+			CFLAGS=*)
+				cfg_add_to_var CFG_EXTRA_CFLAGS "${val}"
 				;;
 			CXXFLAGS=*)
-				EXTRA_CXXFLAGS="${EXTRA_CXXFLAGS} ${val}"
+				cfg_add_to_var CFG_EXTRA_CXXFLAGS "${val}"
 				;;
 			LDFLAGS=*)
-				EXTRA_LDFLAGS="${EXTRA_CFLAGS} ${val}"
+				cfg_add_to_var CFG_EXTRA_LDFLAGS "${val}"
 				;;
 			*)
 				cfg_parse_user_opts "$arg" || cfg_fail "Invalid argument : $arg, please check in --help."
@@ -362,9 +386,66 @@ cfg_push_defaults()
 }
 
 ######################################################
+# emulate tac in a portable way with awk
+cfg_portable_tac()
+{
+	awk '{a[i++]=$0} END {for (j=i-1; j>=0;) print a[j--] }'
+}
+
+######################################################
+# clean options by removing double definitions and keep only the
+# last one. To proceed we reverse the file and keep definition
+# only if not already seen
+# - $1 : File to clean
+cfg_remove_dup()
+{
+	#vars
+	file="${1}"
+	tmpfile="${file}.tmp"
+
+	#prep
+	touch "${tmpfile}"
+
+	#loop on reversed file
+	cat "${file}" | cfg_portable_tac | while read line
+	do
+		var=$(echo "${line}" | cut -f 1 -d =)
+
+		#check if not already seen
+		if ! egrep -q "^${var}=" "${tmpfile}" ; then
+			echo "${line}" >> "${tmpfile}"
+		fi
+	done
+
+	#reverback the file and replace orig
+	cat "${tmpfile}" | cfg_portable_tac > "${file}"
+}
+
+######################################################
+# Gen final command
+cfg_gen_final_command_lines()
+{
+	echo "${CFG_CMAKE_COMMAND}"
+	cat "${CFG_CMAKE_OPTS_FILE}" | while read line; do
+		echo "\\\"${line}\\\""
+	done
+	echo ".."
+}
+
+######################################################
+# Gen command
+cfg_gen_command()
+{
+	cfg_gen_final_command_lines | xargs echo
+}
+
+######################################################
 #push defults
 cfg_push_defaults
+#parse
 cfg_parse_global_args "$@"
+#clean
+cfg_remove_dup "${CFG_CMAKE_OPTS_FILE}"
 
 ######################################################
 #Check current directory
@@ -378,26 +459,13 @@ fi
 
 ######################################################
 #Gen CC/CXX/LDFLAGS commands
-if [ ! -z "$EXTRA_CC" ];       then EXTRA_CC="-DCMAKE_C_COMPILER=${EXTRA_CC}"                 ; fi
-if [ ! -z "$EXTRA_CFLAGS" ];   then EXTRA_CFLAGS="-DCMAKE_C_FLAGS=${EXTRA_CFLAGS}"         ; fi
-if [ ! -z "$EXTRA_CXX" ];      then EXTRA_CXX="-DCMAKE_CXX_COMPILER=${EXTRA_CXX}"             ; fi
-if [ ! -z "$EXTRA_CXXFLAGS" ]; then EXTRA_CXXFLAGS="-DCMAKE_CXX_FLAGS=${EXTRA_CXXFLAGS}"      ; fi
-if [ ! -z "$EXTRA_LDFLAGS" ];  then EXTRA_LDFLAGS="-DCMAKE_EXE_LINKER_FLAGS=${EXTRA_LDFLAGS}" ; fi
-
-######################################################
-#Function to gen clean command
-#Params : {command} [args...]
-gen_clean_command()
-{
-	res=""
-	for tmp in "$@"
-	do
-		if [ ! -z "${tmp}" ]; then
-			res="${res} '${tmp}'"
-		fi
-	done
-	echo "${res}"
-}
+if [ ! -z "$CFG_EXTRA_CC" ];       then cfg_push_cmake_opt "-DCMAKE_C_COMPILER=${CFG_EXTRA_CC}"            ; fi
+if [ ! -z "$CFG_EXTRA_CFLAGS" ];   then cfg_push_cmake_opt "-DCMAKE_C_FLAGS=${CFG_EXTRA_CFLAGS}"           ; fi
+if [ ! -z "$CFG_EXTRA_CXX" ];      then cfg_push_cmake_opt "-DCMAKE_CXX_COMPILER=${CFG_EXTRA_CXX}"         ; fi
+if [ ! -z "$CFG_EXTRA_CXXFLAGS" ]; then cfg_push_cmake_opt "-DCMAKE_CXX_FLAGS=${CFG_EXTRA_CXXFLAGS}"       ; fi
+if [ ! -z "$CFG_EXTRA_LDFLAGS" ];  then cfg_push_cmake_opt "-DCMAKE_EXE_LINKER_FLAGS=${CFG_EXTRA_LDFLAGS}" ; fi
+if [ ! -z "$CFG_EXTRA_LDFLAGS" ];  then cfg_push_cmake_opt "-DCMAKE_SHARED_LINKER_FLAGS=${CFG_EXTRA_LDFLAGS}" ; fi
+if [ ! -z "$CFG_EXTRA_LDFLAGS" ];  then cfg_push_cmake_opt "-DCMAKE_STATIC_LINKER_FLAGS=${CFG_EXTRA_LDFLAGS}" ; fi
 
 ######################################################
 if [ -z "$ENABLE_WEBVIEW" ] || [ "$ENABLE_WEBVIEW" = "-DENABLE_WEBVIEW=ON" ]
@@ -427,31 +495,32 @@ then
 fi
 
 ######################################################
-if [ -z "${PINTOOL_PREFIX}" ]; then
-	echo "Missing pintool prefix, please provide path with --with-pintool=PREFIX"
-	cfg_exit 1
-fi
+#if [ -z "${PINTOOL_PREFIX}" ]; then
+#	echo "Missing pintool prefix, please provide path with --with-pintool=PREFIX"
+#	cfg_exit 1
+#fi
 
 ######################################################
-if [ ! -f ${PINTOOL_PREFIX}/pin ] && [ "${PINTOOL_PREFIX}" != "NO" ]; then
-	echo "Invalid path for pintool : $PINTOOL_PREFIX, please set with --with-pintool=PATH"
- 	cfg_exit 1
-fi
+#if [ ! -f ${PINTOOL_PREFIX}/pin ] && [ "${PINTOOL_PREFIX}" != "NO" ]; then
+#	echo "Invalid path for pintool : $PINTOOL_PREFIX, please set with --with-pintool=PATH"
+# 	cfg_exit 1
+#fi
 
 ######################################################
 #Gen final command
-COMMAND="`gen_clean_command "${CFG_CMAKE_COMMAND}" "-DCMAKE_BUILD_TYPE=${BUILD_TYPE}" "-DPINTOOL_PREFIX=${PINTOOL_PREFIX}" "${PREFIX}" "${EXTRA_CXX}" \
-	"${EXTRA_CXXFLAGS}" "${EXTRA_LDFLAGS}" "${EXTRA_CC}" "${EXTRA_CFLAGS}" \
-	"${ENABLE_SELF_TEST}" "${ENABLE_JUNIT_OUT}" "${ENABLE_VALGRIND}" "${ENABLE_GCC_COVERAGE}" "${DISABLE_TESTS}" \
-	"${LIB_SUFFIX}" "${HWLOC_PREFIX}" "${NUMACTL_PREFIX}" "${ENABLE_WEBVIEW}" "${MPI_CXX_COMPILER}" "${ENABLE_NINJA}" "${CFG_SOURCE_DIR}"`" 
+#COMMAND="`gen_clean_command "${CFG_CMAKE_COMMAND}" "-DCMAKE_BUILD_TYPE=${BUILD_TYPE}" "-DPINTOOL_PREFIX=${PINTOOL_PREFIX}" "${PREFIX}" "${EXTRA_CXX}" \
+#	"${EXTRA_CXXFLAGS}" "${EXTRA_LDFLAGS}" "${EXTRA_CC}" "${EXTRA_CFLAGS}" \
+#	"${ENABLE_SELF_TEST}" "${ENABLE_JUNIT_OUT}" "${ENABLE_VALGRIND}" "${ENABLE_GCC_COVERAGE}" "${DISABLE_TESTS}" \
+#	"${LIB_SUFFIX}" "${HWLOC_PREFIX}" "${NUMACTL_PREFIX}" "${ENABLE_WEBVIEW}" "${MPI_CXX_COMPILER}" "${ENABLE_NINJA}" "${CFG_SOURCE_DIR}"`" 
 
 ######################################################
 #execute or display
 if [ "${ENABLE_DISPLAY_COMMAND}" = 'true' ]; then
-	echo "${COMMAND}"
+	cfg_gen_command
 	cfg_exit 0
 else
-	echo ">>${COMMAND}"
-	eval "${COMMAND}"
+	printf ">>> "
+	cfg_gen_command
+	eval "`cfg_gen_command`"
 	cfg_exit $?
 fi
