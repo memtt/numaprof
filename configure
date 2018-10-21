@@ -32,6 +32,11 @@ CFG_CMAKE_COMMAND='cmake'
 CFG_LIB_SUFFIX=''
 #help formatting
 CFG_HELP_OPT_LENGTH=23
+#colors
+CFG_ENABLE_COLOR="false"
+CFG_COLOR_RED="\e[31m"
+CFG_COLOR_YELLOW="\e[33m"
+CFG_COLOR_RESET="\e[0m"
 
 ######################################################
 CFG_TMP='/tmp'
@@ -89,7 +94,7 @@ cfg_setup_options()
 cfg_exit()
 {
 	#cat "${CFG_CASE_PARSE_OPT_FILE}"
-	cat "${CFG_CMAKE_OPTS_FILE}"
+	#cat "${CFG_CMAKE_OPTS_FILE}"
 	rm -f "${CFG_FEATURES_HELP_FILE}"
 	rm -f "${CFG_CASE_PARSE_OPT_FILE}"
 	rm -f "${CFG_CMAKE_OPTS_FILE}"
@@ -99,7 +104,10 @@ cfg_exit()
 ######################################################
 cfg_fail()
 {
-	echo "$@" 1>&2
+	for tmp in "$@"
+	do
+		echo -e "${CFG_COLOR_RED}${tmp}${CFG_COLOR_RESET}" 1>&2
+	done
 	cfg_exit 1
 }
 
@@ -114,8 +122,6 @@ cfg_add_to_var()
 	value="${2}"
 	eval "cur=\"\$${var}\""
 
-	echo "${var} => ${cur} => ${value}"
-
 	#concat
 	if test -z "${cur}"; then
 		final="${value}"
@@ -125,6 +131,26 @@ cfg_add_to_var()
 
 	#export
 	eval "${var}=\"${final}\""
+}
+
+######################################################
+#Check if colors could be enabled if not piped
+cfg_auto_enable_color()
+{
+	#check
+	if [ -t 1 ]; then
+		ncolors=$(tput colors)
+		if test -n "$ncolors" && test $ncolors -ge 8; then
+			CFG_ENABLE_COLOR='true'
+		fi
+	fi
+
+	#do
+	if test "${CFG_ENABLE_COLOR}" = "false"; then
+		CFG_COLOR_RESET=""
+		CFG_COLOR_RED=""
+		CFG_COLOR_YELLOW=""
+	fi
 }
 
 ######################################################
@@ -236,6 +262,10 @@ CFG_PARSE_OPT_FOOTER="
 	done
 }
 "
+
+######################################################
+#setup colors
+cfg_auto_enable_color
 
 ######################################################
 #build configuration
@@ -425,18 +455,10 @@ cfg_remove_dup()
 # Gen final command
 cfg_gen_final_command_lines()
 {
-	echo "${CFG_CMAKE_COMMAND}"
 	cat "${CFG_CMAKE_OPTS_FILE}" | while read line; do
-		echo "\\\"${line}\\\""
+		echo "\\\"${line}\\\"" | sed -e "s/'/\\\'/g"
 	done
 	echo ".."
-}
-
-######################################################
-# Gen command
-cfg_gen_command()
-{
-	cfg_gen_final_command_lines | xargs echo
 }
 
 ######################################################
@@ -450,11 +472,10 @@ cfg_remove_dup "${CFG_CMAKE_OPTS_FILE}"
 ######################################################
 #Check current directory
 if [ -f 'CMakeLists.txt' ] && [ -f 'configure' ]; then
-	echo "ERROR : CMake isn't adapted to support build directely in source"
-	echo "directory. Prefer to create a subdirectory to build."
-	echo ""
-	echo "Example : mkdir build && cd build && ../configure"
-	cfg_exit 1
+	cfg_fail "ERROR : CMake isn't adapted to support build directely in source"
+	         "directory. Prefer to create a subdirectory to build."
+	         ""
+	         "Example : mkdir build && cd build && ../configure"
 fi
 
 ######################################################
@@ -516,11 +537,12 @@ fi
 ######################################################
 #execute or display
 if [ "${ENABLE_DISPLAY_COMMAND}" = 'true' ]; then
-	cfg_gen_command
+	cfg_gen_final_command_lines | xargs echo "${CFG_CMAKE_COMMAND}"
 	cfg_exit 0
 else
-	printf ">>> "
-	cfg_gen_command
-	eval "`cfg_gen_command`"
+	printf "${CFG_COLOR_YELLOW}"
+	cfg_gen_final_command_lines | xargs echo ">>> ${CFG_CMAKE_COMMAND}"
+	printf "${CFG_COLOR_RESET}"
+	cfg_gen_final_command_lines | xargs "${CFG_CMAKE_COMMAND}"
 	cfg_exit $?
 fi
