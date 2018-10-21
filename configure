@@ -14,6 +14,10 @@
 # known ./configure & make & make install procedure.
 
 ######################################################
+#help debug
+set -e
+
+######################################################
 #script setup
 CFG_PROJECT_NAME='numaprof'
 CFG_DEFAULT_BUILD_TYPE='Release'
@@ -37,6 +41,7 @@ CFG_COLOR_RESET="\e[0m"
 ######################################################
 CFG_TMP='/tmp'
 CFG_FEATURES_HELP_FILE="`mktemp ${CFG_TMP}/configure_help_enable_disable.XXXXXXXXXX`"
+CFG_WITH_HELP_FILE="`mktemp ${CFG_TMP}/configure_help_with_without.XXXXXXXXXX`"
 CFG_CASE_PARSE_OPT_FILE="`mktemp ${CFG_TMP}/configure_case_parse_opt.XXXXXXXXXX`"
 CFG_CMAKE_OPTS_FILE="`mktemp ${CFG_TMP}/configure_cmake_opts.XXXXXXXXXX`"
 
@@ -80,8 +85,9 @@ cfg_set_projet()
 ######################################################
 cfg_exit()
 {
-	#cat "${CFG_CASE_PARSE_OPT_FILE}"
+	cat "${CFG_CASE_PARSE_OPT_FILE}"
 	#cat "${CFG_CMAKE_OPTS_FILE}"
+	rm -f "${CFG_WITH_HELP_FILE}"
 	rm -f "${CFG_FEATURES_HELP_FILE}"
 	rm -f "${CFG_CASE_PARSE_OPT_FILE}"
 	rm -f "${CFG_CMAKE_OPTS_FILE}"
@@ -154,10 +160,10 @@ cfg_auto_enable_color()
 # The command take a command line like parameters to setup the option :
 #
 # Params:
-#  --name={NAME}           Provide option name (will be added to --enable-{NAME} and --sidable-{NAME})
+#  --name={NAME}           Provide option name (will be added to --enable-{NAME} and --disable-{NAME})
 #  --doc={DOC}             Provide documentation string for --help
 #  --on-enable={OPT}       Add a cmake option to the option list when --enable-{NAME} is triggered
-#  --on-diable={OPT}       Add a cmake option to the option list when --enable-{NAME} is triggered
+#  --on-disable={OPT}      Add a cmake option to the option list when --enable-{NAME} is triggered
 #  --on={-DVAR=${ON}}      Setup the given cmake variable to ON/OFF depending on the enable/disable.
 #  --on-enable-inherit={}  List of inherited configure option to trigger when used.
 #  --on-disable-inherit={} List of inherited configure option to trigger when used.
@@ -170,6 +176,8 @@ cfg_auto_enable_color()
 #  ${OFF}                  Will be 'OFF' on enable and 'ON' on disable
 #  ${ENABLE}               Will be 'ENABLE' on enable and 'DISABLE' on disable
 #  ${DISABLE}              Will be 'DISABLE' on enable and 'ENABLE' on disable
+#  ${WITH}                 Will be 'WITH' on enabled and 'WITHOUT' on disable
+#  ${WITHOUT}              Will be 'WITHOUT' on enabled and 'WITH' on disable
 cfg_add_enable_option()
 {
 	#vars
@@ -220,7 +228,7 @@ cfg_add_enable_option()
 				opt_mode="${v}"
 				;;
 			*)
-				#cfg_fail "Invalid internal option to build enable option ${opt} while calling cfg_add_enable_option()"
+				cfg_fail "Invalid internal option to build enable option ${opt} while calling cfg_add_enable_option()"
 				;;
 		esac
 	done
@@ -242,6 +250,116 @@ cfg_add_enable_option()
 		if test "${opt_mode}" = "both" || test "${opt_mode}" = "disable"; then
 			echo "			--disable-${opt_name})" >> ${CFG_CASE_PARSE_OPT_FILE}
 			echo "				${opt_disable}" >> ${CFG_CASE_PARSE_OPT_FILE}
+			echo "				;;" >> ${CFG_CASE_PARSE_OPT_FILE}
+		fi
+	fi
+}
+
+######################################################
+# Add an --with-*|--without-* option to the list of available options.
+# The command take a command line like parameters to setup the option :
+#
+# Params:
+#  --name={NAME}           Provide option name (will be added to --with-{NAME} and --without-{NAME})
+#  --doc={DOC}             Provide documentation string for --help
+#  --on-with={OPT}         Add a cmake option to the option list when --with-{NAME} is triggered
+#  --on-without={OPT}      Add a cmake option to the option list when --without-{NAME} is triggered
+#  --on={-DVAR=${ON}}      Setup the given cmake variable to ON/OFF depending on the with/without.
+#  --on-with-inherit={}    List of inherited configure option to trigger when used.
+#  --on-without-inherit={} List of inherited configure option to trigger when used.
+#  --invert-help           In help message, do it for disable instead of enable.
+#  --only={with|without}   Provide only one of the two command.
+#  --var={var}             Cmake variable to setup.
+#  --custom                Call a custom user sh function to handle.
+#  --type={value}          In help which type of value we wait on with mode
+#
+# In commands you can use variables :
+#  ${ON}                   Will be 'ON' on enable and 'OFF' on disable
+#  ${OFF}                  Will be 'OFF' on enable and 'ON' on disable
+#  ${ENABLE}               Will be 'ENABLE' on enable and 'DISABLE' on disable
+#  ${DISABLE}              Will be 'DISABLE' on enable and 'ENABLE' on disable
+#  ${WITH}                 Will be 'WITH' on enabled and 'WITHOUT' on disable
+#  ${WITHOUT}              Will be 'WITHOUT' on enabled and 'WITH' on disable
+cfg_add_with_option()
+{
+	#vars
+	opt_help_mode='with'
+	opt_mode='both'
+	opt_with=''
+	opt_without=''
+	opt_type='path'
+
+	#scan options
+	for opt in "$@"
+	do
+		#extract
+		v=`echo $opt | cut -f 2- -d =`
+
+		#case
+		case $opt in
+			--name=*)
+				opt_name="${v}"
+				;;
+			--doc=*)
+				opt_doc="${v}"
+				;;
+			--var=*)
+				on_with="cfg_push_cmake_opt \"-D${v}=\${val}\""
+				on_without="cfg_push_cmake_opt \"-D${v}=OFF"
+				;;
+			--custom=*)
+				on_with="${v}"
+				on_without="${v}"
+				;;
+			--on-with=*)
+				opt_with="cfg_push_cmake_opt \"${v}\""
+				;;
+			--on-without=*)
+				opt_without="cfg_push_cmake_opt \"${v}\""
+				;;
+			--on=*)
+				opt_with="cfg_push_cmake_opt \"${v}\""
+				opt_without="cfg_push_cmake_opt \"${v}\""
+				;;
+			--on-with-inherit=*)
+				opt_with="cfg_parse_global_args ${v}"
+				;;
+			--on-without-inherit=*)
+				opt_without="cfg_parse_global_args ${v}"
+				;;
+			--invert-help)
+				opt_help_mode='without'
+				;;
+			--only=with|--only=without)
+				opt_help_mode="${v}"
+				opt_mode="${v}"
+				;;
+			--type=*)
+				opt_type="${v}"
+				;;
+			*)
+				cfg_fail "Invalid internal option to build with/without option ${opt} while calling cfg_add_with_option()"
+				;;
+		esac
+	done
+
+	#generate doc
+	printf "   --%-${CFG_HELP_OPT_LENGTH}s %s\n" "${opt_help_mode}-${opt_name}={${opt_type}}" "${opt_doc}" >> ${CFG_WITH_HELP_FILE}
+
+	#generate with action
+	if test ! -z "${opt_with}"; then
+		if test "${opt_mode}" = "both" || test "${opt_mode}" = "with"; then
+			echo "			--with-${opt_name}=*)" >> ${CFG_CASE_PARSE_OPT_FILE}
+			echo "				${opt_with}" >> ${CFG_CASE_PARSE_OPT_FILE}
+			echo "				;;" >> ${CFG_CASE_PARSE_OPT_FILE}
+		fi
+	fi
+
+	#generate without action
+	if test ! -z "${opt_without}"; then
+		if test "${opt_mode}" = "both" || test "${opt_mode}" = "without"; then
+			echo "			--without-${opt_name})" >> ${CFG_CASE_PARSE_OPT_FILE}
+			echo "				${opt_with}" >> ${CFG_CASE_PARSE_OPT_FILE}
 			echo "				;;" >> ${CFG_CASE_PARSE_OPT_FILE}
 		fi
 	fi
@@ -296,11 +414,7 @@ Optional Features:
 
 To find libs and commands :
    --with-cmake={command}    Define the cmake command to use [cmake].
-   --with-mpicxx={cmd}       Define the MPI compiler to use [mpicxx].
-   --with-hwloc={prefix}     Define prefix to find hwloc [/usr].
-   --with-numactl={perfix}   Define prefix of numactl/libnuma [/usr]
-   --with-pintool={prefix}   Define prefix of pintool (REQUIRED).
-   --without-pintool         Skip pintool check for continuous integration.
+`cat ${CFG_WITH_HELP_FILE}`
 
 To get the generated cmake command :
    --show                  Display the cmake command and didn't execute it.
@@ -349,28 +463,13 @@ cfg_parse_global_args()
 				cfg_exit 0
 				;;
 			--prefix=*)
-				cfg_push_cmake_opt "-DCMAKE_INSTALL_PREFIX=$val"
+				cfg_push_cmake_opt "-DCMAKE_INSTALL_PREFIX=${val}"
 				;;
 			--srcdir=*)
-				SOURCE_DIR="`get_arg_value \"$arg\" --srcdir`"
+				SOURCE_DIR="${val}"
 				;;
 			--with-cmake=*)
-				CMAKE="`get_arg_value \"$arg\" --with-cmake`"
-				;;
-			--with-mpicxx=*)
-				MPI_CXX_COMPILER="-DMPI_CXX_COMPILER=`get_arg_value \"$arg\" --with-mpicxx`"
-				;;
-			--with-hwloc=*)
-				HWLOC_PREFIX="-DHWLOC_PREFIX=`get_arg_value \"$arg\" --with-hwloc`"
-				;;
-			--with-pintool=*)
-				PINTOOL_PREFIX="`get_arg_value \"$arg\" --with-pintool`"
-				;;
-			--without-pintool)
-				PINTOOL_PREFIX="NO"
-				;;
-			--with-numactl=*)
-				NUMACTL_PREFIX="`get_arg_value \"$arg\" --with-numactl`"
+				CMAKE="${val}"
 				;;
 			--show)
 				ENABLE_DISPLAY_COMMAND='true'
@@ -391,7 +490,7 @@ cfg_parse_global_args()
 				cfg_add_to_var CFG_EXTRA_LDFLAGS "${val}"
 				;;
 			*)
-				cfg_parse_user_opts "$arg" || cfg_fail "Invalid argument : $arg, please check in --help."
+				cfg_parse_user_opts "${arg}" || cfg_fail "Invalid argument : ${arg}, please check in --help."
 				;;
 		esac
 	done
