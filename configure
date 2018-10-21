@@ -85,7 +85,7 @@ cfg_set_projet()
 ######################################################
 cfg_exit()
 {
-	cat "${CFG_CASE_PARSE_OPT_FILE}"
+	#cat "${CFG_CASE_PARSE_OPT_FILE}"
 	#cat "${CFG_CMAKE_OPTS_FILE}"
 	rm -f "${CFG_WITH_HELP_FILE}"
 	rm -f "${CFG_FEATURES_HELP_FILE}"
@@ -304,8 +304,8 @@ cfg_add_with_option()
 				opt_doc="${v}"
 				;;
 			--var=*)
-				on_with="cfg_push_cmake_opt \"-D${v}=\${val}\""
-				on_without="cfg_push_cmake_opt \"-D${v}=OFF"
+				opt_with="cfg_push_cmake_opt \"-D${v}=\${val}\""
+				opt_without="cfg_push_cmake_opt -D${v}=OFF"
 				;;
 			--custom=*)
 				on_with="${v}"
@@ -359,7 +359,7 @@ cfg_add_with_option()
 	if test ! -z "${opt_without}"; then
 		if test "${opt_mode}" = "both" || test "${opt_mode}" = "without"; then
 			echo "			--without-${opt_name})" >> ${CFG_CASE_PARSE_OPT_FILE}
-			echo "				${opt_with}" >> ${CFG_CASE_PARSE_OPT_FILE}
+			echo "				${opt_without}" >> ${CFG_CASE_PARSE_OPT_FILE}
 			echo "				;;" >> ${CFG_CASE_PARSE_OPT_FILE}
 		fi
 	fi
