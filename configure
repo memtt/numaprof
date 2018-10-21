@@ -7,8 +7,6 @@
 #            LICENSE  : CeCILL-C                     #
 ######################################################
 
-set -e
-
 ######################################################
 # This script provide a simple wrapper to cmake to fix
 # the missing --help equivalent to autotools. And it
@@ -28,8 +26,6 @@ CFG_EXTRA_CXXFLAGS="${CXXFLAGS}"
 CFG_EXTRA_LDFLAGS="${LDFLAGS}"
 # State variables
 CFG_CMAKE_COMMAND='cmake'
-#features
-CFG_LIB_SUFFIX=''
 #help formatting
 CFG_HELP_OPT_LENGTH=23
 #colors
@@ -52,42 +48,33 @@ CFG_SOURCE_DIR="$PWD/`dirname \"$0\"`"
 #function defining all the options available to configure the project
 cfg_setup_options()
 {
+	#add standard one
 	#debug
 	cfg_add_enable_option --name='debug' \
-	                      --on-enable='-DCMAKE_BUILD_TYPE=Debug' \
-	                      --on-disable='-DCMAKE_BUILD_TYPE=Release' \
-	                      --doc='Enable debugging support (-DCMAKE_BUILD_TYPE=Debug).'
-	#test
-	cfg_add_enable_option --name='test' \
-	                      --on='-DENABLE_TESTS=${ON}' \
-	                      --doc='Disable unit tests' \
-	                      --invert-help
-	#gcc test coverage
-	cfg_add_enable_option --name='gcc-coverage'  \
-	                      --on='-DENABLE_GCC_COVERAGE=${ON}' \
-	                      --doc='Enable GCC option to generate test coverage of the lib.' \
-	#junit xml out
-	cfg_add_enable_option --name='junit-output'  \
-	                      --on='-DENABLE_JUNIT_OUTPUT=${ON}' \
-	                      --doc='Save test output in JUnit format (only in self-test mode).' 
-	#valgrind
-	cfg_add_enable_option --name='valgrind' \
-	                      --on='-DENABLE_VALGRIND=${ON}' \
-	                      --doc 'Enable running unit tests into valgrind to generate reports.'
-	#jenkins full features
-	cfg_add_enable_option --name='jenkins' \
-	                      --on-enable-inherit='--enable-valgrind --enable-junit-output --enable-debug "CXXFLAGS=-Wall -fprofile-arcs -ftest-coverage"' \
-	                      --doc='Enable all checking modes (unit, valgrind, coverage...).' \
-	                      --only='enable'
-	#webview
-	cfg_add_enable_option --name='webview' \
-	                      --on='-DENABLE_WEBVIEW=${ON}' \
-	                      --doc='Disable installation of webview (-DENABLE_WEBVIEW=no).'
+							--on-enable='-DCMAKE_BUILD_TYPE=Debug' \
+							--on-disable='-DCMAKE_BUILD_TYPE=Release' \
+							--doc='Enable debugging support (-DCMAKE_BUILD_TYPE=Debug).'
+	#debug
+	cfg_add_enable_option --name='release-debug' \
+							--on-enable='-DCMAKE_BUILD_TYPE=RelWithDebug' \
+							--on-disable='-DCMAKE_BUILD_TYPE=Release' \
+							--doc='Enable debugging support (-DCMAKE_BUILD_TYPE=RelWithDebug).'
 	#ninja
 	cfg_add_enable_option --name='ninja' \
-	                      --on-enable='-GNinja' \
-	                      --doc='Enable usage of Ninja with cmake instead of Make.' \
-						  --only=enable
+							--on-enable='-GNinja' \
+							--doc='Enable usage of Ninja with cmake instead of Make.' \
+							--only=enable
+
+	#load user one
+	. "${CFG_SOURCE_DIR}/options.sh"
+}
+
+######################################################
+#Set project name for help string
+# - $1 : project name
+cfg_set_projet()
+{
+	CFG_PROJECT_NAME="${1}"
 }
 
 ######################################################
@@ -134,6 +121,15 @@ cfg_add_to_var()
 }
 
 ######################################################
+#check /tmp
+cfg_check_tmp()
+{
+	if ! test -d "${CFG_TMP}"; then
+		CFG_TMP="./"
+	fi
+}
+
+######################################################
 #Check if colors could be enabled if not piped
 cfg_auto_enable_color()
 {
@@ -167,6 +163,7 @@ cfg_auto_enable_color()
 #  --on-disable-inherit={} List of inherited configure option to trigger when used.
 #  --invert-help           In help message, do it for disable instead of enable.
 #  --only={enable|disable} Provide only one of the two command.
+#  --custom                Call a custom user sh function to handle.
 #
 # In commands you can use variables :
 #  ${ON}                   Will be 'ON' on enable and 'OFF' on disable
@@ -194,6 +191,10 @@ cfg_add_enable_option()
 				;;
 			--doc=*)
 				opt_doc="${v}"
+				;;
+			--custom=*)
+				on_enable="${v}"
+				on_disable="${v}"
 				;;
 			--on-enable=*)
 				opt_enable="cfg_push_cmake_opt \"${v}\""
@@ -225,7 +226,7 @@ cfg_add_enable_option()
 	done
 
 	#generate doc
-	printf "   --%-${CFG_HELP_OPT_LENGTH}s %s\n" "${opt_mode}-${opt_name}" "${opt_doc}" >> ${CFG_FEATURES_HELP_FILE}
+	printf "   --%-${CFG_HELP_OPT_LENGTH}s %s\n" "${opt_help_mode}-${opt_name}" "${opt_doc}" >> ${CFG_FEATURES_HELP_FILE}
 
 	#generate enable action
 	if test ! -z "${opt_enable}"; then
@@ -264,17 +265,8 @@ CFG_PARSE_OPT_FOOTER="
 "
 
 ######################################################
-#setup colors
-cfg_auto_enable_color
-
-######################################################
-#build configuration
-echo "${CFG_PARSE_OPT_HEADER}" > ${CFG_CASE_PARSE_OPT_FILE}
-cfg_setup_options
-echo "${CFG_PARSE_OPT_FOOTER}" >> ${CFG_CASE_PARSE_OPT_FILE}
-. ${CFG_CASE_PARSE_OPT_FILE}
-
-######################################################
+function cfg_gen_help_string()
+{
 CFG_HELP_MESSAGE="'configure' is a cmake wrapper to build ${CFG_PROJECT_NAME}
 For more control, prefer to use cmake directely, this wrapper only aims
 to ease your life for standard cases.
@@ -323,6 +315,7 @@ Some influential environment variables:
    CFLAGS      C compiler flags
    CXX         C++ compiler command
    CXXFLAGS    C++ compiler flags"
+}
 
 ######################################################
 cfg_push_cmake_opt()
@@ -360,10 +353,6 @@ cfg_parse_global_args()
 				;;
 			--srcdir=*)
 				SOURCE_DIR="`get_arg_value \"$arg\" --srcdir`"
-				;;
-			--lib-suffix=*)
-				LIB_SUFFIX="`get_arg_value \"$arg\" --lib-suffix`"
-				if [ ! -z "${LIB_SUFFIX}" ]; then LIB_SUFFIX="-DLIB_SUFFIX=${LIB_SUFFIX}"; fi
 				;;
 			--with-cmake=*)
 				CMAKE="`get_arg_value \"$arg\" --with-cmake`"
@@ -460,6 +449,21 @@ cfg_gen_final_command_lines()
 	done
 	echo ".."
 }
+
+######################################################
+#setup colors and check tmp
+cfg_check_tmp
+cfg_auto_enable_color
+
+######################################################
+#build configuration
+echo "${CFG_PARSE_OPT_HEADER}" > ${CFG_CASE_PARSE_OPT_FILE}
+cfg_setup_options
+echo "${CFG_PARSE_OPT_FOOTER}" >> ${CFG_CASE_PARSE_OPT_FILE}
+#load the generated swtich case to parse user args
+. ${CFG_CASE_PARSE_OPT_FILE}
+#gen help
+cfg_gen_help_string
 
 ######################################################
 #push defults
