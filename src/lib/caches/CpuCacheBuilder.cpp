@@ -12,15 +12,20 @@
 #include "CpuCacheBuilder.hpp"
 #include "CpuCacheDummy.hpp"
 #include "CpuSimpleFlatCache.hpp"
+#include "CpuSimpleFlatCacheStatic.hpp"
 #include "../common/Options.hpp"
 
 /*******************  CONSTS  ***********************/
 #define BUILDER_MODE_DUMMY "dummy"
 #define BUILDER_MODE_SIMPLE_FLAT "L1"
+#define BUILDER_MODE_SIMPLE_FLAT_STATIC "L1Static"
 
 /*******************  NAMESPACE  ********************/
 namespace numaprof
 {
+
+/*********************  TYPES  **********************/
+typedef CpuSimpleFlatCacheStatic<64,8> CpuStaticL1Cache;
 
 /*******************  FUNCTION  *********************/
 /**
@@ -34,6 +39,8 @@ void * CpuCacheBuilder::buildLayout(const std::string & type)
 	if (type == BUILDER_MODE_DUMMY) {
 		return NULL;
 	} else if (type == BUILDER_MODE_SIMPLE_FLAT) {
+		return NULL;
+	} else if (type == BUILDER_MODE_SIMPLE_FLAT_STATIC) {
 		return NULL;
 	} else {
 		fprintf(stderr,"NUMARPOF: Invalid cache type, cannot build cache layout: '%s'\n",type.c_str());
@@ -50,6 +57,8 @@ void CpuCacheBuilder::destroyLayout(const std::string & type,void * layout)
 	if (type == BUILDER_MODE_DUMMY) {
 		//nothing to do
 	} else if (type == BUILDER_MODE_SIMPLE_FLAT) {
+		//nothing to do
+	} else if (type == BUILDER_MODE_SIMPLE_FLAT_STATIC) {
 		//nothing to do
 	} else {
 		fprintf(stderr,"NUMARPOF: Invalid cache type, cannot destroy cache layout: '%s'\n",type.c_str());
@@ -68,10 +77,22 @@ CpuCache * CpuCacheBuilder::buildCache(const std::string & type,void * layout)
 		return buildDummyCache();
 	} else if (type == BUILDER_MODE_SIMPLE_FLAT) {
 		return buildSimpleFlatCache();
+	} else if (type == BUILDER_MODE_SIMPLE_FLAT_STATIC) {
+		return buildSimpleFlatCacheStatic();
 	} else {
 		fprintf(stderr,"NUMARPOF: Invalid cache type, cannot build : '%s'\n",type.c_str());
 		exit(1);
 	}
+}
+
+/*******************  FUNCTION  *********************/
+/**
+ * Build a static L1 cache which might go faster than configurable
+ * one.
+**/
+CpuCache * CpuCacheBuilder::buildSimpleFlatCacheStatic(void)
+{
+	return new CpuStaticL1Cache();
 }
 
 /*******************  FUNCTION  *********************/

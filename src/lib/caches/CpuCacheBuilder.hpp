@@ -31,6 +31,7 @@ class CpuCacheBuilder
 		CpuCacheBuilder(void);
 		static CpuCache * buildDummyCache(void);
 		static CpuCache * buildSimpleFlatCache(void);
+		static CpuCache * buildSimpleFlatCacheStatic(void);
 		static size_t convertHumanUnit(const std::string & value);
 };
 

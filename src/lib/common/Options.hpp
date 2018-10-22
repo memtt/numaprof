@@ -134,7 +134,7 @@ static inline const Options & getGlobalOptions(void)
 }
 
 /*******************  FUNCTION  *********************/
-Options & initGlobalOptions(void);
+Options & initGlobalOptions(bool reinint = false);
 
 /*******************  FUNCTION  *********************/
 /** Safer function to access to the option, with check in debug mode.**/

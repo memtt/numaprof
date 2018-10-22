@@ -380,12 +380,17 @@ void IniParserHelper::setEntry(dictionary* dic, const char* key, float value)
 /**
  * Need to be call once after malloc is available.
 **/
-Options& initGlobalOptions ( void )
+Options& initGlobalOptions ( bool reinit )
 {
 	//error
-	numaprofAssume (gblOptions == NULL,"initGlobalOptions was used previously, gblOptions is already init ! ");
-	gblOptions = new Options();
-	return *gblOptions;
+	if (reinit == false)
+		numaprofAssume (gblOptions == NULL,"initGlobalOptions was used previously, gblOptions is already init ! ");
+	
+	//proceed if not already done
+	if (gblOptions == NULL) {
+		gblOptions = new Options();
+		return *gblOptions;
+	}
 }
 
 }
