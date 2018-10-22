@@ -66,6 +66,10 @@ make
 make install
 ```
 
+For those who prefer cmake, the configure is just a wrapper to provide autotools-like semantic and `--help`.
+You can of course call cmake as you want in place of it. Notice the script provide the cmake command if you
+use `--show` option.
+
 Usage
 -----
 
