@@ -6,18 +6,12 @@
              LICENSE  : CeCILL-C
 *****************************************************/
 
-#ifndef CPU_SIMPLE_FLAT_CACHE_HPP
-#define CPU_SIMPLE_FLAT_CACHE_HPP
+#ifndef CPU_SIMPLE_FLAT_CACHE_STATIC_HPP
+#define CPU_SIMPLE_FLAT_CACHE_STATIC_HPP
 
 /********************  HEADERS  *********************/
 #include <cstdint>
-#include "CpuCache.hpp"
-
-/*******************  CONSTS  ***********************/
-//Shift in bits to make cache line index
-#define SIMPLE_FLAT_CACHE_LINE_SHIFT 6
-//most cpus use 64 bytes cache lines.
-#define SIMPLE_FLAT_CACHE_LINE_SIZE (1<<SIMPLE_FLAT_CACHE_LINE_SHIFT)
+#include "CpuSimpleFlatCache.hpp"
 
 /********************  NAMESPACE  *******************/
 namespace numaprof
@@ -25,19 +19,22 @@ namespace numaprof
 
 /*********************  TYPES  **********************/
 /** Define type size to store LRU aging tag **/
-typedef uint8_t SimpleFlatCacheLRUAge;
+typedef uint8_t SimpleFlatCacheStaticLRUAge;
 
 /*********************  CLASS  **********************/
 /**
  * Implement a simple flat cache for each thread. There is no sharing and no levels.
  * This is a really simple implementation for a first look. 
  * It currently implement a LRU policy in a really naïve.
+ * This is same implementation than CpuSimpleFlatCache but in a static template
+ * based way which is less configuration but might be faster.
 **/
-class CpuSimpleFlatCache : public CpuCache
+template <int waySize,int associativity>
+class CpuSimpleFlatCacheStatic : public CpuCache
 {
 	public:
-		CpuSimpleFlatCache(size_t size,size_t associativity);
-		virtual ~CpuSimpleFlatCache(void);
+		CpuSimpleFlatCacheStatic(void);
+		virtual ~CpuSimpleFlatCacheStatic(void);
 		virtual bool onMemoryAccess(size_t addr);
 		virtual void onThreadMove(const CpuBindList & cpuList);
 	private:
@@ -47,15 +44,15 @@ class CpuSimpleFlatCache : public CpuCache
 		inline void scaleDownAges(size_t row);
 		inline size_t selectVictim(size_t row) const;
 	private:
-		size_t size;
-		size_t associativity;
-		size_t waySize;
-		size_t * tagLineVirtIndex;
-		SimpleFlatCacheLRUAge * tagLineAge;
-		SimpleFlatCacheLRUAge * tagCurrentAge;
-		SimpleFlatCacheLRUAge * bufSortAges;
+		size_t tagLineVirtIndex[waySize][associativity];
+		SimpleFlatCacheLRUAge tagLineAge[waySize][associativity];
+		SimpleFlatCacheLRUAge tagCurrentAge[waySize];
+		SimpleFlatCacheLRUAge bufSortAges[associativity];
 };
 
 }
 
-#endif //CPU_SIMPLE_FLAT_CACHE_GPP
+//include implementation
+#include "CpuSimpleFlatCacheStatic_impl.hpp"
+
+#endif //CPU_SIMPLE_FLAT_CACHE_STATIC_HPP

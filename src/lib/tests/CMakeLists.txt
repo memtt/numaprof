@@ -24,7 +24,8 @@ set(TEST_NAMES TestPageTable
 			   TestStaticAssoCache 
 			   TestCpuCacheDummy 
 			   TestCpuCacheBuilder
-			   TestCpuSimpleFlatCache)
+			   TestCpuSimpleFlatCache
+			   TestCpuSimpleFlatCacheStatic)
 
 ######################################################
 FOREACH(test_name ${TEST_NAMES})
