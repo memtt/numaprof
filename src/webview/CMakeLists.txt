@@ -7,6 +7,14 @@
 ######################################################
 
 ######################################################
+if (NOT IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src/webview/bower_components)
+	find_package(Npm REQUIRED)
+endif()
+if (NOT IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src/webview/deps)
+	find_package(Pip REQUIRED)
+endif()
+
+######################################################
 set(WEBVIEW_PATH ${CMAKE_INSTALL_PREFIX}/share/numaprof/webview)
 configure_file(webview.sh.in numaprof-webview @ONLY)
 install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/numaprof-webview DESTINATION bin)

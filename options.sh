@@ -61,3 +61,54 @@ cfg_add_with_option --name='pintool' \
 cfg_add_with_option --name='numactl' \
 						--doc='Define prefix of numactl/libnuma [/usr]' \
 						--var='NUMACTL_PREFIX'
+
+######################################################
+#If we want to document extra options
+#CFG_CUSTOM_HELP="My custom options:"
+
+######################################################
+# here we can parse our own options if we want
+# Vars available are :
+#  - $arg : full argument (eg. --with-gcc=gcc)
+#  - $val : value after first '=', egg 'gcc'
+#  - $ON $OFF, $ENABLE, $DISABLE, $WIDTH, $WITHOUT
+#cfg_parse_custom_opts()
+#{
+#	return 1
+#}
+
+######################################################
+#pre check to ease error messages
+cfg_custom_pre_check()
+{
+	alt=1
+	if [ -z "$OPT_ENABLE_WEBVIEW" ] || [ "$OPT_ENABLE_WEBVIEW" = "ON" ]
+	then
+		if [ ! -d ${CFG_SOURCE_DIR}/src/webview/bower_components ] || [ ! -d ${CFG_SOURCE_DIR}/src/webview/deps ]
+		then
+			echo "....You cloned the master branch, need to download GUI dependencies !"
+			echo "....checking deps..."
+			miss=""
+			if ! which pip > /dev/null
+			then
+				cfg_error "MISSING Python 'pip' command required to fetch the webview server dependencies, please install before proceeding or download a release archive instead of using master branch"
+				miss="true"
+			fi
+			if ! which npm > /dev/null
+			then
+				cfg_error "MISSING Nodejs 'npm' command required to fetch the webview client dependencies, please install 'nodejs' before proceeding or download a release archive instead of using master branch"
+				echo
+				cfg_hint "Alternative ${alt}: you can download a release archive of numaprof which already contain all the javascript files and do not need NodeJS."
+				miss="true"
+				alt=$(($alt + 1))
+			fi
+			
+			if [ ! -z "$miss" ]; then
+				echo
+				cfg_hint "Alternative ${alt}: if you cannot install them you can disable the webview with --disable-webview"
+				echo
+				cfg_exit 1
+			fi
+		fi
+	fi
+}
