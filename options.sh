@@ -79,6 +79,7 @@ cfg_add_with_option --name='numactl' \
 
 ######################################################
 #pre check to ease error messages
+#All cmake vars are loaded in memory as OPT_* (OPT_CMAKE_C_FLAGS)
 cfg_custom_pre_check()
 {
 	alt=1
