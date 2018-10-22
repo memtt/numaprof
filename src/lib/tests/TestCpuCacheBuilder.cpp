@@ -47,13 +47,13 @@ TEST(CpuCacheBuilder,buildL1Satic)
 {
 	initGlobalOptions(true);
 
-	void * layout = CpuCacheBuilder::buildLayout("L1Static");
-	CpuCache * cache = CpuCacheBuilder::buildCache("L1Static",layout);
+	void * layout = CpuCacheBuilder::buildLayout("L1_static");
+	CpuCache * cache = CpuCacheBuilder::buildCache("L1_static",layout);
 
 	EXPECT_EQ(NULL,layout);
 	EXPECT_FALSE(cache->onMemoryAccess(0xA32));
 
 	delete cache;
-	CpuCacheBuilder::destroyLayout("L1Static",layout);
+	CpuCacheBuilder::destroyLayout("L1_static",layout);
 }
 

@@ -155,7 +155,7 @@ accessBatchSize=0
 hidden=false
 
 [cache]
-;can be 'dummy' or 'L1'
+;can be 'dummy' or 'L1' or 'L1_static'
 type=dummy
 size=32K
 associativity=8

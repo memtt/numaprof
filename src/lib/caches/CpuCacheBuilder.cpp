@@ -18,7 +18,7 @@
 /*******************  CONSTS  ***********************/
 #define BUILDER_MODE_DUMMY "dummy"
 #define BUILDER_MODE_SIMPLE_FLAT "L1"
-#define BUILDER_MODE_SIMPLE_FLAT_STATIC "L1Static"
+#define BUILDER_MODE_SIMPLE_FLAT_STATIC "L1_static"
 
 /*******************  NAMESPACE  ********************/
 namespace numaprof

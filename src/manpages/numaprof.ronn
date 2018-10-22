@@ -122,8 +122,9 @@ The `cache` section support:
  * `type`:
    Define the type of cache model used to simulate CPU caches. This permit to avoid for example reporting huge 
    access numbers on spinlocks or constants which normaly stay in the cache and do not generate NUMA traffic.
-   Current possible values are : `dummy` to disable cache simulation or 'L1' to run with a uniq L1 cache per thread
-   with LRU replacement policy.
+   Current possible values are : `dummy` to disable cache simulation or `L1` to run with a uniq L1 cache per thread
+   with LRU replacement policy. `L1_static` for a static fixed size cache implementation which might be slightly faster
+   than the sizeable one.
  * `size`: If L1 cache is enabled, define the size of cache in bytes. Cache will use fixed 64 bytes cache lines.
    by default 32KB. You can use K, M, G, T as unit (multiple of 1024, not 1000 !).
  * `associativity`: Define the L1 cache associativity to simulate, by default 8.
