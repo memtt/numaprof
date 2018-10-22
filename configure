@@ -15,7 +15,7 @@
 
 ######################################################
 #help debug
-set -e
+#set -e
 
 ######################################################
 #script setup
@@ -99,7 +99,7 @@ cfg_fail()
 {
 	for tmp in "$@"
 	do
-		echo -e "${CFG_COLOR_RED}${tmp}${CFG_COLOR_RESET}" 1>&2
+		echo "${CFG_COLOR_RED}${tmp}${CFG_COLOR_RESET}" 1>&2
 	done
 	cfg_exit 1
 }
@@ -264,14 +264,16 @@ cfg_add_enable_option()
 #  --doc={DOC}             Provide documentation string for --help
 #  --on-with={OPT}         Add a cmake option to the option list when --with-{NAME} is triggered
 #  --on-without={OPT}      Add a cmake option to the option list when --without-{NAME} is triggered
-#  --on={-DVAR=${ON}}      Setup the given cmake variable to ON/OFF depending on the with/without.
-#  --on-with-inherit={}    List of inherited configure option to trigger when used.
-#  --on-without-inherit={} List of inherited configure option to trigger when used.
-#  --invert-help           In help message, do it for disable instead of enable.
-#  --only={with|without}   Provide only one of the two command.
-#  --var={var}             Cmake variable to setup.
-#  --custom                Call a custom user sh function to handle.
+#  --on={-DVAR=${ON}}      Setup the given cmake variable to ON/OFF depending on the with/without
+#  --on-with-inherit={}    List of inherited configure option to trigger when used
+#  --on-without-inherit={} List of inherited configure option to trigger when used
+#  --invert-help           In help message, do it for disable instead of enable
+#  --only={with|without}   Provide only one of the two command
+#  --var={var}             Cmake variable to setup
+#  --custom                Call a custom user sh function to handle
 #  --type={value}          In help which type of value we wait on with mode
+#  --enum={a|b|cz}         List authozied values
+#  --allow-no-value        Will consider call with ${val}='ON' if with-X is provided without value.
 #
 # In commands you can use variables :
 #  ${ON}                   Will be 'ON' on enable and 'OFF' on disable
@@ -288,6 +290,8 @@ cfg_add_with_option()
 	opt_with=''
 	opt_without=''
 	opt_type='path'
+	opt_enum=''
+	opt_no_value='false'
 
 	#scan options
 	for opt in "$@"
@@ -337,6 +341,12 @@ cfg_add_with_option()
 			--type=*)
 				opt_type="${v}"
 				;;
+			--enum=*)
+				opt_enum="${v}"
+				;;
+			--allow-no-value)
+				opt_no_value='true'
+				;;
 			*)
 				cfg_fail "Invalid internal option to build with/without option ${opt} while calling cfg_add_with_option()"
 				;;
@@ -349,9 +359,28 @@ cfg_add_with_option()
 	#generate with action
 	if test ! -z "${opt_with}"; then
 		if test "${opt_mode}" = "both" || test "${opt_mode}" = "with"; then
-			echo "			--with-${opt_name}=*)" >> ${CFG_CASE_PARSE_OPT_FILE}
-			echo "				${opt_with}" >> ${CFG_CASE_PARSE_OPT_FILE}
-			echo "				;;" >> ${CFG_CASE_PARSE_OPT_FILE}
+			#no value case
+			if test "${opt_no_value}" = 'true'; then
+				echo "			--with-${opt_name})" >> ${CFG_CASE_PARSE_OPT_FILE}
+				echo "				val='ON'" >> ${CFG_CASE_PARSE_OPT_FILE}
+				echo "				${opt_with}" >> ${CFG_CASE_PARSE_OPT_FILE}
+				echo "				;;" >> ${CFG_CASE_PARSE_OPT_FILE}
+			fi
+			
+			#value case
+			if test -z "${opt_enum}"; then
+				#std case		
+				echo "			--with-${opt_name}=*)" >> ${CFG_CASE_PARSE_OPT_FILE}
+				echo "				${opt_with}" >> ${CFG_CASE_PARSE_OPT_FILE}
+				echo "				;;" >> ${CFG_CASE_PARSE_OPT_FILE}
+			else
+				#make selection for each value of enum
+				for entry in `echo ${opt_enum} | sed -e 's/[|]/ /g'`; do
+					echo "			--with-${opt_name}=${entry})" >> ${CFG_CASE_PARSE_OPT_FILE}
+					echo "				${opt_with}" >> ${CFG_CASE_PARSE_OPT_FILE}
+					echo "				;;" >> ${CFG_CASE_PARSE_OPT_FILE}
+				done
+			fi
 		fi
 	fi
 
@@ -383,7 +412,7 @@ CFG_PARSE_OPT_FOOTER="
 "
 
 ######################################################
-function cfg_gen_help_string()
+cfg_gen_help_string()
 {
 CFG_HELP_MESSAGE="'configure' is a cmake wrapper to build ${CFG_PROJECT_NAME}
 For more control, prefer to use cmake directely, this wrapper only aims
@@ -449,10 +478,26 @@ cfg_parse_global_args()
 			--enable-*)
 				ON='ON'
 				OFF='OFF'
+				WITH='WITH'
+				WITHOUT='WITHOUT'
 				;;
 			--disable-*)
 				ON='OFF'
 				OFF='ON'
+				WITH='WITHOUT'
+				WITHOUT='WITH'
+				;;
+			--with-*)
+				ON='ON'
+				OFF='OFF'
+				WITH='WITH'
+				WITHOUT='WITHOUT'
+				;;
+			--without-*)
+				ON='OFF'
+				OFF='ON'
+				WITH='WITHOUT'
+				WITHOUT='WITH'
 				;;
 		esac
 
@@ -490,7 +535,7 @@ cfg_parse_global_args()
 				cfg_add_to_var CFG_EXTRA_LDFLAGS "${val}"
 				;;
 			*)
-				cfg_parse_user_opts "${arg}" || cfg_fail "Invalid argument : ${arg}, please check in --help."
+				cfg_parse_user_opts "${arg}" || cfg_parse_custom_opts "${arg}" || cfg_fail "Invalid argument : ${arg}, please check in --help."
 				;;
 		esac
 	done
@@ -547,6 +592,19 @@ cfg_gen_final_command_lines()
 		echo "\\\"${line}\\\"" | sed -e "s/'/\\\'/g"
 	done
 	echo ".."
+}
+
+######################################################
+#custom option parse to replace by user function
+#in setup file
+cfg_parse_custom_opts()
+{
+	#nothing to do
+	case "${1}" in
+		*)
+			return 1
+			;;
+	esac
 }
 
 ######################################################
