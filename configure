@@ -18,6 +18,8 @@
 #set -e
 
 ######################################################
+#where to load optinos
+CFG_OPTIONS_FILE='options'
 #script setup
 CFG_PROJECT_NAME='numaprof'
 CFG_DEFAULT_BUILD_TYPE='Release'
@@ -74,7 +76,7 @@ cfg_setup_options()
 							--only=enable
 
 	#load user one
-	. "${CFG_SOURCE_DIR}/options.sh"
+	. "${CFG_SOURCE_DIR}/${CFG_OPTIONS_FILE}"
 }
 
 ######################################################
