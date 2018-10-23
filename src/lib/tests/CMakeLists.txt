@@ -45,3 +45,7 @@ target_link_libraries(BenchTBLVsPageTable numaprof)
 ######################################################
 add_executable(BenchInstrCache BenchInstrCache.cpp)
 target_link_libraries(BenchInstrCache numaprof)
+
+######################################################
+add_executable(BenchCpuCache BenchCpuCache.cpp)
+target_link_libraries(BenchCpuCache numaprof)

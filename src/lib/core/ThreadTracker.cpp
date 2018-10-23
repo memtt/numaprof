@@ -253,7 +253,7 @@ void ThreadTracker::onAccessHandling(size_t ip,size_t addr,bool write,bool skip)
 	//check cache, if contain data, just ignore
 	if (hasCpuCache)
 		if (this->cpuCache->onMemoryAccess(addr))
-			skip = true;
+			return;
 
 	//first check in TLB
 	Page * page = tlb.get(addr >> NUMAPROF_PAGE_OFFSET);
