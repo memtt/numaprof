@@ -45,7 +45,7 @@ int main(int argc, char ** argv)
 		for (int i = 0 ; i < size ; i++)
 			buffer[i] = 0;
 	ticks t1 = getticks();
-	printf("No cache      : %llu\n",t1-t0);
+	printf("No cache             : %llu\n",t1-t0);
 	
 	//measure with cache
 	t0 = getticks();
@@ -56,7 +56,18 @@ int main(int argc, char ** argv)
 		}
 	}
 	t1 = getticks();
-	printf("Dummy cache   : %llu\n",t1-t0);
+	printf("Dummy cache          : %llu\n",t1-t0);
+
+	//measure with cache
+	t0 = getticks();
+	for (int r = 0 ; r < REPEAT ; r++) {
+		for (int i = 0 ; i < size ; i++) {
+			buffer[i] = 0;
+			staticCache.onMemoryAccessInlined((size_t)buffer+i);
+		}
+	}
+	t1 = getticks();
+	printf("Static cache inlined : %llu\n",t1-t0);
 
 	//measure with cache
 	t0 = getticks();
@@ -67,7 +78,7 @@ int main(int argc, char ** argv)
 		}
 	}
 	t1 = getticks();
-	printf("Static cache  : %llu\n",t1-t0);
+	printf("Static cache         : %llu\n",t1-t0);
 
 	//measure with cache
 	t0 = getticks();
@@ -78,7 +89,7 @@ int main(int argc, char ** argv)
 		}
 	}
 	t1 = getticks();
-	printf("Dynamic cache : %llu\n",t1-t0);
+	printf("Dynamic cache        : %llu\n",t1-t0);
 
 	return EXIT_SUCCESS;
 }

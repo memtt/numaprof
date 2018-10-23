@@ -55,7 +55,7 @@ CpuSimpleFlatCacheStatic<waySize,associativity>::~CpuSimpleFlatCacheStatic(void)
 
 /*******************  FUNCTION  *********************/
 template <int waySize,int associativity>
-bool CpuSimpleFlatCacheStatic<waySize,associativity>::onMemoryAccess(size_t addr)
+bool CpuSimpleFlatCacheStatic<waySize,associativity>::onMemoryAccessInlined(size_t addr)
 {
 	//row
 	size_t addrIndex = getVirtIndex(addr);
@@ -94,6 +94,13 @@ bool CpuSimpleFlatCacheStatic<waySize,associativity>::onMemoryAccess(size_t addr
 
 	//retu
 	return (hitWay != -1);
+}
+
+/*******************  FUNCTION  *********************/
+template <int waySize,int associativity>
+bool CpuSimpleFlatCacheStatic<waySize,associativity>::onMemoryAccess(size_t addr)
+{
+	return onMemoryAccessInlined(addr);
 }
 
 /*******************  FUNCTION  *********************/

@@ -36,6 +36,7 @@ class CpuSimpleFlatCacheStatic : public CpuCache
 		CpuSimpleFlatCacheStatic(void);
 		virtual ~CpuSimpleFlatCacheStatic(void);
 		virtual bool onMemoryAccess(size_t addr);
+		inline bool onMemoryAccessInlined(size_t addr);
 		virtual void onThreadMove(const CpuBindList & cpuList);
 	private:
 		inline size_t getIndex(size_t row,size_t way) const {return row * associativity + way;};
