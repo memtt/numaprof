@@ -12,6 +12,8 @@
 /********************  HEADERS  *********************/
 #ifdef USE_PIN_LOCKS
 	#include "pin.H"
+#elif defined(USE_DIRECT_PTHREAD_LOCKS)
+	#include <pthread.h>
 #else
 	#include <mutex>
 #endif
@@ -29,6 +31,16 @@ namespace numaprof
 			void unlock(void) { PIN_ReleaseLock(&mutex); };
 		private:
 			PIN_LOCK mutex;
+	};
+#elif defined(USE_DIRECT_PTHREAD_LOCKS)
+	class Mutex
+	{
+		public:
+			Mutex(void) {pthread_mutex_init(&mutex, NULL);}
+			void lock(void) { pthread_mutex_lock(&mutex); }
+			void unlock(void) { pthread_mutex_unlock(&mutex); }
+		private:
+			pthread_mutex_t mutex;
 	};
 #else
 	#include <mutex>

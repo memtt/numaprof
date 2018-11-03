@@ -14,12 +14,13 @@ elseif (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
 endif (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
 
 ######################################################
-#fix required for ubuntu
-CHECK_CXX_COMPILER_FLAG("-faligned-new" HAVE_GCC_ALIGNED_NEW)
-if (HAVE_GCC_ALIGNED_NEW)
-	message(STATUS "Enable usage of -faligned-new for Pintool integration")
-	set(GCC_ALIGNED_NEW_FLAG "-faligned-new")
-endif (HAVE_GCC_ALIGNED_NEW)
+# fix required for ubuntu 18....
+# Hum no, it compiles but fail to launc due to missing symbol
+#CHECK_CXX_COMPILER_FLAG("-faligned-new" HAVE_GCC_ALIGNED_NEW)
+#if (HAVE_GCC_ALIGNED_NEW)
+#	message(STATUS "Enable usage of -faligned-new for Pintool integration")
+#	set(GCC_ALIGNED_NEW_FLAG "-faligned-new")
+#endif (HAVE_GCC_ALIGNED_NEW)
 
 ######################################################
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/Makefile.pin.in ${CMAKE_CURRENT_BINARY_DIR}/Makefile.pin @ONLY)
