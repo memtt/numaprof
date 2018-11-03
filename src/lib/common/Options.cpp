@@ -390,6 +390,8 @@ Options& initGlobalOptions ( bool reinit )
 	if (gblOptions == NULL) {
 		gblOptions = new Options();
 		return *gblOptions;
+	} else {
+		return *gblOptions;
 	}
 }
 
