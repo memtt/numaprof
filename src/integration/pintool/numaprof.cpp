@@ -922,8 +922,8 @@ void I_Trace(TRACE trace, void *v)
                                      IARG_END);*/
         } else {
             if( INS_IsCall(tail) ) {
-                if( INS_IsDirectBranchOrCall(tail) ) {
-                    ADDRINT target = INS_DirectBranchOrCallTargetAddress(tail);
+                if( INS_IsDirectControlFlow(tail) ) {
+                    ADDRINT target = INS_DirectControlFlowTargetAddress(tail);
                     INS_InsertPredicatedCall(tail, IPOINT_BEFORE,
                                              (AFUNPTR)A_ProcessDirectCall,
                                              IARG_INST_PTR,
