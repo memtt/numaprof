@@ -10,6 +10,7 @@ master
  * Optionnaly handle access per batch, this provide a speed up of a factor 2 but loose in precision.
  * Add cache simulation with a simple L1 per thread model with LRU replacement policy. Disabled by default.
  * Total rewrite of the ./configure infrastructure to be more reusable in other projects.
+ * Move GUI server to python3
 
 1.0.0 - 07/02/2018
 ------------------

@@ -90,9 +90,9 @@ cfg_custom_pre_check()
 			echo "....You cloned the master branch, need to download GUI dependencies !"
 			echo "....checking deps..."
 			miss=""
-			if ! which pip > /dev/null
+			if ! which pip3 > /dev/null
 			then
-				cfg_error "MISSING Python 'pip' command required to fetch the webview server dependencies, please install before proceeding or download a release archive instead of using master branch"
+				cfg_error "MISSING Python 'pip3' command required to fetch the webview server dependencies, please install before proceeding or download a release archive instead of using master branch"
 				miss="true"
 			fi
 			if ! which npm > /dev/null

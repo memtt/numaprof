@@ -14,7 +14,6 @@ import os
 import json
 from flask_htpasswd import HtPasswdAuth
 from nocache import nocache
-from flask_cache import Cache
 import argparse
 import sys
 import subprocess

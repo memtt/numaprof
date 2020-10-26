@@ -19,9 +19,9 @@ then
 fi
 
 ######################################################
-if ! which pip
+if ! which pip3
 then
-	echo "Python 'pip' command required to fetch the webview server dependencies, please install before proceeding or download a release archive instead of using master branch"
+	echo "Python 'pip3' command required to fetch the webview server dependencies, please install before proceeding or download a release archive instead of using master branch"
 	exit 1
 fi
 
@@ -48,7 +48,7 @@ fi
 #One workaround is to also use --system on the line
 #This work only on recent enougth version so we check
 PIP_EXTRA_SYSTEM=""
-if [ ! -z "$(pip install --help 2>&1 | grep -e --system)" ]
+if [ ! -z "$(pip3 install --help 2>&1 | grep -e --system)" ]
 then
 	PIP_EXTRA_SYSTEM="--system"
 fi
@@ -74,7 +74,7 @@ fi
 set -e
 set -x
 rm -rfd deps
-pip install -t deps ${PIP_EXTRA_SYSTEM} --no-compile flask flask_httpauth Flask-Cache htpasswd flask-htpasswd
+pip3 install -t deps ${PIP_EXTRA_SYSTEM} --no-compile flask flask_httpauth Flask-Cache htpasswd flask-htpasswd
 npm install bower
 bower install
 rm -f ./node_modules/.bin/node

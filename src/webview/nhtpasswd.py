@@ -17,7 +17,7 @@ from os.path import expanduser
 ######################################################
 #help
 if len(sys.argv) == 1:
-	print "Missing argument, usage : numaprof-htpasswd {USER} [PASSWORD] [FILE]"
+	print("Missing argument, usage : numaprof-htpasswd {USER} [PASSWORD] [FILE]")
 	sys.exit(1)
 
 ######################################################
@@ -36,7 +36,7 @@ elif len(sys.argv) == 4:
 	password = sys.argv[2]
 	authFile = sys.argv[3]
 else:
-	print "Too many arguments !"
+	print("Too many arguments !")
 	sys.exit(1)
 
 ######################################################
@@ -44,5 +44,5 @@ else:
 with htpasswd.Basic(authFile) as userdb:
 	try:
 		userdb.add(user, password)
-	except htpasswd.basic.UserExists, e:
+	except htpasswd.basic.UserExists as e:
 		userdb.change_password(user,password)

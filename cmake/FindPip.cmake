@@ -5,7 +5,7 @@
 #  PIP_BINARY - Path to the pip binary file
 
 ######################################################
-find_program(PIP_BINARY pip)
+find_program(PIP_BINARY pip3)
 
 ######################################################
 include(FindPackageHandleStandardArgs)
