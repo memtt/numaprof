@@ -74,7 +74,7 @@ fi
 set -e
 set -x
 rm -rfd deps
-pip3 install -t deps ${PIP_EXTRA_SYSTEM} --no-compile flask flask_httpauth Flask-Cache htpasswd flask-htpasswd
+pip3 install -t deps ${PIP_EXTRA_SYSTEM} --no-compile flask flask_httpauth htpasswd flask-htpasswd
 npm install bower
 bower install
 rm -f ./node_modules/.bin/node
