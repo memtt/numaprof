@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 ######################################################
 #            PROJECT  : numaprof                     #
@@ -15,7 +15,7 @@ import sys
 ######################################################
 class Converter:
 	def __init__(self,file):
-		self.file = file		
+		self.file = file
 		self.counters = [
 			"firstTouch",
 			"unpinnedFirstTouch",
@@ -27,9 +27,9 @@ class Converter:
 			"mcdramAccess",
 			"nonAlloc"
 		]
-		with open(file) as data_file:    
+		with open(file) as data_file:
 			self.data = json.load(data_file)
-	
+
 	def computeSummary(self):
 		threads = self.data["threads"];
 		summary = {}
@@ -59,37 +59,37 @@ class Converter:
 		return " ".join(str(x) for x in lst)
 
 	def buildHeader(self):
-		print "version: 1"
-		print "creator: numaprof"
-		print "pid: 10719"
-		print "cmd: ./a.out"
-		print "part: 1"
-		print ""
-		print "position: line"
+		print("version: 1")
+		print("creator: numaprof")
+		print("pid: 10719")
+		print("cmd: ./a.out")
+		print("part: 1")
+		print("")
+		print("position: line")
 		#instr
-		print "event: firstTouch : First touch"
-		print "event: unpinnedFirstTouch : Unpinned first touch"
-		print "event: unpinnedPageAccess : Unpinned page access"
-		print "event: unpinnedThreadAccess : Unpinned thread access"
-		print "event: unpinnedBothAccess : Unpinned both access"
-		print "event: localAccess : Local NUMA access"
-		print "event: remoteAccess : Remote NUMA access"
-		print "event: mcdramAccess : KNL MCDRAM access"
-		print "event: nonAlloc : Access to static allocated elements"
+		print("event: firstTouch : First touch")
+		print("event: unpinnedFirstTouch : Unpinned first touch")
+		print("event: unpinnedPageAccess : Unpinned page access")
+		print("event: unpinnedThreadAccess : Unpinned thread access")
+		print("event: unpinnedBothAccess : Unpinned both access")
+		print("event: localAccess : Local NUMA access")
+		print("event: remoteAccess : Remote NUMA access")
+		print("event: mcdramAccess : KNL MCDRAM access")
+		print("event: nonAlloc : Access to static allocated elements")
 		#allocs
-		print "event: allocfirstTouch : Allocation first touch"
-		print "event: allocunpinnedFirstTouch : Allocation unpinned first touch"
-		print "event: allocunpinnedPageAccess : Allocation unpinned page access"
-		print "event: allocunpinnedThreadAccess : Allocation unpinned thread access"
-		print "event: allocunpinnedBothAccess : Allocation unpinned both access"
-		print "event: alloclocalAccess : Allocation local NUMA access"
-		print "event: allocremoteAccess : Allocation remote NUMA access"
-		print "event: allocmcdramAccess : Allocation KNL MCDRAM access"
-		print "event: allocnonAlloc : Allocation access to static allocated elements"
-		print "events:"," ".join(self.counters)," ".join("alloc"+x for x in self.counters)
-		print "summary:",self.computeSummary()
-		print ""
-		
+		print("event: allocfirstTouch : Allocation first touch")
+		print("event: allocunpinnedFirstTouch : Allocation unpinned first touch")
+		print("event: allocunpinnedPageAccess : Allocation unpinned page access")
+		print("event: allocunpinnedThreadAccess : Allocation unpinned thread access")
+		print("event: allocunpinnedBothAccess : Allocation unpinned both access")
+		print("event: alloclocalAccess : Allocation local NUMA access")
+		print("event: allocremoteAccess : Allocation remote NUMA access")
+		print("event: allocmcdramAccess : Allocation KNL MCDRAM access")
+		print("event: allocnonAlloc : Allocation access to static allocated elements")
+		print("events:"," ".join(self.counters)," ".join("alloc"+x for x in self.counters))
+		print("summary:",self.computeSummary())
+		print("")
+
 	def getObjString(self,strings,obj,key):
 		if key in obj:
 			return strings[obj[key]]
@@ -116,41 +116,41 @@ class Converter:
 		else:
 			ret["line"] = 0
 		return ret
-	
+
 	def buildContentStack(self):
 		for entry in self.data["instructions"]:
 			for instr in entry["stack"]:
 				location = self.getLocation(instr)
-				print "ob=%s"%(location["binary"])
-				print "fl=%s"%(location["file"])
-				print "fn=%s"%(location["function"])
-			print "%d %s %s"%(location["line"],self.statToString(entry["stats"]),self.getZeros())
-			print ""
+				print("ob=%s"%(location["binary"]))
+				print("fl=%s"%(location["file"]))
+				print("fn=%s"%(location["function"]))
+			print("%d %s %s"%(location["line"],self.statToString(entry["stats"]),self.getZeros()))
+			print("")
 		for entry in self.data["allocs"]:
 			for instr in entry["stack"]:
 				location = self.getLocation(instr)
-				print "ob=%s"%(location["binary"])
-				print "fl=%s"%(location["file"])
-				print "fn=%s"%(location["function"])
-			print "%d %s %s"%(location["line"],self.getZeros(),self.statToString(entry["stats"]))
-			print ""
+				print("ob=%s"%(location["binary"]))
+				print("fl=%s"%(location["file"]))
+				print("fn=%s"%(location["function"]))
+			print("%d %s %s"%(location["line"],self.getZeros(),self.statToString(entry["stats"])))
+			print("")
 
 	def buildContentNoStack(self):
 		for instr in self.data["instructions"]:
 			location = self.getLocation(instr)
-			print "ob=%s"%(location["binary"])
-			print "fl=%s"%(location["file"])
-			print "fn=%s"%(location["function"])
-			print "%d %s %s"%(location["line"],self.statToString(self.data["instructions"][instr]),self.getZeros())
-			print ""
+			print("ob=%s"%(location["binary"]))
+			print("fl=%s"%(location["file"]))
+			print("fn=%s"%(location["function"]))
+			print("%d %s %s"%(location["line"],self.statToString(self.data["instructions"][instr]),self.getZeros()))
+			print("")
 		for instr in self.data["allocs"]:
 			location = self.getLocation(instr)
-			print "ob=%s"%(location["binary"])
-			print "fl=%s"%(location["file"])
-			print "fn=%s"%(location["function"])
-			print "%d %s %s"%(location["line"],self.getZeros(),self.statToString(self.data["allocs"][instr]))
-			print ""
-		
+			print("ob=%s"%(location["binary"]))
+			print("fl=%s"%(location["file"]))
+			print("fn=%s"%(location["function"]))
+			print("%d %s %s"%(location["line"],self.getZeros(),self.statToString(self.data["allocs"][instr])))
+			print("")
+
 	def buildContent(self):
 		if type(self.data["instructions"]) is dict:
 			self.buildContentNoStack();
@@ -165,7 +165,7 @@ class Converter:
 if __name__ == "__main__":
 	#check arg
 	if len(sys.argv) != 2:
-		print >>sys.stderr, "Require filename as parameter !"
+		print("Require filename as parameter !", file=sys.stderr)
 		sys.exit(1)
 	#laod file
 	converter = Converter(sys.argv[1])

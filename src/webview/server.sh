@@ -10,5 +10,5 @@
 ######################################################
 #export FLASK_APP=server.py
 export PYTHONPATH=$PWD/deps/:$PYTHONPATH
-python server.py "$@"
+python3 server.py "$@"
 exit $?

@@ -28,5 +28,5 @@ fi
 ######################################################
 #export FLASK_APP=server.py
 export PYTHONPATH=$PWD/deps/:$PYTHONPATH
-python nhtpasswd.py "$@"
+python3 nhtpasswd.py "$@"
 exit $?
