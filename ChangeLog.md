@@ -1,8 +1,8 @@
 Change log
 ==========
 
-master
-------
+1.1.0 - 01/11/2020
+------------------
 
  * Now handle local/remote MCDRAM access instead of just MCDRAM.
  * Add instruction cache to go faster

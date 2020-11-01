@@ -1,7 +1,7 @@
 /*****************************************************
              PROJECT  : numaprof
-             VERSION  : 1.1.0-dev
-             DATE     : 02/2018
+             VERSION  : 1.1.0
+             DATE     : 11/2020
              AUTHOR   : Valat Sébastien
              LICENSE  : CeCILL-C
 *****************************************************/
