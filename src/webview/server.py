@@ -62,7 +62,7 @@ if args.webkit == 1:
 	with htpasswd.Basic(authFile) as userdb:
 		try:
 			userdb.add(webkitUser, webkitPasswd)
-		except htpasswd.basic.UserExists, e:
+		except htpasswd.basic.UserExists as e:
 			userdb.change_password(webkitUser,webkitPasswd)
 elif args.authfile:
 	authFile = args.authfile
