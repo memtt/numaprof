@@ -140,7 +140,7 @@ In that case you can setup some environment variables to configure NUMAPROF :
 
 ## VERSION
 
-   This is the manpage of NUMAPROF version 1.1.0.
+   This is the manpage of NUMAPROF version 1.1.1.
 
 ## SEE ALSO
 

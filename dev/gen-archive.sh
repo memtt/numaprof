@@ -1,7 +1,7 @@
 #!/bin/bash
 ######################################################
 #            PROJECT  : numaprof                     #
-#            VERSION  : 1.1.0                        #
+#            VERSION  : 1.1.1                        #
 #            DATE     : 11/2020                      #
 #            AUTHOR   : Valat Sébastien  - CERN      #
 #            LICENSE  : CeCILL-C                     #
@@ -14,7 +14,7 @@
 
 ######################################################
 #extract version
-version=1.1.0
+version=1.1.1
 prefix=numaprof-${version}
 
 ######################################################

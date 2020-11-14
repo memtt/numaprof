@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 ######################################################
 #            PROJECT  : numaprof                     #
-#            VERSION  : 1.1.0                        #
+#            VERSION  : 1.1.1                        #
 #            DATE     : 11/2020                      #
 #            AUTHOR   : Valat Sébastien  - CERN      #
 #            LICENSE  : CeCILL-C                     #
