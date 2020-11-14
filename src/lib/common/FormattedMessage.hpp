@@ -1,6 +1,6 @@
 /*****************************************************
              PROJECT  : NUMAPROF
-             VERSION  : 1.1.1
+             VERSION  : 1.1.2
              DATE     : 11/2020
              AUTHOR   : Valat Sébastien
              LICENSE  : CeCILL-C
