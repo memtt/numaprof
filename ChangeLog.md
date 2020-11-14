@@ -1,6 +1,11 @@
 Change log
 ==========
 
+1.1.1 - 14/11/2020
+------------------
+
+ * Fix python 2->3 issue forgoten before release
+
 1.1.0 - 01/11/2020
 ------------------
 
