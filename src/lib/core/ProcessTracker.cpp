@@ -397,7 +397,7 @@ void convertToJson(htopml::JsonState& json, const ProcessTracker& value)
 {
 	json.openStruct();
 		json.openFieldStruct("infos");
-			json.printField("formatVersion",1);
+			json.printField("formatVersion",2);
 			json.printField("tool","numaprof");
 			if (getGlobalOptions().infoHidden == false)
 			{

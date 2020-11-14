@@ -110,7 +110,7 @@ void convertToJson(htopml::JsonState& json, const SymbolRegistry& value)
 	json.openStruct();
 
 // 	json.printField("entries",value.nameMap);
-	
+	json.printField("lowAddrMap", value.libBaseAddrMap);
 	json.printField("map",value.procMap);
 	json.printField("strings",value.strings);
 	json.printField("instr",value.callSiteMap);
@@ -301,7 +301,10 @@ void SymbolRegistry::solveNames(LinuxProcMapEntry * procMapEntry)
 			#endif
 
 			hasEntries = true;
-			addr2lineCmd << ' '  << (void*)((size_t)it->first - (size_t)elf2AddrOffset);
+			if (elf2AddrOffset == 0x00400000)
+				addr2lineCmd << ' '  << (void*)((size_t)it->first);
+			else
+				addr2lineCmd << ' '  << (void*)((size_t)it->first - (size_t)elf2AddrOffset);
 			lst.push_back(&it->second);
 		}
 	}

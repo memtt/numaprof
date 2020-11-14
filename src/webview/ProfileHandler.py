@@ -23,6 +23,9 @@ class ProfileHandler:
 	def load(self):
 		json_data=open(self.filepath).read()
 		self.data = json.loads(json_data)
+		version = self.data["infos"]["formatVersion"]
+		if version != 2:
+			raise Exception("Invalid format version, as {version} expected 2 !")
 		self.prepare()
 
 	def prepare(self):
@@ -327,9 +330,10 @@ class ProfileHandler:
 		for sym in self.data["symbols"]["map"]:
 			lower = int(sym["lower"][2:],16)
 			upper = int(sym["upper"][2:],16)
-			if addrInt >= lower and addrInt < upper and ".so" in sym["file"]:
+			if addrInt >= lower and addrInt < upper and (".so" in sym["file"] or lower != int('00400000',16)):
+				baseAddr = int(self.data["symbols"]["lowAddrMap"][sym["file"]])
 				#print "Replace in %s : %s => 0x%x"%(sym["file"],addr,(addrInt - lower))
-				return "%x" % (addrInt - lower)
+				return "%x" % (addrInt - baseAddr)
 		#print "Addr not found in memory map, keep addr : %s"%addr
 		return addr[2:]
 	
