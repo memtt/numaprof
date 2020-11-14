@@ -27,6 +27,7 @@
 /*******************  FUNCTION  *********************/
 /** Define a function dictionnary to store addresses and related symboles. **/
 typedef std::map<void *,const char*> FuncNameDicMap;
+typedef std::map<std::string, size_t> LibBaseAddrMap;
 
 /*********************  TYPES  **********************/
 namespace htopml
@@ -83,6 +84,7 @@ class SymbolRegistry
 		bool isSameFuntion(const CallSite * s1,void * s2) const;
 		bool procMapIsLoaded(void) const;
 		void registerMaqaoFunctionSymbol(int funcId,const char * funcName,const char * file,int line);
+		void registerLibBaseAddr(const std::string & lib, size_t baseAddr);
 	public:
 		friend std::ostream & operator << (std::ostream & out,const SymbolRegistry & dic);
 		friend void convertToJson(htopml::JsonState & json, const SymbolRegistry & value);
@@ -98,6 +100,7 @@ class SymbolRegistry
 		CallSiteMap callSiteMap;
 		std::vector<std::string> strings;
 		MaqaoSiteMap maqaoSites;
+		LibBaseAddrMap libBaseAddrMap;
 };
 
 /*******************  FUNCTION  *********************/

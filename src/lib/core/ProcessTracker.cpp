@@ -371,6 +371,14 @@ void ProcessTracker::markObjectFiledAsNotPinned(void)
 }
 
 /*******************  FUNCTION  *********************/
+void ProcessTracker::registerLibBaseAddr(const std::string & lib, size_t baseAddr)
+{
+	this->mutex.lock();
+	this->registry.registerLibBaseAddr(lib, baseAddr);
+	this->mutex.unlock();
+}
+
+/*******************  FUNCTION  *********************/
 /**
  * Return the current CPU cache layout to build local thread CPU cache.
 **/

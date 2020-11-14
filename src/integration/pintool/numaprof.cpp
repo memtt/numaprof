@@ -505,6 +505,7 @@ VOID beforeMain(void)
 /*******************  FUNCTION  *********************/
 VOID instrImageLoad(IMG img,VOID * v)
 {
+	gblProcessTracker->registerLibBaseAddr(IMG_Name(img), IMG_LowAddress(img));
 	gblProcessTracker->markObjectFiledAsNotPinned();
 }
 

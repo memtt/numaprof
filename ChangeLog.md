@@ -1,6 +1,11 @@
 Change log
 ==========
 
+master
+------
+
+ * Fix issue with ALSR & fPIE on new linux distribution like debian/ubuntu
+
 1.1.1 - 14/11/2020
 ------------------
 

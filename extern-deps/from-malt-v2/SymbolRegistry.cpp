@@ -17,6 +17,12 @@
 #include "SymbolRegistry.hpp"
 #include "../from-htopml/json/JsonState.h"
 #include "Debug.hpp"
+//unix
+#ifndef __PIN__
+	#include <dlfcn.h>
+	#include <execinfo.h>
+	#include <link.h>
+#endif //__PIN__
 //#include <common/Array.hpp>
 
 /*******************  NAMESPACE  ********************/
@@ -275,30 +281,27 @@ void SymbolRegistry::solveNames(LinuxProcMapEntry * procMapEntry)
 	addr2lineCmd << "addr2line -C -f -e " << procMapEntry->file;
 	std::vector<CallSite*> lst;
 	
-	//Gentoo now enable -fPIE by default on executable so we need to detect the case
-	//and if enable consider the address relative to the mapping as for .so files.
-	//We know on x86_64 that binary are by default map at 0x00400000, if not then
-	//we consider -fPIE enabled and apply shift.
-	bool isSharedLib = false;
-	
-	//check if shared lib or exe
-	if (procMapEntry->file.substr(procMapEntry->file.size()-3) == ".so" || procMapEntry->file.find(".so.") != std::string::npos)
-		isSharedLib = true;
-	#ifdef __x86_64__
-		else if (procMapEntry->lower != (void*)0x00400000)//check if -fPIE on x86_64
-			isSharedLib = true;
-	#endif
-	
 	//preate addr2line args
 	for (CallSiteMap::iterator it = callSiteMap.begin() ; it != callSiteMap.end() ; ++it)
 	{
 		if (it->second.mapEntry == procMapEntry)
 		{
+			size_t elf2AddrOffset = 0;
+			#ifdef __PIN__
+				//Help from https://stackoverflow.com/questions/30400503/how-can-i-track-a-specific-loop-in-binary-instrumentation-by-using-pin-tool
+				elf2AddrOffset = this->libBaseAddrMap[it->second.mapEntry->file];
+			#else
+				//From https://stackoverflow.com/questions/55066749/how-to-find-load-relocation-for-a-pie-binary
+				Dl_info info;
+				void *extra = NULL;
+				if (dladdr1(it->first, &info, &extra, RTLD_DL_LINKMAP)) {
+					struct link_map *map = (struct link_map *)extra;
+					elf2AddrOffset = map->l_addr;
+				}
+			#endif
+
 			hasEntries = true;
-			if (isSharedLib)
-				addr2lineCmd << ' '  << (void*)((size_t)it->first - (size_t)procMapEntry->lower);
-			else
-				addr2lineCmd << ' '  << (void*)((size_t)it->first);
+			addr2lineCmd << ' '  << (void*)((size_t)it->first - (size_t)elf2AddrOffset);
 			lst.push_back(&it->second);
 		}
 	}
@@ -562,6 +565,12 @@ bool SymbolRegistry::isSameFuntion(const CallSite* s1, void* s2) const
 		return false;
 	
 	return (s1->mapEntry == ss2->mapEntry && s1->function == ss2->function);
+}
+
+/*******************  FUNCTION  *********************/
+void SymbolRegistry::registerLibBaseAddr(const std::string & lib, size_t baseAddr)
+{
+	this->libBaseAddrMap[lib] = baseAddr;
 }
 
 }

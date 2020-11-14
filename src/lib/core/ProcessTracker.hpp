@@ -62,6 +62,7 @@ class ProcessTracker
 		void onThreadSetAffinity(int pid,cpu_set_t * mask,int size);
 		void markObjectFiledAsNotPinned(void);
 		void * getCpuCacheLayout(void);
+		void registerLibBaseAddr(const std::string & lib, size_t baseAddr);
 	private:
 		void removeSmall(InstrInfoMap & map, float cutoff);
 	private:
