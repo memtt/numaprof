@@ -13,6 +13,9 @@
 
 #include <cstdlib>
 
+// If keep move_pages it generates symbol error on last pin version (3.24), so use another symbol name to avoid issues.
+#define move_pages move_pages_pintool
+
 /*******************  NAMESPACE  ********************/
 namespace numaprof
 {

@@ -37,7 +37,7 @@ Dependencies
 NUMAPROF needs:
 
  * CMake (required to build, greated than 2.8.8) : https://cmake.org/
- * Intel Pintool (required, tested : 3.16) : https://software.intel.com/en-us/articles/pin-a-binary-instrumentation-tool-downloads. Take care of the licence which is free only for non commercial use.
+ * Intel Pintool (required, tested : 3.24) : https://software.intel.com/en-us/articles/pin-a-binary-instrumentation-tool-downloads. Take care of the licence which is free only for non commercial use.
  * Python (required). To run the webserver.
  * Qt5-webkit (optional, greater than : 5.4). To provide a browser embedded view to use ssh X forward instead of the webserver port forwarding.
  * libnuma or numactl devel package. This is required to use the profiler.
@@ -53,7 +53,7 @@ libraries and do not depend anymore on those two commands.
 Install
 -------
 
-First download the last version of pintool (tested : 3.5 on x86_64 arch : https://software.intel.com/en-us/articles/pin-a-binary-instrumentation-tool-downloads) and extract it somewhere.
+First download the last version of pintool (tested : 3.24 on x86_64 arch : https://software.intel.com/en-us/articles/pin-a-binary-instrumentation-tool-downloads) and extract it somewhere.
 TAKE CARE, PINTOOL IS NOT OPEN-SOURCE AND IS FREE ONLY FOR NON-COMMERCIAL USE.
 
 Then use the configure script :
