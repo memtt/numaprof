@@ -986,8 +986,8 @@ void StackLowerThanAddress(const void* ptr, bool* result) {
 }
 
 bool StackGrowsDown() {
-  int dummy;
-  bool result;
+  int dummy{0};
+  bool result{false};
   StackLowerThanAddress(&dummy, &result);
   return result;
 }

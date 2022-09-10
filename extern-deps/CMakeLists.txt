@@ -7,7 +7,9 @@
 ######################################################
 
 ######################################################
-add_subdirectory(gmock-1.7.0)
+if (NOT GTest_FOUND OR NOT GMOCK_FOUND)
+	add_subdirectory(gmock-1.7.0)
+endif (NOT GTest_FOUND OR NOT GMOCK_FOUND)
 add_subdirectory(jsoncpp/dist)
 add_subdirectory(from-htopml)
 add_subdirectory(from-malt-v2)

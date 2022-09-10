@@ -41,6 +41,7 @@ NUMAPROF needs:
  * Python (required). To run the webserver.
  * Qt5-webkit (optional, greater than : 5.4). To provide a browser embedded view to use ssh X forward instead of the webserver port forwarding.
  * libnuma or numactl devel package. This is required to use the profiler.
+ * Optionnaly you can install google-test and google-mock to avoid the warnings on recent system of the in source embedded version. (tested is 1.11 under ubuntu 22.04).
 
 If you use the git repo (eg. master branch) instead of a release file :
 

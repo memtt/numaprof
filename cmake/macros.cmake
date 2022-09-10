@@ -9,13 +9,20 @@
 ######################################################
 #Setup paths to gtest/gmock headers and library
 MACRO(setup_internal_gmock_and_gtest)
-	set(GMOCK_SOURCE_DIR ${CMAKE_SOURCE_DIR}/extern-deps/gmock-1.7.0)
-	set(GMOCK_INCLUDE_DIR ${GMOCK_SOURCE_DIR}/include)
-	set(GMOCK_INCLUDE_DIRS ${GMOCK_SOURCE_DIR}/include)
-	set(GMOCK_BOTH_LIBRARIES gmock gmock_main)
-	set(GTEST_BOTH_LIBRARIES gtest)
-	set(GTEST_INCLUDE_DIR ${GMOCK_SOURCE_DIR}/gtest/include/)
-	set(GTEST_INCLUDE_DIRS ${GMOCK_SOURCE_DIR}/gtest/include/)
+	if(GTest_FOUND AND GMOCK_FOUND)
+		set(GMOCK_SOURCE_DIR /usr)
+		set(GMOCK_INCLUDE_DIR ${GMOCK_SOURCE_DIR}/include)
+		set(GMOCK_INCLUDE_DIRS ${GMOCK_SOURCE_DIR}/include)
+		set(GMOCK_BOTH_LIBRARIES ${GTEST_BOTH_LIBRARIES})
+	else(GTest_FOUND AND GMOCK_FOUND)
+		set(GMOCK_SOURCE_DIR ${CMAKE_SOURCE_DIR}/extern-deps/gmock-1.7.0)
+		set(GMOCK_INCLUDE_DIR ${GMOCK_SOURCE_DIR}/include)
+		set(GMOCK_INCLUDE_DIRS ${GMOCK_SOURCE_DIR}/include)
+		set(GMOCK_BOTH_LIBRARIES gmock gmock_main)
+		set(GTEST_BOTH_LIBRARIES gtest)
+		set(GTEST_INCLUDE_DIR ${GMOCK_SOURCE_DIR}/gtest/include/)
+		set(GTEST_INCLUDE_DIRS ${GMOCK_SOURCE_DIR}/gtest/include/)
+	endif(GTest_FOUND AND GMOCK_FOUND)
 ENDMACRO(setup_internal_gmock_and_gtest)
 
 ######################################################
