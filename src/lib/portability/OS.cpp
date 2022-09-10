@@ -10,6 +10,7 @@
 #include <cstdio>
 #include <cstring>
 #include <unistd.h>
+#include <ctime>
 #include "../common/Debug.hpp"
 #include "OS.hpp"
 #include <sys/types.h>
