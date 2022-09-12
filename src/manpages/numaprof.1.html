@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta http-equiv='content-type' content='text/html;charset=utf8'>
-  <meta name='generator' content='Ronn-NG/v0.8.0 (http://github.com/apjanke/ronn-ng/tree/0.8.0)'>
+  <meta name='generator' content='Ronn-NG/v0.9.1 (http://github.com/apjanke/ronn-ng/tree/0.9.1)'>
   <title>numaprof(1) - A NUMA memory profiling tool</title>
   <style type='text/css' media='all'>
   /* style: man */
@@ -82,57 +82,56 @@
 
 <h2 id="DESCRIPTION">DESCRIPTION</h2>
 
-<p>NUMAPROF is a NUMA memory profiling tool instrumenting your binary application with
-pintool. It intercept all the memory accesses and track thread placement on the NUMA
+<p>NUMAPROF is a NUMA memory profiling tool instrumenting your binary application with 
+pintool. It intercept all the memory accesses and track thread placement on the NUMA 
 topology to determine when you are making local, remote, mcdram or unpinned memory accesses.
 The profile can be viewed with <span class="man-ref">numaprof-webview<span class="s">(1)</span></span>.</p>
 
 <p>NUMAPROF work out of the box but to profiling your application it might be better to compile
-it with debug symbols (<code>-g</code>) and also to disable inlining to get more accurate stacks
+it with debug symbols (<code>-g</code>) and also to disable inlining to get more accurate stacks 
 (<code>-O0</code> or <code>-fno-inline</code>).</p>
 
 <h2 id="OPTIONS">OPTIONS</h2>
 
 <ul>
-<li>
-<code>-c</code>, <code>--config</code>:
+  <li>
+<code>-c</code>, <code>--config</code>: 
 Provide a config file as parameters with formats described in the next part
 of this manpage. You can also get a dump of the default configuration with <code>-d</code>.</li>
-<li>
+  <li>
 <code>--callgrind</code>:
 After generating the profile to native format, automatically convert it to
 callgrind compatible format.</li>
-<li>
+  <li>
 <code>-d</code>, <code>--dumpconfig</code>:
 Dump the current NUMAPROF configuration in a file with the same name as profile file.
 It helps for quick start in the configuration by getting all the options and default value.</li>
-<li>
+  <li>
 <code>-o</code>:
 Permit to pass some specific options from the config file in the command line.
 The value is a list of options separated by commas and formatted like <code>SECTION:NAME=VALUE</code>.
 See the configuration file format (INI format) to find the available sections and names.</li>
-<li>
+  <li>
 <code>-h</code>, <code>--help</code>:
 Display help message with a list of available command line options.</li>
-<li>
+  <li>
 <code>--batch</code>:
 Enable treatement of the accesses by batch with a grouping factor of 32.
 It provide instrumentation speed-up of a factor 2 but reduce the precision
 on the first touch detection and counters for elements with low number of accesses.</li>
-<li>
+  <li>
 <code>--cache</code>:
 Define type of cache simulation to run. Default is 'dummy'. Available alternative
-is 'L1' which offer a per thread L1 simulated cache with LRU replacement policy.
+is 'L1' which offer a per thread L1 simulated cache with LRU replacement policy. 
 Look in the config file to see how to configure size and associativity of the cache.</li>
-<li>
+  <li>
 <code>-V</code>, <code>--verbose</code>
 Enable more printing for debugging.</li>
 </ul>
 
-
 <h2 id="GET-THE-GUI">GET THE GUI</h2>
 
-<p>With NUMAPROF you can use direcly <code>kcachegrind</code> if you enable the valgrind compatible format by using <code>--callgrind</code>.
+<p>With NUMAPROF you can use direcly <code>kcachegrind</code> if you enable the valgrind compatible format by using <code>--callgrind</code>. 
 But by default NUMAPROF will generate a JSON file to be used with <span class="man-ref">numaprof-webview<span class="s">(1)</span></span>.</p>
 
 <h2 id="CONFIGURATION-FILE">CONFIGURATION FILE</h2>
@@ -160,52 +159,53 @@ accessBatchSize=0
 hidden=false
 
 [cache]
-type=dummy
+type=dummy   size=32K   associativity=8
 </code></pre>
-
-<p>  size=32K
-  associativity=8</p>
 
 <p>The <code>output</code> section support :</p>
 
-<dl>
-<dt><code>name</code></dt>
-<dd>Define the name of the profile file. %1 is replaced by the program name, %2 by the PID or MPI rank and %3 by extension.</dd>
-<dt><code>json</code></dt>
-<dd>Enable output of the default JSON file format.</dd>
-<dt><code>indent</code></dt>
-<dd>Enable indentations in the JSON/LUA files. Useful for debugging but generate bigger files.</dd>
-<dt><code>silent</code></dt>
-<dd>Enable silent mode so that NUMAPROF will not write anything to the standard output of errors output not to disturb
-streams sent to scripts.</dd>
-<dt><code>removeSmall</code></dt>
-<dd>When running large application NUMAPROF might generate really big profiles. In case it append you can enable this
+<ul>
+  <li>
+<code>name</code>:
+Define the name of the profile file. %1 is replaced by the program name, %2 by the PID or MPI rank and %3 by extension.</li>
+  <li>
+<code>json</code>:
+Enable output of the default JSON file format.</li>
+  <li>
+<code>indent</code>: 
+Enable indentations in the JSON/LUA files. Useful for debugging but generate bigger files.</li>
+  <li>
+<code>silent</code>:
+Enable silent mode so that NUMAPROF will not write anything to the standard output of errors output not to disturb
+streams sent to scripts.</li>
+  <li>
+<code>removeSmall</code>:
+When running large application NUMAPROF might generate really big profiles. In case it append you can enable this
 feature which will remove all the entries corresponding to less than <code>removeRatio</code> percent of the total value.
-This lower a lot the size of the output file but lose some information.</dd>
-<dt><code>removeRatio</code></dt>
-<dd>When enabling the cut option, it selects which ratio will be used to cut the data.</dd>
-</dl>
-
+This lower a lot the size of the output file but lose some information.</li>
+  <li>
+<code>removeRatio</code>:
+When enabling the cut option, it selects which ratio will be used to cut the data.</li>
+</ul>
 
 <p>The <code>core</code> section support:</p>
 
 <ul>
-<li>
+  <li>
 <code>skipStackAccesses</code>: By default numaprof does not intercept the stack memory accesses to be faster,
 you can disable this feature by changing this value to false.</li>
-<li>
+  <li>
 <code>threadCacheEntries</code>: to avoid taking mutex too often numaprof use per thread caches an flush the entries
 by group. This option configure the size of this buffer.</li>
-<li>
+  <li>
 <code>objectCodePinned</code>: Define if the binary and so files global variables are considered as pinned or not pinned.</li>
-<li>
+  <li>
 <code>skipBinaries</code>: Permit to not instrument certain binaries (eg. libgomp). You can provide a list with semi-column separator.</li>
-<li>
+  <li>
 <code>accessBatchSize</code>: Enable treatement of the accesses by batch. It improves performance with up to a factor 2
 but reduce the precision of the detection for elements with low number of accesses and can be non exact for first touch location.
 A good value is 32 or 64.</li>
 </ul>
-
 
 <p>The <code>info</code> section support:</p>
 
@@ -218,24 +218,22 @@ This option target some companies which might want to hide their internal applic
 with external partners.</dd>
 </dl>
 
-
 <p>The <code>cache</code> section support:</p>
 
 <ul>
-<li>
+  <li>
 <code>type</code>:
-Define the type of cache model used to simulate CPU caches. This permit to avoid for example reporting huge
+Define the type of cache model used to simulate CPU caches. This permit to avoid for example reporting huge 
 access numbers on spinlocks or constants which normaly stay in the cache and do not generate NUMA traffic.
 Current possible values are : <code>dummy</code> to disable cache simulation or <code>L1</code> to run with a uniq L1 cache per thread
 with LRU replacement policy. <code>L1_static</code> for a static fixed size cache implementation which might be slightly faster
 than the sizeable one.</li>
-<li>
+  <li>
 <code>size</code>: If L1 cache is enabled, define the size of cache in bytes. Cache will use fixed 64 bytes cache lines.
 by default 32KB. You can use K, M, G, T as unit (multiple of 1024, not 1000 !).</li>
-<li>
+  <li>
 <code>associativity</code>: Define the L1 cache associativity to simulate, by default 8.</li>
 </ul>
-
 
 <h2 id="ENVIRONMENT">ENVIRONMENT</h2>
 
@@ -248,10 +246,9 @@ by default 32KB. You can use K, M, G, T as unit (multiple of 1024, not 1000 !).<
 <dd>List of options to transmit to NUMAPROF (equivalent of <code>-o</code> option, see its documentation for format).</dd>
 </dl>
 
-
 <h2 id="VERSION">VERSION</h2>
 
-<p>   This is the manpage of NUMAPROF version 1.1.2.</p>
+<p>This is the manpage of NUMAPROF version 1.1.3.</p>
 
 <h2 id="SEE-ALSO">SEE ALSO</h2>
 
@@ -259,7 +256,7 @@ by default 32KB. You can use K, M, G, T as unit (multiple of 1024, not 1000 !).<
 
   <ol class='man-decor man-foot man foot'>
     <li class='tl'></li>
-    <li class='tc'>November 2020</li>
+    <li class='tc'>September 2022</li>
     <li class='tr'>numaprof(1)</li>
   </ol>
 
