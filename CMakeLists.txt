@@ -31,7 +31,7 @@ set(ENABLE_WEBVIEW "ON" CACHE BOOL "Enable installation of webview")
 ######################################################
 # use the system one if possible
 find_package(GTest QUIET)
-find_package(GMock REQUIRED)
+find_package(GMock QUIET)
 
 ######################################################
 #Some global setup

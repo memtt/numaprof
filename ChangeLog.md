@@ -6,7 +6,7 @@ Change log
 
  * Support of recent version of pintool (> 3.16), tested is 3.24 on ubuntu 22.04.
  * Support of gtest and gmock installed by system when possible to run unit tests.
- * Fixe missing include to build on Fedora Gcc 12.
+ * Fix missing include to build on Fedora Gcc 12.
 
 1.1.2 - 14/11/2020
 ------------------
