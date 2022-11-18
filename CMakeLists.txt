@@ -10,7 +10,12 @@
 #Usage of OBJECT keyword in add_library require 2.8.8 (or something like that, need to check)
 #QT5 requires 2.8.3 mini, recommanded 3.1.0
 cmake_minimum_required(VERSION 2.8.12)
-project(numaprof)
+if (POLICY CMP0048)
+  cmake_policy(SET CMP0048 NEW)
+endif (POLICY CMP0048)
+
+######################################################
+project(numaprof VERSION 1.1.3 LANGUAGES C CXX)
 
 ######################################################
 #global setup

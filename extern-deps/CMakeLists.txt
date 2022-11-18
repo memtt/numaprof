@@ -8,7 +8,8 @@
 
 ######################################################
 if (NOT GTest_FOUND OR NOT GMOCK_FOUND)
-	add_subdirectory(gmock-1.7.0)
+	set(INSTALL_GTEST off)
+	add_subdirectory(gmock-1.12.1)
 endif (NOT GTest_FOUND OR NOT GMOCK_FOUND)
 add_subdirectory(jsoncpp/dist)
 add_subdirectory(from-htopml)
