@@ -18,7 +18,7 @@ using namespace numaprof;
 TEST(MovePages,no_page)
 {
 	char * buffer = new char[20*1024*1024];
-	EXPECT_EQ(-2,OS::getNumaOfPage((size_t)buffer+10*1024*1024));
+	EXPECT_LT(OS::getNumaOfPage((size_t)buffer+10*1024*1024), 0);
 }
 
 
@@ -27,5 +27,5 @@ TEST(MovePages,have_page)
 {
 	char * buffer = new char[20*1024*1024];
 	memset(buffer,0,20*1024*1024);
-	EXPECT_NE(-2,OS::getNumaOfPage((size_t)buffer+10*1024*1024));
+	EXPECT_GE(OS::getNumaOfPage((size_t)buffer+10*1024*1024), 0);
 }
