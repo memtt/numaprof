@@ -1064,8 +1064,16 @@ int main(int argc, char *argv[])
 		options.loadFromString(envOptions);
 	options.cache();
 
+	//debug (can be usefull if config detection fails)
+	if (options.outputSilent == false)
+		fprintf(stderr,"NUMAPROF: Building process tracker...\n");
+
 	//setup
 	gblProcessTracker = new ProcessTracker();
+
+	//debug (can be usefull if config detection fails)
+	if (options.outputSilent == false)
+		fprintf(stderr,"NUMAPROF: Building TLS...\n");
 
 	// Obtain  a key for TLS storage.
 	tls_key = PIN_CreateThreadDataKey(NULL);
@@ -1074,6 +1082,10 @@ int main(int argc, char *argv[])
 		cerr << "number of already allocated keys reached the MAX_CLIENT_TLS_KEYS limit" << endl;
 		PIN_ExitProcess(1);
 	}
+
+	//debug (can be usefull if config detection fails)
+	if (options.outputSilent == false)
+		fprintf(stderr,"NUMAPROF: Instrumenting the binary...\n");
 
 	IMG_AddInstrumentFunction(instrImageLoad,0);
 	IMG_AddInstrumentFunction(instrImage, 0);
@@ -1088,6 +1100,10 @@ int main(int argc, char *argv[])
 	PIN_AddThreadStartFunction(ThreadStart, NULL);
 	PIN_AddThreadFiniFunction(ThreadFini, NULL);
 	PIN_AddSyscallEntryFunction(SyscallEntry, NULL);
+
+	//debug (can be usefull if config detection fails)
+	if (options.outputSilent == false)
+		fprintf(stderr,"NUMAPROF: Start program...\n");
 
 	// Never returns
 	PIN_StartProgram();
