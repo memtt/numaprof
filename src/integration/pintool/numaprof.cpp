@@ -41,7 +41,8 @@ using namespace std;
 	#endif
 #endif
 
-//#define NUMAPROF_TRACE_ALLOCS
+#define NUMAPROF_TRACE_ALLOCS
+//#define NUMAPROF_TRACE_RW
 
 //HUm finally I'm not totaly sure we can do this with pintool
 //See : https://github.com/wapiflapi/villoc/issues/3
@@ -116,14 +117,18 @@ static VOID ThreadStart(THREADID threadid, CONTEXT *ctxt, INT32 flags, VOID *v)
 		PIN_ExitProcess(1);
 	}
 
+	fprintf(stderr,"NUMAPROF: createThreadTracker[before] tid=%d\n",threadid);
 	data->tracker = gblProcessTracker->createThreadTracker(threadid);
+	fprintf(stderr,"NUMAPROF: createThreadTracker[after] tid=%d\n",threadid);
 }
 
 /*******************  FUNCTION  *********************/
 static VOID ThreadFini(THREADID threadid, const CONTEXT *ctxt, INT32 code, VOID *v)
 {
 	//printf("thread exit : %d\n",threadid);
+	fprintf(stderr,"NUMAPROF: ThreadFini[before] tid=%d\n",threadid);
 	getTls(threadid).tracker->onStop();
+	fprintf(stderr,"NUMAPROF: ThreadFini[after] tid=%d\n",threadid);
 }
 
 /*******************  FUNCTION  *********************/
@@ -136,7 +141,13 @@ static VOID RecordMemRead(VOID * ip, VOID * addr,bool skip,THREADID threadid)
 		cnt++;
 	}
 	fprintf(trace,"%p: R %p, thread %d NUMA %d thread ID %d\n", ip, addr,id,numaprof::getNumaOfPage(addr),threadid);*/
+	#ifdef NUMAPROF_TRACE_RW
+		fprintf(stderr,"%p: R %p, NUMA %d thread ID %d [before]\n", ip, addr,OS::getNumaOfPage((size_t)addr),threadid);
+	#endif
 	getTls(threadid).tracker->onAccess((size_t)ip,(size_t)addr,false,skip);
+	#ifdef NUMAPROF_TRACE_RW
+		fprintf(stderr,"%p: R %p, NUMA %d thread ID %d [after]\n", ip, addr,OS::getNumaOfPage((size_t)addr),threadid);
+	#endif
 }
 
 /*******************  FUNCTION  *********************/
@@ -149,7 +160,13 @@ static VOID RecordMemWrite(VOID * ip, VOID * addr,bool skip,THREADID threadid)
 		cnt++;
 	}
 	fprintf(trace,"%p: W %p, thread %d NUMA %d\n", ip, addr,id,numaprof::getNumaOfPage(addr));*/
+	#ifdef NUMAPROF_TRACE_RW
+		fprintf(stderr,"%p: W %p, NUMA %d thread ID %d [before]\n", ip, addr,OS::getNumaOfPage((size_t)addr),threadid);
+	#endif
 	getTls(threadid).tracker->onAccess((size_t)ip,(size_t)addr,true,skip);
+	#ifdef NUMAPROF_TRACE_RW
+		fprintf(stderr,"%p: W %p, NUMA %d thread ID %d [after]\n", ip, addr,OS::getNumaOfPage((size_t)addr),threadid);
+	#endif
 }
 
 /*******************  FUNCTION  *********************/
@@ -157,14 +174,20 @@ static VOID beforeRealloc(VOID* ptr,ADDRINT size, VOID * retIp,THREADID threadid
 {
 	if (gblHasSeenMain)
 	{
+		#ifdef NUMAPROF_TRACE_ALLOCS
+			printf("realloc %p %lu (from %p) tid=%d [pre-get-tls]\n",ptr,size,retIp,threadid);
+		#endif
 		ThreadData & data = getTls(threadid);
 		data.allocSize = size;
 		data.allocCallsite = retIp;
 		data.reallocPtr = ptr;
 		#ifdef NUMAPROF_TRACE_ALLOCS
-			printf("realloc %p %lu (from %p)\n",ptr,size,retIp);
+			printf("realloc %p %lu (from %p) tid=%d [before]\n",ptr,size,retIp,threadid);
 		#endif
 		data.tracker->onFree((ADDRINT)ptr);
+		#ifdef NUMAPROF_TRACE_ALLOCS
+			printf("realloc %p %lu (from %p) tid=%d [after]\n",ptr,size,retIp,threadid);
+		#endif
 	}
 }
 
@@ -179,6 +202,9 @@ static VOID afterRealloc(ADDRINT ret,THREADID threadid)
 		ThreadData & data = getTls(threadid);
 		//data.tracker->onRealloc((size_t)data.allocCallsite,(size_t)data.reallocPtr,ret,data.allocSize);
 		data.tracker->onAlloc((size_t)data.allocCallsite,ret,data.allocSize);
+		#ifdef NUMAPROF_TRACE_ALLOCS
+			printf("realloc %p tid=%d [after-end]\n",(void*)ret,threadid);
+		#endif
 	}
 }
 
@@ -188,11 +214,14 @@ static VOID beforeMalloc(ADDRINT size, VOID * retIp,THREADID threadid)
 {
 	if (gblHasSeenMain)
 	{
+		#ifdef NUMAPROF_TRACE_ALLOCS
+			printf("malloc %lu (from %p) tid=%d [pre-tls]\n",size,retIp,threadid);
+		#endif
 		ThreadData & data = getTls(threadid);
 		data.allocSize = size;
 		data.allocCallsite = retIp;
 		#ifdef NUMAPROF_TRACE_ALLOCS
-			printf("malloc %lu (from %p)\n",size,retIp);
+			printf("malloc %lu (from %p) tid=%d [before]\n",size,retIp,threadid);
 		#endif
 	}
 }
@@ -212,6 +241,9 @@ static VOID afterMalloc(ADDRINT ret,THREADID threadid)
 		} else {
 			data.tracker->onAlloc((size_t)data.newCallsite,ret,data.allocSize);
 		}
+		#ifdef NUMAPROF_TRACE_ALLOCS
+			printf("malloc %p tid=%d [after]\n", (void*)ret,threadid);
+		#endif
 	}
 }
 
@@ -220,11 +252,14 @@ static VOID beforeNew(ADDRINT size, VOID * retIp,THREADID threadid)
 {
 	if (gblHasSeenMain)
 	{
+		#ifdef NUMAPROF_TRACE_ALLOCS
+			printf("before new %lu (from %p) tid=%d [pre-tls]\n",size,retIp,threadid);
+		#endif
 		ThreadData & data = getTls(threadid);
 		if (data.newCallsite == NULL)
 			data.newCallsite = retIp;
 		#ifdef NUMAPROF_TRACE_ALLOCS
-			printf("before new %lu (from %p)\n",size,retIp);
+			printf("before new %lu (from %p) tid=%d [before]\n",size,retIp,threadid);
 		#endif
 	}
 }
@@ -239,6 +274,9 @@ static VOID afterNew(ADDRINT ret,THREADID threadid)
 		#endif
 		ThreadData & data = getTls(threadid);
 		data.newCallsite = NULL;
+		#ifdef NUMAPROF_TRACE_ALLOCS
+			printf("after new tid=%d [after]\n",threadid);
+		#endif
 	}
 }
 
@@ -247,11 +285,14 @@ static VOID beforeCalloc(ADDRINT nmemb,ADDRINT size,VOID * retIp,THREADID thread
 {
 	if (gblHasSeenMain)
 	{
+		#ifdef NUMAPROF_TRACE_ALLOCS
+			printf("calloc %lu %lu (from %p) tid=%d [pre-tls]\n",nmemb,size,retIp,threadid);
+		#endif
 		ThreadData & data = getTls(threadid);
 		data.allocSize = size * nmemb;
 		data.allocCallsite = retIp;
 		#ifdef NUMAPROF_TRACE_ALLOCS
-			printf("calloc %lu %lu (from %p)\n",nmemb,size,retIp);
+			printf("calloc %lu %lu (from %p) tid=%d [before]\n",nmemb,size,retIp,threadid);
 		#endif
 	}
 }
@@ -262,16 +303,22 @@ static VOID beforeFree(ADDRINT ptr,THREADID threadid)
 	if (gblHasSeenMain)
 	{
 		#ifdef NUMAPROF_TRACE_ALLOCS
-			printf("free %p\n",(void*)ptr);
+			printf("free %p tid=%d [pre-tls]\n",(void*)ptr,threadid);
 		#endif
 		ThreadData & data = getTls(threadid);
 		data.tracker->onFree(ptr);
+		#ifdef NUMAPROF_TRACE_ALLOCS
+			printf("free %p tid=%d [before]\n",(void*)ptr,threadid);
+		#endif
 	}
 }
 
 /*******************  FUNCTION  *********************/
 static VOID beforeMBind(VOID * addr, ADDRINT len,ADDRINT mode,VOID * mask,ADDRINT nodes, ADDRINT flags,THREADID threadid)
 {
+	#ifdef NUMAPROF_TRACE_ALLOCS
+		printf("mbind %p tid=%d [pre-tls]\n",(void*)addr,threadid);
+	#endif
 	ThreadData & data = getTls(threadid);
 	data.mbindAddr = addr;
 	data.mbindLen = len;
@@ -279,13 +326,22 @@ static VOID beforeMBind(VOID * addr, ADDRINT len,ADDRINT mode,VOID * mask,ADDRIN
 	data.mbindMask = mask;
 	data.mbindNodes = nodes;
 	data.mbindFlags = flags;
+	#ifdef NUMAPROF_TRACE_ALLOCS
+		printf("mbind %p tid=%d [before]\n",(void*)addr,threadid);
+	#endif
 }
 
 /*******************  FUNCTION  *********************/
 static VOID afterMBind(THREADID threadid)
 {
+	#ifdef NUMAPROF_TRACE_ALLOCS
+		printf("mbind tid=%d [after]\n",threadid);
+	#endif
 	ThreadData & data = getTls(threadid);
 	data.tracker->onMBind(data.mbindAddr,data.mbindLen,data.mbindMode,(const unsigned long *)data.mbindMask,data.mbindNodes,data.mbindFlags);
+	#ifdef NUMAPROF_TRACE_ALLOCS
+		printf("mbind tid=%d [after-end]\n",threadid);
+	#endif
 }
 
 /*******************  FUNCTION  *********************/
@@ -386,10 +442,16 @@ static void beforeMmap(ADDRINT size, ADDRINT flags,ADDRINT fd,THREADID threadid)
 	//printf("Call munmap %p : %lu\n",addr,size);
 	//printf("Enter in %p\n",fctAddr);
 	//getTls(threadid).tracker->onMmap((size_t)addr,size,flags,fd);
+	#ifdef NUMAPROF_TRACE_ALLOCS
+		printf("mmap %zu tid=%d [pre-tls]\n", size,threadid);
+	#endif
 	ThreadData & data = getTls(threadid);
 	data.mmapSize = size;
 	data.mmapFlags = flags;
 	data.mmapFd = fd;
+	#ifdef NUMAPROF_TRACE_ALLOCS
+		printf("mmap %zu tid=%d [before]\n", size,threadid);
+	#endif
 }
 
 /*******************  FUNCTION  *********************/
@@ -397,10 +459,16 @@ static void afterMmap(VOID * addr,THREADID threadid)
 {
 	//printf("Call munmap %p : %lu\n",addr,size);
 	//printf("Enter in %p\n",fctAddr);
-	
+
+	#ifdef NUMAPROF_TRACE_ALLOCS
+		printf("mmap %p tid=%d [after]\n", addr,threadid);
+	#endif
 	ThreadData & data = getTls(threadid);
 	if (addr != MAP_FAILED)
 		data.tracker->onMmap((size_t)addr,data.mmapSize,data.mmapFlags,data.mmapFd);
+	#ifdef NUMAPROF_TRACE_ALLOCS
+		printf("mmap %p tid=%d [after-end]\n", addr,threadid);
+	#endif
 }
 
 /*******************  FUNCTION  *********************/
@@ -409,10 +477,16 @@ static void beforeMremap(VOID * oldAddr,ADDRINT oldSize, ADDRINT newSize,THREADI
 	//printf("Call mrenmap %p : %lu\n",oldAddr,oldSize);
 	//printf("Enter in %p\n",fctAddr);
 	//getTls(threadid).tracker->onMmap((size_t)addr,size,flags,fd);
+	#ifdef NUMAPROF_TRACE_ALLOCS
+		printf("mremap %p, %zu, %zu tid=%d [pre-tls]\n", oldAddr, oldSize, newSize,threadid);
+	#endif
 	ThreadData & data = getTls(threadid);
 	data.mremapOldAddr = oldAddr;
 	data.mremapOldSize = oldSize;
 	data.mremapNewSize = newSize;
+	#ifdef NUMAPROF_TRACE_ALLOCS
+		printf("mremap %p, %zu, %zu tid=%d [before]\n", oldAddr, oldSize, newSize,threadid);
+	#endif
 }
 
 /*******************  FUNCTION  *********************/
@@ -420,9 +494,15 @@ static void afterMremap(VOID * addr,THREADID threadid)
 {
 	//printf("Call munmap %p : %lu\n",addr,size);
 	//printf("Enter in %p\n",fctAddr);
+	#ifdef NUMAPROF_TRACE_ALLOCS
+		printf("mremap %p tid=%d [after]\n", addr,threadid);
+	#endif
 	ThreadData & data = getTls(threadid);
 	if (addr != MAP_FAILED)
 		data.tracker->onMremap((size_t)data.mremapOldAddr,data.mremapOldSize,(size_t)addr,data.mremapNewSize);
+	#ifdef NUMAPROF_TRACE_ALLOCS
+		printf("mremap %p tid=%d[after-end]\n", addr,threadid);
+	#endif
 }
 
 /*******************  FUNCTION  *********************/
@@ -458,7 +538,7 @@ void A_ProcessIndirectCall_ret(ADDRINT ip, ADDRINT target, ADDRINT sp,THREADID t
 }
 
 /*******************  FUNCTION  *********************/
-void A_ProcessStub(ADDRINT ip, ADDRINT target, ADDRINT sp,THREADID threadid) 
+void A_ProcessStub(ADDRINT ip, ADDRINT target, ADDRINT sp,THREADID threadid)
 {
 	cout << "Instrumenting stub: " << Target2String(ip) << " => " << Target2String(target) << endl;
 	cout << "STUB: ";
@@ -468,7 +548,7 @@ void A_ProcessStub(ADDRINT ip, ADDRINT target, ADDRINT sp,THREADID threadid)
 }
 
 /*******************  FUNCTION  *********************/
-void A_ProcessStub_ret(ADDRINT ip, ADDRINT target, ADDRINT sp,THREADID threadid) 
+void A_ProcessStub_ret(ADDRINT ip, ADDRINT target, ADDRINT sp,THREADID threadid)
 {
 	cout << "Instrumenting stub RET: " << Target2String(ip) << " <= " << Target2String(target) << endl;
 	cout << "STUB: ";
@@ -525,12 +605,12 @@ VOID instrImageNew(IMG img, VOID *v)
 			{
 				//printf("Instument NEW %s\n",name.c_str());
 				RTN_Open(rtn);
-				
+
 				// Instrument malloc() to print the input argument value and the return value.
 				RTN_InsertCall(rtn, IPOINT_BEFORE, (AFUNPTR)beforeNew,
 							IARG_FUNCARG_ENTRYPOINT_VALUE, 0,
 							IARG_RETURN_IP, IARG_THREAD_ID,IARG_END);
-				
+
 				// Instrument malloc() to print the input argument value and the return value.
 				RTN_InsertCall(rtn, IPOINT_AFTER, (AFUNPTR)afterNew,
 							IARG_FUNCRET_EXITPOINT_VALUE,
@@ -554,12 +634,12 @@ static VOID instrImageMalloc(IMG img, VOID *v)
 		if (!getGlobalOptions().outputSilent)
 			fprintf(stderr,"NUMAPROF: instr malloc from %s\n",IMG_Name(img).c_str());
 		RTN_Open(mallocRtn);
-		
+
 		// Instrument malloc() to print the input argument value and the return value.
 		RTN_InsertCall(mallocRtn, IPOINT_BEFORE, (AFUNPTR)beforeMalloc,
 					   IARG_FUNCARG_ENTRYPOINT_VALUE, 0,
 					   IARG_RETURN_IP, IARG_THREAD_ID,IARG_END);
-		
+
 		// Instrument malloc() to print the input argument value and the return value.
 		RTN_InsertCall(mallocRtn, IPOINT_AFTER, (AFUNPTR)afterMalloc,
 					   IARG_FUNCRET_EXITPOINT_VALUE,
@@ -579,13 +659,13 @@ static VOID instrImageRealloc(IMG img, VOID *v)
 	if (RTN_Valid(reallocRtn))
 	{
 		RTN_Open(reallocRtn);
-		
+
 		// Instrument malloc() to print the input argument value and the return value.
 		RTN_InsertCall(reallocRtn, IPOINT_BEFORE, (AFUNPTR)beforeRealloc,
 					   IARG_FUNCARG_ENTRYPOINT_VALUE, 0,
 					   IARG_FUNCARG_ENTRYPOINT_VALUE, 1,
 					   IARG_RETURN_IP, IARG_THREAD_ID,IARG_END);
-		
+
 		// Instrument malloc() to print the input argument value and the return value.
 		RTN_InsertCall(reallocRtn, IPOINT_AFTER, (AFUNPTR)afterRealloc,
 					   IARG_FUNCRET_EXITPOINT_VALUE,
@@ -605,7 +685,7 @@ static VOID instrImageCalloc(IMG img, VOID *v)
 	if (RTN_Valid(callocRtn))
 	{
 		RTN_Open(callocRtn);
-		
+
 		// Instrument malloc() to print the input argument value and the return value.
 		RTN_InsertCall(callocRtn, IPOINT_BEFORE, (AFUNPTR)beforeCalloc,
 					   IARG_FUNCARG_ENTRYPOINT_VALUE, 0,
@@ -631,7 +711,7 @@ static VOID instrImageMmap(IMG img, VOID *v)
 	if (RTN_Valid(mmapRtn))
 	{
 		RTN_Open(mmapRtn);
-		
+
 		// Instrument malloc() to print the input argument value and the return value.
 		RTN_InsertCall(mmapRtn, IPOINT_BEFORE, (AFUNPTR)beforeMmap,
 					   IARG_FUNCARG_ENTRYPOINT_VALUE, 1,
@@ -644,12 +724,12 @@ static VOID instrImageMmap(IMG img, VOID *v)
 					   IARG_THREAD_ID,IARG_END);
 		RTN_Close(mmapRtn);
 	}
-	
+
 	RTN munapRtn = RTN_FindByName(img, "munmap");
 	if (RTN_Valid(munapRtn))
 	{
 		RTN_Open(munapRtn);
-		
+
 		// Instrument malloc() to print the input argument value and the return value.
 		RTN_InsertCall(munapRtn, IPOINT_AFTER, (AFUNPTR)beforeMunmap,
 					   IARG_FUNCARG_ENTRYPOINT_VALUE, 0,
@@ -657,12 +737,12 @@ static VOID instrImageMmap(IMG img, VOID *v)
 					   IARG_THREAD_ID,IARG_END);
 		RTN_Close(munapRtn);
 	}
-	
+
 	RTN mremapRtn = RTN_FindByName(img, "mremap");
 	if (RTN_Valid(mremapRtn))
 	{
 		RTN_Open(mremapRtn);
-		
+
 		// Instrument malloc() to print the input argument value and the return value.
 		RTN_InsertCall(mremapRtn, IPOINT_BEFORE, (AFUNPTR)beforeMremap,
 					   IARG_FUNCARG_ENTRYPOINT_VALUE, 0,
@@ -684,7 +764,7 @@ static VOID instrImageFree(IMG img, VOID *v)
 	//
 	//  Find the malloc() function.
 	RTN freeRtn = RTN_FindByName(img, FREE);
-	
+
 	//printf(FREE " out\n");
 	if (RTN_Valid(freeRtn))
 	{
@@ -706,7 +786,7 @@ static VOID instrImageMain(IMG img, VOID *v)
 	//
 	//  Find the malloc() function.
 	RTN mainRtn = RTN_FindByName(img, "_init");
-	
+
 	//printf(FREE " out\n");
 	if (RTN_Valid(mainRtn))
 	{
@@ -721,11 +801,11 @@ static VOID instrImageMain(IMG img, VOID *v)
 /*******************  FUNCTION  *********************/
 static VOID instrImageSetMempolicy(IMG img, VOID *v)
 {
-	// Instrument the sched_setaffinity function to intercept thread pinning.  
+	// Instrument the sched_setaffinity function to intercept thread pinning.
 
 	//search by name
 	RTN setMemPolicyRtn = RTN_FindByName(img, "set_mempolicy");
-	
+
 	//printf(FREE " out\n");
 	if (RTN_Valid(setMemPolicyRtn))
 	{
@@ -744,11 +824,11 @@ static VOID instrImageSetMempolicy(IMG img, VOID *v)
 /*******************  FUNCTION  *********************/
 static VOID instrImageMBind(IMG img, VOID *v)
 {
-	// Instrument the sched_setaffinity function to intercept thread pinning.  
+	// Instrument the sched_setaffinity function to intercept thread pinning.
 
 	//search by name
 	RTN mbindRtn = RTN_FindByName(img, "mbind");
-	
+
 	//printf(FREE " out\n");
 	if (RTN_Valid(mbindRtn))
 	{
@@ -763,7 +843,7 @@ static VOID instrImageMBind(IMG img, VOID *v)
 					   IARG_FUNCARG_ENTRYPOINT_VALUE, 4,
 					   IARG_FUNCARG_ENTRYPOINT_VALUE, 5,
 					   IARG_THREAD_ID,IARG_END);
-		
+
 		RTN_InsertCall(mbindRtn, IPOINT_AFTER, (AFUNPTR)afterMBind,
 					   IARG_THREAD_ID,IARG_END);
 		RTN_Close(mbindRtn);
@@ -777,11 +857,11 @@ static VOID instrImageMBind(IMG img, VOID *v)
 //instead of instrumenting all syscalls....
 /*static VOID instrImageSetSchedAffinity(IMG img, VOID *v)
 {
-	// Instrument the sched_setaffinity function to intercept thread pinning.  
+	// Instrument the sched_setaffinity function to intercept thread pinning.
 
 	//search by name
 	RTN schedRtn = RTN_FindByName(img, "sched_setaffinity");
-	
+
 	//printf(FREE " out\n");
 	if (RTN_Valid(schedRtn))
 	{
@@ -803,17 +883,17 @@ static InstrStatus checkInstrumentInstruction(INS ins)
 	//extract binary
 	ADDRINT addr = INS_Address (ins);
 	IMG img = IMG_FindByAddress(addr);
-	
+
 	//ref
 	const std::vector<std::string> & vec = getGlobalOptions().coreSkipBinariesVect;
-	
+
 	if (IMG_Valid(img))
 	{
 		for (std::vector<std::string>::const_iterator it = vec.begin() ; it != vec.end() ; ++it)
 			if (Helper::contain(IMG_Name(img).c_str(),it->c_str()))
 				return INSTR_STATUS_NO;
 	}
-	
+
 	return INSTR_STATUS_YES;
 }
 
@@ -824,10 +904,10 @@ static VOID Instruction(INS ins, VOID *v)
 	// Instruments memory accesses using a predicated call, i.e.
 	// the instrumentation is called iff the instruction will actually be executed.
 	//
-	// On the IA-32 and Intel(R) 64 architectures conditional moves and REP 
+	// On the IA-32 and Intel(R) 64 architectures conditional moves and REP
 	// prefixed instructions appear as predicated instructions in Pin.
 	UINT32 memOperands = INS_MemoryOperandCount(ins);
-	
+
 	//check default status
 	InstrStatus status = INSTR_STATUS_UNKNOWN;
 	if (getGlobalOptions().coreSkipBinariesVect.empty())
@@ -841,7 +921,7 @@ static VOID Instruction(INS ins, VOID *v)
 			//check
 			if (status == INSTR_STATUS_UNKNOWN)
 				status = checkInstrumentInstruction(ins);
-			
+
 			INS_InsertPredicatedCall(
 				ins, IPOINT_BEFORE, (AFUNPTR)RecordMemRead,
 				IARG_INST_PTR,
@@ -849,7 +929,7 @@ static VOID Instruction(INS ins, VOID *v)
 				IARG_BOOL,(bool)(status == INSTR_STATUS_NO),
 				IARG_THREAD_ID,IARG_END);
 		}
-		// Note that in some architectures a single memory operand can be 
+		// Note that in some architectures a single memory operand can be
 		// both read and written (for instance incl (%eax) on IA-32)
 		// In that case we instrument it once for read and once for write.
 		if (INS_MemoryOperandIsWritten(ins, memOp) && (!INS_IsStackWrite(ins) || !gblOptions->coreSkipStackAccesses))
@@ -857,7 +937,7 @@ static VOID Instruction(INS ins, VOID *v)
 			//check
 			if (status == INSTR_STATUS_UNKNOWN)
 				status = checkInstrumentInstruction(ins);
-			
+
 			INS_InsertPredicatedCall(
 				ins, IPOINT_BEFORE, (AFUNPTR)RecordMemWrite,
 				IARG_INST_PTR,
@@ -886,7 +966,7 @@ static VOID Instruction(INS ins, VOID *v)
 		}
 	}*/
 	/*if( INS_IsPlt(ins) ) {
-		INS_InsertCall(ins, IPOINT_BEFORE, 
+		INS_InsertCall(ins, IPOINT_BEFORE,
 						(AFUNPTR)A_ProcessStub,
 						IARG_INST_PTR,
 						IARG_BRANCH_TARGET_ADDR,
@@ -911,7 +991,7 @@ void I_Trace(TRACE trace, void *v)
     for(BBL bbl = TRACE_BblHead(trace); BBL_Valid(bbl); bbl = BBL_Next(bbl)) {
 
         INS tail = BBL_InsTail(bbl);
-        
+
         // All calls and returns
         if( INS_IsSyscall(tail) ) {
             /*INS_InsertPredicatedCall(tail, IPOINT_BEFORE,
@@ -957,14 +1037,14 @@ void I_Trace(TRACE trace, void *v)
                 }
             }
             if( IsPLT(trace) ) {
-                INS_InsertCall(tail, IPOINT_BEFORE, 
+                INS_InsertCall(tail, IPOINT_BEFORE,
                                (AFUNPTR)A_ProcessStub,
                                IARG_INST_PTR,
                                IARG_BRANCH_TARGET_ADDR,
                                IARG_REG_VALUE, REG_STACK_PTR,
                                IARG_THREAD_ID,
 							   IARG_END);
-				/*INS_InsertCall(tail, IPOINT_AFTER, 
+				/*INS_InsertCall(tail, IPOINT_AFTER,
                                (AFUNPTR)A_ProcessStub_ret,
 							   IARG_CALL_ORDER, CALL_ORDER_LAST,
                                IARG_INST_PTR,
@@ -979,7 +1059,7 @@ void I_Trace(TRACE trace, void *v)
                                          IARG_REG_VALUE, REG_STACK_PTR,
                                          IARG_THREAD_ID,
 										 IARG_END);
-	
+
             }
         }
     }
@@ -1001,7 +1081,7 @@ static VOID instrImage(IMG img, VOID *v)
 			instrImageCalloc(img,v);
 			instrImageFree(img,v);
 		}
-		if (false) 
+		if (false)
 			instrImageMain(img,v);
 	}
 	//we use capture of syscall directly (required to intel OpenMP)
@@ -1018,7 +1098,7 @@ VOID instrFunctions(RTN rtn, VOID *v)
 	void * addr =  (void*)RTN_Address(rtn);
 	string name = RTN_Name(rtn);
 	char * strName = strdup(name.c_str());
-	
+
  	if (name != ".text" && name != ".plt" && name != "__cxa_atexit" && name != "__cxa_finalize")
  	{
  		// Insert a call at the entry point of a routine to increment the call count
@@ -1041,7 +1121,7 @@ static VOID Fini(INT32 code, VOID *v)
 //Print Help Message
 static INT32 Usage()
 {
-	PIN_ERROR( "This Pintool prints a trace of memory addresses\n" 
+	PIN_ERROR( "This Pintool prints a trace of memory addresses\n"
 			  + KNOB_BASE::StringKnobSummary() + "\n");
 	return -1;
 }
@@ -1053,7 +1133,7 @@ int main(int argc, char *argv[])
 	PIN_InitSymbols();
 
 	if (PIN_Init(argc, argv)) return Usage();
-	
+
 	//load options
 	Options & options = initGlobalOptions();
 	const char * configFile = getenv("NUMAPROF_CONFIG");
@@ -1107,6 +1187,6 @@ int main(int argc, char *argv[])
 
 	// Never returns
 	PIN_StartProgram();
-	
+
 	return 0;
 }
