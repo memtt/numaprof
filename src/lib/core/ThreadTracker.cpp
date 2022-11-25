@@ -6,6 +6,8 @@
              LICENSE  : CeCILL-C
 *****************************************************/
 
+#undef NDEBUG
+
 /********************  HEADERS  *********************/
 #include <sys/mman.h>
 #include <cassert>
@@ -221,20 +223,25 @@ void ThreadTracker::flushAccessBatch()
 **/
 void ThreadTracker::onAccess(size_t ip,size_t addr,bool write,bool skip)
 {
+	fprintf(stderr, "--> onAccess()\n");
 	//no batch
 	if (accessBatch.capacity() == 0)
 	{
+		fprintf(stderr, "--> onAccess() [no batch]\n");
 		onAccessHandling(ip,addr,write,skip);
 		return;
 	}
 	
 	//add
+	fprintf(stderr, "--> onAccess() [batch]\n");
 	AccessEvent access = {ip,addr,write,skip};
 	accessBatch.push_back(access);
 	
 	//flush if full
-	if (accessBatch.size() == accessBatch.capacity())
+	if (accessBatch.size() == accessBatch.capacity()) {
+		fprintf(stderr, "--> onAccess() [flush]\n");
 		flushAccessBatch();
+	}
 }
 
 /*******************  FUNCTION  *********************/
@@ -248,21 +255,27 @@ void ThreadTracker::onAccess(size_t ip,size_t addr,bool write,bool skip)
 **/
 void ThreadTracker::onAccessHandling(size_t ip,size_t addr,bool write,bool skip)
 {
-	//printf("Access %p => %p\n",(void*)ip,(void*)addr);
+	fprintf(stderr, "---> onAccessHandling %p => %p\n",(void*)ip,(void*)addr);
 
 	//check cache, if contain data, just ignore
-	if (hasCpuCache)
+	if (hasCpuCache) {
+		fprintf(stderr, "--> onAccessHandling() [check cpu cache]\n");
 		if (this->cpuCache->onMemoryAccess(addr))
 			return;
+	}
 
 	//first check in TLB
+	fprintf(stderr, "--> onAccessHandling() [get TLB]\n");
 	Page * page = tlb.get(addr >> NUMAPROF_PAGE_OFFSET);
 
 	//if not in TLB get numa location of page form page table
 	if (page == NULL)
 	{
+		fprintf(stderr, "--> onAccessHandling() [not in TLB]\n");
 		//load
 		page = &(table->getPage(addr));
+
+		fprintf(stderr, "--> onAccessHandling() [set TLB]\n");
 		//store for next time
 		tlb.set(addr >> NUMAPROF_PAGE_OFFSET, page);
 	}
@@ -275,47 +288,64 @@ void ThreadTracker::onAccessHandling(size_t ip,size_t addr,bool write,bool skip)
 	//if not defined use move pages
 	if (pageNode <= NUMAPROF_DEFAULT_NUMA_NODE)
 	{
+		fprintf(stderr, "--> onAccessHandling() [not defined]\n");
 		pageNode = OS::getNumaOfPage(addr);
+		fprintf(stderr, "--> onAccessHandling() [numa=%d]\n", pageNode);
 		//printf("Page on %d, write = %d\n",pageNode,write);
 		if (write && pageNode <= NUMAPROF_DEFAULT_NUMA_NODE)
 		{
+			fprintf(stderr, "--> onAccessHandling() [first touch]\n");
 			isWriteFirstTouch = true;
 			
 			//touch
 			//do first touch to ask where is the page
 			//we use atomic to not modify the content in case this is not real first touch
 			//so cannot write 0, just add 0
+			fprintf(stderr, "--> onAccessHandling() [fetch_and_add = %zu]\n", addr);
 			__sync_fetch_and_add((char*)addr,0);
 			
 			//check
 			if (page->canBeHugePage) {
 				//this sould not append
+				fprintf(stderr, "--> onAccessHandling() [should not]\n");
 				assert(false);
 			} else if (table->canBeHugePage(addr)) {
 				bool isHugePage;
+				fprintf(stderr, "--> onAccessHandling() [numa of huge]\n");
 				pageNode = OS::getNumaOfHugePage(addr,&isHugePage);
+				fprintf(stderr, "--> onAccessHandling() [numa=%d]\n", pageNode);
 				assert(pageNode >= 0);
 				if (isHugePage)
 				{
 					//mark as hue page and mark pinned status
+					fprintf(stderr, "--> onAccessHandling() [setHueFromPinThread]\n");
 					table->setHugePageFromPinnedThread(addr,pageNode,isMemBind());
 					touchedPages = NUMAPROG_HUGE_PAGE_SIZE / NUMAPROF_PAGE_SIZE;
 				} else {
+					fprintf(stderr, "--> onAccessHandling() [isMemBind1]\n");
 					page->fromPinnedThread = isMemBind();
 					page->numaNode = pageNode;
 				}
 			} else {
 				page->numaNode = pageNode;
+				fprintf(stderr, "--> onAccessHandling() [isMemBind2]\n");
 				page->fromPinnedThread = isMemBind();
 			}
 		}
 		
 		if (pageNode >= 0)
+		{
+			fprintf(stderr, "--> onAccessHandling() [assign numa]\n");
 			page->numaNode = pageNode;
+		}
 
-		if (pageNode >= 0)
+		if (pageNode >= 0) {
+			fprintf(stderr, "--> onAccessHandling() [on after first touch]\n");
 			process->onAfterFirstTouch(pageNode,touchedPages);
+		}
 	} 
+
+	fprintf(stderr, "--> onAccessHandling() [end]\n");
 	
 	//if we skip we take care of the first touch (previous lines) but we do not account
 	if (skip)
@@ -328,27 +358,34 @@ void ThreadTracker::onAccessHandling(size_t ip,size_t addr,bool write,bool skip)
 	#endif
 
 	//get instr
+	fprintf(stderr, "--> onAccessHandling() [get instr]\n");
 	#ifdef NUMAPROF_CALLSTACK
 		Stats * instr = &instructions[miniStack];
 	#else
+		fprintf(stderr, "--> onAccessHandling() [get instr icache %zu]\n", ip);
 		Stats * instr = icache.get(ip);
 		if (instr == NULL)
 		{
+			fprintf(stderr, "--> onAccessHandling() [get instr 2]\n");
 			instr = &instructions[ip];
+			fprintf(stderr, "--> onAccessHandling() [icache set instr]\n");
 			icache.set(ip,instr);
 		}
 	#endif
-	
+
 	//acces matrix
 	if (pageNode >= 0)
 	{
+		fprintf(stderr, "--> onAccessHandling() [access matrix]\n");
 		accessMatrix.access(numa,pageNode);
 		distanceCnt[topo->getDistance(numa,pageNode)+1]++;
 	}
 
 	//get malloc relation
+	fprintf(stderr, "--> onAccessHandling() [get alloc infos]\n");
 	MallocInfos * allocInfos = (MallocInfos *)(page->getAllocPointer(addr));
 	Stats * allocStats;
+	fprintf(stderr, "--> onAccessHandling() [set alloc infos]\n");
 	if (allocInfos == NULL)
 	{
 		allocStats = &dummyAlloc;
@@ -370,6 +407,7 @@ void ThreadTracker::onAccessHandling(size_t ip,size_t addr,bool write,bool skip)
 	//cases
 	if (pageNode <= NUMAPROF_DEFAULT_NUMA_NODE || isWriteFirstTouch)
 	{
+		fprintf(stderr, "--> onAccessHandling() [is write first touch]\n");
 		//cound first touch pages
 		if (pageNode >= 0)
 			this->cntTouchedPages[pageNode]++;
@@ -387,8 +425,10 @@ void ThreadTracker::onAccessHandling(size_t ip,size_t addr,bool write,bool skip)
 		}
 	} else {
 		assert(pageNode >= 0);
+		fprintf(stderr, "--> onAccessHandling() [check mcdram : numa=%d]\n", numa);
 		if (topo->getIsMcdram(pageNode)) 
 		{
+			fprintf(stderr, "--> onAccessHandling() [is mcdram]\n");
 			if (topo->getParentNode(pageNode) == numa)
 			{
 				stats.localMcdramAccess++;
@@ -401,6 +441,7 @@ void ThreadTracker::onAccessHandling(size_t ip,size_t addr,bool write,bool skip)
 			}
 		} else if (numa == -1) {
 			//check if page came from pin thread or not
+			fprintf(stderr, "--> onAccessHandling() [check pinning]\n");
 			if (page->fromPinnedThread)
 			{
 				stats.unpinnedThreadAccess++;
@@ -413,6 +454,7 @@ void ThreadTracker::onAccessHandling(size_t ip,size_t addr,bool write,bool skip)
 			}
 		} else {
 			//check if page came from pin thread or not
+			fprintf(stderr, "--> onAccessHandling() [check pinning 2]\n");
 			if (page->fromPinnedThread == false)
 			{
 				stats.unpinnedPageAccess++;
@@ -435,6 +477,7 @@ void ThreadTracker::onAccessHandling(size_t ip,size_t addr,bool write,bool skip)
 	//flush to keep small
 	if (instructions.size() >= cacheEntries)
 	{
+		fprintf(stderr, "--> onAccessHandling() [icache handling]\n");
 		if (instructionFlush++ == 10000)
 			fprintf(stderr,"NUMAPROF: Caution, flushing instruction a lot of time, maybe you need to increase flush threshold, current is %ld, see core:threadCacheSize !\n",cacheEntries);
 		this->process->mergeInstruction(instructions);
@@ -445,6 +488,7 @@ void ThreadTracker::onAccessHandling(size_t ip,size_t addr,bool write,bool skip)
 	//flush to keep smell
 	if (allocCache.size() >= cacheEntries)
 	{
+		fprintf(stderr, "--> onAccessHandling() [alloc cache handling]\n");
 		if (allocFlush++ == 10000)
 			fprintf(stderr,"NUMAPROF: Caution, flushing allocs a lot of time, maybe you need to increase flush threshold, current is %ld, see core:threadCacheSize !\n",cacheEntries);
 		for (AllocCacheMap::iterator it = allocCache.begin() ; it != allocCache.end() ; ++it)
@@ -452,6 +496,8 @@ void ThreadTracker::onAccessHandling(size_t ip,size_t addr,bool write,bool skip)
 		allocCache.clear();
 		acache.flush();
 	}
+
+	fprintf(stderr, "--> onAccessHandling() [end]\n");
 }
 
 /*******************  FUNCTION  *********************/

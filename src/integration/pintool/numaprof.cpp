@@ -42,7 +42,7 @@ using namespace std;
 #endif
 
 #define NUMAPROF_TRACE_ALLOCS
-//#define NUMAPROF_TRACE_RW
+#define NUMAPROF_TRACE_RW
 
 //HUm finally I'm not totaly sure we can do this with pintool
 //See : https://github.com/wapiflapi/villoc/issues/3
