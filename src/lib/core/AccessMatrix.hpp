@@ -9,6 +9,8 @@
 #ifndef ACCESS_MATRIX_HPP
 #define ACCESS_MATRIX_HPP
 
+#undef NDEBUG
+
 /*******************  HEADERS  **********************/
 #include <cassert>
 #include "../../../extern-deps/from-htopml/json/ConvertToJson.h"
@@ -43,10 +45,10 @@ class AccessMatrix
  * @param threadNumaNode Define the source of the access, -1 if the thread is not binded.
  * @param pageNumaNode Define the NUMA node of the accesses memory page.
 **/
-inline void AccessMatrix::access(int threadNumaNode,int pageNumaNode) 
+inline void AccessMatrix::access(int threadNumaNode,int pageNumaNode)
 {
-	assert(threadNumaNode >= -1 && threadNumaNode < numaNodes); 
-	assert(pageNumaNode >= 0 && pageNumaNode < numaNodes); 
+	assert(threadNumaNode >= -1 && threadNumaNode < numaNodes);
+	assert(pageNumaNode >= 0 && pageNumaNode < numaNodes);
 	matrix[threadNumaNode+1][pageNumaNode]++;
 }
 
