@@ -26,7 +26,7 @@
 
 //we cannot use the standard sched_get_affinity function in pin :(
 #ifdef USE_PIN_LOCKS
-	#include <sys/syscall.h> 
+	#include <sys/syscall.h>
 	#if !defined(__NR_sched_getaffinity)
 		#if defined(__x86_64__)
 			#define __NR_sched_getaffinity 204
@@ -78,6 +78,7 @@ void NumaTopo::loadCpuNb()
 	//load present
 	//format is "0-39"
 	char * present = OS::loadTxtFile("/sys/devices/system/cpu/present",256);
+	fprintf(stderr, "=========== CPU PRESENT ================\n%s\n============================\n", present);
 
 	//scan all ranges
 	char tmp[64];
@@ -116,11 +117,11 @@ void NumaTopo::loadDistanceMap(void)
 {
 	//check
 	assert(numaNodes > 0);
-	
+
 	//allocate
 	distanceMap = new int[numaNodes * numaNodes];
 	memset(distanceMap,0,numaNodes*numaNodes*sizeof(int));
-	
+
 	//load
 	//loop on all numa nodes (until we do not found one)
 	int node = 0;
@@ -132,9 +133,10 @@ void NumaTopo::loadDistanceMap(void)
 
 		//load
 		char * list = OS::loadTxtFile(fname,256);
+		fprintf(stderr, "=========== DISTANCE MAP [%d] ================\n%s\n============================\n", node, list);
 		if (list == NULL)
 			break;
-		
+
 		//load line
 		int index = 0;
 		char * cur = list;
@@ -142,28 +144,28 @@ void NumaTopo::loadDistanceMap(void)
 		{
 			distanceMap[node*numaNodes+index] = atoi(cur);
 			index++;
-			
+
 			//move to next
 			while (*cur != '\0' && *cur != ' ')
 				cur++;
 			if (*cur == ' ')
 				cur++;
 		}
-		
+
 		//incr
 		node++;
 	}
-	
+
 	//get all number
 	std::map<int,int> values;
 	for (int i = 0 ; i <numaNodes * numaNodes ; i++)
 		values[distanceMap[i]] = 0;
-	
+
 	//renumber
 	int cnt = 0;
 	for (std::map<int,int>::iterator it = values.begin() ; it != values.end() ; ++it)
 		it->second = cnt++;
-	
+
 	//apply
 	for (int i = 0 ; i <numaNodes * numaNodes ; i++)
 		distanceMap[i] = values[distanceMap[i]];
@@ -176,10 +178,10 @@ void NumaTopo::loadNumaMap(void)
 	numaMap = new int[cpus];
 	for (int i = 0 ; i < cpus ; i++)
 		numaMap[i] = -1;
-	
+
 	//allocate
 	isMcdram = new bool[cpus];
-	for (int i = 0 ; i < cpus ; i++)	
+	for (int i = 0 ; i < cpus ; i++)
 		isMcdram[i] = false;
 
 	//loop on all numa nodes (until we do not found one)
@@ -192,6 +194,7 @@ void NumaTopo::loadNumaMap(void)
 
 		//load
 		char * list = OS::loadTxtFile(fname,256);
+		fprintf(stderr, "=========== NUMA MAP [%d] ================\n%s\n============================\n", node, list);
 		if (list == NULL)
 			break;
 
@@ -204,7 +207,7 @@ void NumaTopo::loadNumaMap(void)
 			else
 				++it;
 		}
-		
+
 		//scan all ranges
 		char tmp[64];
 		int i = 0;
@@ -242,11 +245,11 @@ void NumaTopo::loadNumaMap(void)
 			numaMap[i] = 0;
 		}
 	}
-	
+
 	//if no node
 	if (node == 0)
 		node = 1;
-	
+
 	//store
 	numaNodes = node;
 }
@@ -287,7 +290,7 @@ int NumaTopo::getCurrentNumaAffinity(cpu_set_t * mask, int size,CpuBindList * cp
 		fprintf(stderr,"NUMAPROF: Size = %d, ncpu = %d\n",cnt,cpus);
 	if (cnt > cpus)
 		cnt = cpus;
-	
+
 	//check numa
 	for (int i = 0 ; i < cnt ; i++)
 	{
@@ -350,13 +353,13 @@ MemPolicy NumaTopo::getCurrentMemPolicy()
 {
 	static bool hasMemPolicy = true;
 	static int size = 0;
-	
+
 	if (size == 0)
 		size = findMemPolicyKernelSize();
 
 	MemPolicy policy;
 	int status = 1;
-	
+
 	if (hasMemPolicy)
 	{
 		unsigned long *mask = (unsigned long*)malloc(size / HWLOC_BITS_PER_LONG * sizeof(long));
@@ -378,7 +381,7 @@ MemPolicy NumaTopo::getCurrentMemPolicy()
 		for (int i = 0 ; i < numaNodes ; i++)
 			policy.mask[i/64] |= 1lu << (i%64);
 	}
-	
+
 	staticComputeBindType(policy);
 	return policy;
 }
@@ -388,7 +391,7 @@ void NumaTopo::staticComputeBindType(MemPolicy & policy)
 {
 	//default
 	policy.type = MEMBIND_NO_BIND;
-	
+
 	//check numa
 	int numa = -2;
 	for (int i = 0 ; i < numaNodes ; i++)
@@ -401,7 +404,7 @@ void NumaTopo::staticComputeBindType(MemPolicy & policy)
 				numa = -1;
 		}
 	}
-	
+
 	//no binding
 	if (policy.mode == MPOL_DEFAULT || policy.mode == MPOL_LOCAL)
 	{
@@ -410,7 +413,7 @@ void NumaTopo::staticComputeBindType(MemPolicy & policy)
 		else
 			policy.type = MEMBIND_NO_BIND;
 	}
-	
+
 	//consider as bind but give an undefined value
 	if (policy.mode == MPOL_INTERLEAVE)
 		policy.type = MEMBIND_INTERLEAVE;
@@ -436,7 +439,7 @@ void NumaTopo::loadParendNode(void)
 {
 	//allocate
 	this->parentNode = new int[numaNodes];
-	
+
 	//loop on all nodes
 	for (int i = 0 ; i < numaNodes ; i++)
 	{
@@ -451,7 +454,7 @@ void NumaTopo::loadParendNode(void)
 				parent = j;
 			}
 		}
-		
+
 		//warning
 		if (parent == -1)
 		{
@@ -461,6 +464,7 @@ void NumaTopo::loadParendNode(void)
 
 		//store
 		this->parentNode[i] = parent;
+		fprintf(stderr, "PARENT_NODE[%d] = %d\n", i, parent);
 	}
 }
 
@@ -470,7 +474,7 @@ void convertToJson(htopml::JsonState& json, const NumaTopo& value)
 	int nodes = value.numaNodes;
 	if (nodes == 0)
 		nodes = 1;
-	
+
 	json.openStruct();
 		for (int node = 0 ; node < nodes ; node++)
 		{
