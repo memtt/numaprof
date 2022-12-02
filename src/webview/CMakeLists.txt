@@ -7,10 +7,10 @@
 ######################################################
 
 ######################################################
-if (NOT IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src/webview/bower_components)
+if (NOT IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bower_components)
 	find_package(Npm REQUIRED)
 endif()
-if (NOT IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src/webview/deps)
+if (NOT IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/deps)
 	find_package(Pip REQUIRED)
 endif()
 
