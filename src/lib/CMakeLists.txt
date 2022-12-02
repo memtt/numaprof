@@ -1,7 +1,7 @@
 ######################################################
 #            PROJECT  : numaprof                     #
-#            VERSION  : 1.1.3                        #
-#            DATE     : 09/2022                      #
+#            VERSION  : 1.1.4                        #
+#            DATE     : 12/2022                      #
 #            AUTHOR   : Valat Sébastien  - CERN      #
 #            LICENSE  : CeCILL-C                     #
 ######################################################
@@ -21,7 +21,7 @@ add_library(numaprof SHARED $<TARGET_OBJECTS:numaprof-core>
 							$<TARGET_OBJECTS:iniparser>)
 target_link_libraries(numaprof ${NUMACTL_LIBRARY})
 target_link_libraries(numaprof dl)
-set_target_properties(numaprof PROPERTIES VERSION 1.1.3 SOVERSION 1)
+set_target_properties(numaprof PROPERTIES VERSION 1.1.4 SOVERSION 1)
 
 ######################################################
 add_subdirectory(common)

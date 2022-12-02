@@ -1,7 +1,14 @@
 Change log
 ==========
 
-1.1.3 - 12/09/2020
+1.1.4 - 02/12/2022
+------------------
+
+ * Fix detection of bower_components/ and deps/ directory in realease version (which already contains them) (#41).
+ * Upgrade embeded gtest version (1.12.1) to avoid warnings on recent distributions
+ * Fix unit test on recent ubuntu (22.04) due to move_pages changes.
+
+1.1.3 - 12/09/2022
 ------------------
 
  * Support of recent version of pintool (> 3.16), tested is 3.24 on ubuntu 22.04.

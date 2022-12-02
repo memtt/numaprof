@@ -1,7 +1,7 @@
 ######################################################
 #            PROJECT  : numaprof                     #
-#            VERSION  : 1.1.3                        #
-#            DATE     : 09/2022                      #
+#            VERSION  : 1.1.4                        #
+#            DATE     : 12/2022                      #
 #            AUTHOR   : Valat Sébastien  - CERN      #
 #            LICENSE  : CeCILL-C                     #
 ######################################################
@@ -15,7 +15,7 @@ if (POLICY CMP0048)
 endif (POLICY CMP0048)
 
 ######################################################
-project(numaprof VERSION 1.1.3 LANGUAGES C CXX)
+project(numaprof VERSION 1.1.4 LANGUAGES C CXX)
 
 ######################################################
 #global setup
