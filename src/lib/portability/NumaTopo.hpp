@@ -81,9 +81,18 @@ inline int NumaTopo::getDistance(int source,int dest) const
 	//check
 	assert(source < numaNodes);
 	assert(dest < numaNodes);
-	
+
+	//if one if not bound
+	if (source == -1 || dest == -1)
+		return -1;
+
+	//check
+	int id = source*numaNodes+dest;
+	assert(id >= 0);
+	assert(id < numaNodes*numaNodes);
+
 	//get
-	return distanceMap[source*numaNodes+dest];
+	return distanceMap[id];
 }
 
 }

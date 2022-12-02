@@ -24,7 +24,7 @@ namespace numaprof
 /**
  * Constructor of a thread tracker. We should create one for each thread and store
  * it into a TLS.
- * @param process Define the global process tracker to sync the metrics and access 
+ * @param process Define the global process tracker to sync the metrics and access
  * the NUMA topology of the machine.
 **/
 ThreadTracker::ThreadTracker(ProcessTracker * process)
@@ -45,21 +45,21 @@ ThreadTracker::ThreadTracker(ProcessTracker * process)
 	this->cacheEntries = getGlobalOptions().coreThreadCacheEntries;
 	logBinding(memPolicy);
 	logBinding(this->numa);
-	
+
 	//build access batch
 	this->accessBatch.reserve(getGlobalOptions().coreAccessBatchSize);
-	
+
 	//allocate and initial
 	this->distanceCnt = new size_t[topo->getDistanceMax()+2];
 	memset(distanceCnt,0,sizeof(size_t)*(topo->getDistanceMax()+2));
-	
+
 	//check verbosity
 	if (!getGlobalOptions().outputSilent)
 	{
 		fprintf(stderr,"NUMAPROF: Numa initial mapping : %d\n",numa);
 		fprintf(stderr,"NUMAPROF: Numa initial mem mapping : %s\n",getMemBindTypeName(memPolicy.type));
 	}
-	
+
 	//build NUMA infos
 	int numaNodes = topo->getNumaNodes();
 	this->cntTouchedPages = new size_t[numaNodes];
@@ -198,14 +198,14 @@ void ThreadTracker::flushAccessBatch()
 	//skip
 	if (accessBatch.capacity() == 0)
 		return;
-	
+
 	//flush all
 	for (size_t i = 0 ; i < accessBatch.size() ; i++)
 	{
 		AccessEvent & access = accessBatch[i];
 		onAccessHandling(access.ip,access.addr,access.write,access.skip);
 	}
-	
+
 	//clear
 	accessBatch.clear();
 }
@@ -227,11 +227,11 @@ void ThreadTracker::onAccess(size_t ip,size_t addr,bool write,bool skip)
 		onAccessHandling(ip,addr,write,skip);
 		return;
 	}
-	
+
 	//add
 	AccessEvent access = {ip,addr,write,skip};
 	accessBatch.push_back(access);
-	
+
 	//flush if full
 	if (accessBatch.size() == accessBatch.capacity())
 		flushAccessBatch();
@@ -280,13 +280,13 @@ void ThreadTracker::onAccessHandling(size_t ip,size_t addr,bool write,bool skip)
 		if (write && pageNode <= NUMAPROF_DEFAULT_NUMA_NODE)
 		{
 			isWriteFirstTouch = true;
-			
+
 			//touch
 			//do first touch to ask where is the page
 			//we use atomic to not modify the content in case this is not real first touch
 			//so cannot write 0, just add 0
 			__sync_fetch_and_add((char*)addr,0);
-			
+
 			//check
 			if (page->canBeHugePage) {
 				//this sould not append
@@ -309,18 +309,18 @@ void ThreadTracker::onAccessHandling(size_t ip,size_t addr,bool write,bool skip)
 				page->fromPinnedThread = isMemBind();
 			}
 		}
-		
+
 		if (pageNode >= 0)
 			page->numaNode = pageNode;
 
 		if (pageNode >= 0)
 			process->onAfterFirstTouch(pageNode,touchedPages);
-	} 
-	
+	}
+
 	//if we skip we take care of the first touch (previous lines) but we do not account
 	if (skip)
 		return;
-	
+
 	//extrct mini stack
 	#ifdef NUMAPROF_CALLSTACK
 		MiniStack miniStack;
@@ -338,12 +338,14 @@ void ThreadTracker::onAccessHandling(size_t ip,size_t addr,bool write,bool skip)
 			icache.set(ip,instr);
 		}
 	#endif
-	
+
 	//acces matrix
 	if (pageNode >= 0)
 	{
 		accessMatrix.access(numa,pageNode);
-		distanceCnt[topo->getDistance(numa,pageNode)+1]++;
+		int distance = topo->getDistance(numa,pageNode);
+		assert(distance >= -1 && distance <= this->topo->getDistanceMax());
+		distanceCnt[distance+1]++;
 	}
 
 	//get malloc relation
@@ -373,7 +375,7 @@ void ThreadTracker::onAccessHandling(size_t ip,size_t addr,bool write,bool skip)
 		//cound first touch pages
 		if (pageNode >= 0)
 			this->cntTouchedPages[pageNode]++;
-		
+
 		//check unpinned first access
 		if (isMemBind() == false)
 		{
@@ -387,7 +389,7 @@ void ThreadTracker::onAccessHandling(size_t ip,size_t addr,bool write,bool skip)
 		}
 	} else {
 		assert(pageNode >= 0);
-		if (topo->getIsMcdram(pageNode)) 
+		if (topo->getIsMcdram(pageNode))
 		{
 			if (topo->getParentNode(pageNode) == numa)
 			{
@@ -573,10 +575,10 @@ void ThreadTracker::onMBind(void * addr,size_t len,size_t mode,const unsigned lo
 {
 	//flusha access batch
 	flushAccessBatch();
-	
+
 	//basic capture
 	mbindCalls++;
-	
+
 	//extarct policy
 	MemPolicy policy;
 	policy.mode = mode;
@@ -588,10 +590,10 @@ void ThreadTracker::onMBind(void * addr,size_t len,size_t mode,const unsigned lo
 	for (unsigned long i = 0 ; i < cnt ; i++)
 		policy.mask[i] = nodemask[i];
 	topo->staticComputeBindType(policy);
-	
-	//extract binding 
+
+	//extract binding
 	bool pinned = (policy.type != MEMBIND_NO_BIND);
-	
+
 	//update page table
 	table->onMbind(addr,len,pinned);
 }
@@ -616,7 +618,7 @@ void convertToJson(htopml::JsonState& json, const ThreadTracker& value)
 		json.printField("mbindCalls",value.mbindCalls);
 		json.printFieldArray("touchedPages",value.cntTouchedPages,value.topo->getNumaNodes());
 	json.closeStruct();
-	
+
 	#ifdef NUMAPROF_CACHE_STATS
 		value.tlb.printStats("tlb");
 		value.icache.printStats("icache");
@@ -669,7 +671,7 @@ void convertToJson(htopml::JsonState& json, const MemPolicy& value)
 		}
 
 		json.printField("type",getMemBindTypeName(value.type));
-		
+
 		json.openFieldArray("mask");
 			for (size_t i = 0 ; i < sizeof (value.mask) * 8 ; i++)
 				if (value.mask[i/64] & (1lu << (i%64)))
