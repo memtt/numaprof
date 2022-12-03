@@ -7,10 +7,12 @@
 ######################################################
 
 ######################################################
-if (NOT GTest_FOUND OR NOT GMOCK_FOUND)
-	set(INSTALL_GTEST off)
-	add_subdirectory(gmock-1.12.1)
-endif (NOT GTest_FOUND OR NOT GMOCK_FOUND)
+if (ENABLE_TESTS)
+	if (NOT GTest_FOUND OR NOT GMOCK_FOUND)
+		set(INSTALL_GTEST off)
+		add_subdirectory(gmock-1.12.1)
+	endif (NOT GTest_FOUND OR NOT GMOCK_FOUND)
+endif (ENABLE_TESTS)
 add_subdirectory(jsoncpp/dist)
 add_subdirectory(from-htopml)
 add_subdirectory(from-malt-v2)

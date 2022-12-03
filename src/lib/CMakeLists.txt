@@ -36,4 +36,6 @@ INSTALL(TARGETS numaprof
 	LIBRARY DESTINATION lib)
 
 ######################################################
-add_subdirectory(tests)
+if (ENABLE_TESTS)
+	add_subdirectory(tests)
+endif (ENABLE_TESTS)
