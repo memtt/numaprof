@@ -114,6 +114,18 @@ If you have Qt5-webkit installed you can also automatically open a bowser view b
 numaprof-qt5 numaprof-1234.json
 ```
 
+MPI Support
+-----------
+
+If you want to profile an MPI application you will get a profile per process so at least
+one per rank.
+
+In order to name the files with the given MPI rank instead of the PID you can add the option :
+
+```sh
+mpirun -np 16 numaprof --mpi ./my_program
+```
+
 Kcachgrind compatibility
 ------------------------
 

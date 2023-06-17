@@ -41,6 +41,14 @@ it with debug symbols (`-g`) and also to disable inlining to get more accurate s
    Define type of cache simulation to run. Default is 'dummy'. Available alternative
    is 'L1' which offer a per thread L1 simulated cache with LRU replacement policy. 
    Look in the config file to see how to configure size and associativity of the cache.
+ * `--mpi`:
+   Enable naming the profile files with the MPI rank instead of the PID. Notice
+   you need to place the `numaprof` command after the `mpirun` one.
+   The rank is obtained by using the mpirun environment variables.
+   Currently support OpenMPI, mpich, IntelMPI and probably others it the use
+   the same variable names.
+   In case you encounter issue you can still look on using the option
+   `mpi:rankVar` to give the variable name or directly the rank.
  * `-V`, `--verbose`
    Enable more printing for debugging.
 
