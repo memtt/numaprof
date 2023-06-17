@@ -116,6 +116,10 @@ struct Options
 	std::string cacheSize;
 	/** Define cache assoiativity **/
 	int cacheAssociativity;
+	/** Use the MPI rank instead of PID */
+	bool mpiUseRank;
+	/** Rank is detected by env var, use 'auto' or give a variable name. */
+	std::string mpiRankVar;
 };
 
 /********************  GLOBALS  *********************/

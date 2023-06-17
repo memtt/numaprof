@@ -65,6 +65,7 @@ class ProcessTracker
 		void registerLibBaseAddr(const std::string & lib, size_t baseAddr);
 	private:
 		void removeSmall(InstrInfoMap & map, float cutoff);
+		size_t getProfileId(void) const;
 	private:
 		/**
 		 * Keep track of the process page table to avoid calling move_pages

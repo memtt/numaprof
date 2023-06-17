@@ -9,6 +9,7 @@
 /********************  HEADERS  *********************/
 #include "ProcessTracker.hpp"
 #include "ThreadTracker.hpp"
+#include "../common/Debug.hpp"
 #include "../common/Helper.hpp"
 #include "../portability/OS.hpp"
 #include "../portability/Clock.hpp"
@@ -235,6 +236,39 @@ void ProcessTracker::onThreadSetAffinity(int pid,cpu_set_t * mask, int size)
 
 /*******************  FUNCTION  *********************/
 /**
+ * Return the PID of the RANK depending on the config.
+**/
+size_t ProcessTracker::getProfileId(void) const
+{
+	//get options
+	const Options & options = getGlobalOptions();
+
+	//switch RANK or PID
+	if (options.mpiUseRank == false) {
+		//PID is trivial
+		return OS::getPID();
+	} else if (options.mpiRankVar == "auto") {
+		//we need to search for env vars
+		if (getenv("OMPI_COMM_WORLD_RANK") != NULL)
+			return atol(getenv("OMPI_COMM_WORLD_RANK"));
+		else if (getenv("PMI_RANK") != NULL)
+			return atol(getenv("PMI_RANK"));
+		else
+			numaprofFatal("Fail to determine the env variable to be used to extract the MPI rank. Please define it via -o mpi:rankVar.");
+	} else if (Helper::isInteger(options.mpiRankVar)) {
+		//provide directly the ID
+		return atol(options.mpiRankVar.c_str());
+	} else {
+		//error
+		numaprofFatal("Get invalid value for mpi:rankVar !");
+	}
+
+	//default in case & to avoid warning
+	return OS::getPID();
+}
+
+/*******************  FUNCTION  *********************/
+/**
  * To be called when the process exit to dump the final profile file.
 **/
 void ProcessTracker::onExit(void)
@@ -245,7 +279,7 @@ void ProcessTracker::onExit(void)
 	//dump config
 	const Options & options = getGlobalOptions();
 	if (options.outputDumpConfig)
-		options.dumpConfig(FormattedMessage(options.outputName).arg(OS::getExeName()).arg(OS::getPID()).arg("ini").toString().c_str());
+		options.dumpConfig(FormattedMessage(options.outputName).arg(OS::getExeName()).arg(this->getProfileId()).arg("ini").toString().c_str());
 	
 	//flush alloc cache data
 	//this must be done before calling flush because otherwise
@@ -289,7 +323,7 @@ void ProcessTracker::onExit(void)
 	if (getGlobalOptions().outputJson)
 	{
 		//open & dump
-		std::string fname = FormattedMessage(options.outputName).arg(OS::getExeName()).arg(OS::getPID()).arg("json").toString();
+		std::string fname = FormattedMessage(options.outputName).arg(OS::getExeName()).arg(this->getProfileId()).arg("json").toString();
 		std::ofstream out;
 		fprintf(stderr,"NUMAPROF: Dump profile in %s\n",fname.c_str());
 		out.open(fname.c_str());

@@ -38,6 +38,7 @@ struct Helper
 	static bool extractNth(char * out,const char * value,char sep,int index);
 	static bool endBy(const std::string & value,const std::string & what);
 	static bool contain(const char * in, const char * what);
+	static bool isInteger(const std::string & value);
 };
 
 }

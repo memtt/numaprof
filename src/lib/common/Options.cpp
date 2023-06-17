@@ -49,6 +49,9 @@ Options::Options(void)
 	this->cacheType               = "dummy";
 	this->cacheSize               = "32K";
 	this->cacheAssociativity      = 8;
+	//mpi
+	this->mpiUseRank              = false;
+	this->mpiRankVar              = "auto";
 }
 
 /*******************  FUNCTION  *********************/
@@ -77,6 +80,9 @@ bool Options::operator==(const Options& value) const
 	if (this->cacheType != value.cacheType) return false;
 	if (this->cacheSize != value.cacheSize) return false;
 	if (this->cacheAssociativity != value.cacheAssociativity) return false;
+	//mpi
+	if (this->mpiUseRank != value.mpiUseRank) return false;
+	if (this->mpiRankVar != value.mpiRankVar) return false;
 	
 	return true;
 }
@@ -185,6 +191,10 @@ void Options::loadFromIniDic ( dictionary* iniDic )
 	this->cacheType           = iniparser_getstring(iniDic,"cache:type",(char*)this->cacheType.c_str());
 	this->cacheSize           = iniparser_getstring(iniDic,"cache:size",(char*)this->cacheSize.c_str());
 	this->cacheAssociativity  = iniparser_getint(iniDic,"cache:associativity",this->cacheAssociativity);
+
+	//mpi
+	this->mpiUseRank          = iniparser_getboolean(iniDic, "mpi:useRank", this->mpiUseRank);
+	this->mpiRankVar          = iniparser_getstring(iniDic, "mpi:rankVar", (char*)this->mpiRankVar.c_str());
 }
 
 /*******************  FUNCTION  *********************/
@@ -257,6 +267,11 @@ void convertToJson(htopml::JsonState & json,const Options & value)
 			json.printField("size",value.cacheSize);
 			json.printField("associativity",value.cacheAssociativity);
 		json.closeFieldStruct("cache");
+
+		json.openFieldStruct("mpi");
+			json.printField("useRank", value.mpiUseRank);
+			json.printField("rankVar", value.mpiRankVar);
+		json.closeFieldStruct("mpi");
 	json.closeStruct();
 }
 
@@ -293,6 +308,10 @@ void Options::dumpConfig(const char* fname) const
 	IniParserHelper::setEntry(dic,"cache:type",this->cacheType.c_str());
 	IniParserHelper::setEntry(dic,"cache:size",this->cacheSize.c_str());
 	IniParserHelper::setEntry(dic,"cache:associativity",this->cacheAssociativity);
+
+	//mpi
+	IniParserHelper::setEntry(dic,"mpi:usrRank",this->mpiUseRank);
+	IniParserHelper::setEntry(dic,"mpi:rankVar",this->mpiRankVar.c_str());
 
 	//write
 	FILE * fp = fopen(fname,"w");

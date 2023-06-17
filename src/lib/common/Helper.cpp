@@ -117,4 +117,16 @@ bool Helper::contain(const char * in, const char * what)
 	return strstr(in,what) != NULL;
 }
 
+/*******************  FUNCTION  *********************/
+/**
+ * Check if the string is an integer value.
+*/
+bool Helper::isInteger(const std::string & value)
+{
+	for (auto & it : value)
+		if (it < '0' || it > '9')
+			return false;
+	return true;
+}
+
 }

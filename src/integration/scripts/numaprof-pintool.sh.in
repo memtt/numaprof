@@ -46,6 +46,10 @@ do
 			export NUMAPROF_OPTIONS="${NUMAPROF_OPTIONS},cache:type=$2"
 			shift 2
 			;;
+		--mpi)
+			export NUMAPROF_OPTIONS="${NUMAPROF_OPTIONS},mpi:useRank=true"
+			shift 1
+			;;
 		--appdebug)
 			PINTOOL_APPDEBUG='-appdebug'
 			shift 1
@@ -62,6 +66,7 @@ do
 			echo "   -d/--dumpconfig             Enable the dump of config file at exit."
 			echo "   --cache=VAL                 Define cache type to simulate. Default is dummy."
 			echo "   --batch                     Enable treatement of accesses by batch."
+			echo "   --mpi                       Enable using MPI ranks instead of PID to name files."
 			echo "   -V/--verbose                Enable more printing for debugging."
 			echo "   -o SEC:NAME=VAL;...         Override configuration values."
 			echo "   -h/--help                   Show this help message."

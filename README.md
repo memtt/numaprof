@@ -160,6 +160,10 @@ hidden=false
 type=dummy
 size=32K
 associativity=8
+
+[mpi]
+useRank=false
+rankVar=auto
 ```
 
 On huge application

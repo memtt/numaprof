@@ -78,6 +78,10 @@ The config file use INI format with sections and variables as in this example :
   size=32K
   associativity=8
 
+  [mpi]
+  usrRank=false
+  rankVar=auto
+
 The `output` section support :
 
  * `name`:
@@ -128,6 +132,17 @@ The `cache` section support:
  * `size`: If L1 cache is enabled, define the size of cache in bytes. Cache will use fixed 64 bytes cache lines.
    by default 32KB. You can use K, M, G, T as unit (multiple of 1024, not 1000 !).
  * `associativity`: Define the L1 cache associativity to simulate, by default 8.
+
+The `mpi` section support:
+
+ * `useRank`:
+   When dumping the profile, use the MPI rank instead of the PID. The rank is currently extracted from the
+   environment variables which should in principle be setted by `mpirun` commands from the various flavor
+   or MPI.
+ * `rankVar`:
+   Define the environment to be used to extract the actual MPI rank of the process. By default
+  it is set to `auto` which search for the known variables. You can also provide the desired
+  variable name or force the value with a numeric value.
 
 ## ENVIRONMENT
 
