@@ -45,8 +45,10 @@ class AccessMatrix
 **/
 inline void AccessMatrix::access(int threadNumaNode,int pageNumaNode) 
 {
-	assert(threadNumaNode >= -1 && threadNumaNode < numaNodes); 
-	assert(pageNumaNode >= 0 && pageNumaNode < numaNodes); 
+	assert(threadNumaNode >= -1);
+	assert(threadNumaNode < numaNodes); 
+	assert(pageNumaNode >= 0);
+	assert(pageNumaNode < numaNodes); 
 	matrix[threadNumaNode+1][pageNumaNode]++;
 }
 
