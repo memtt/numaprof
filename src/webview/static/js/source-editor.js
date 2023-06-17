@@ -176,6 +176,10 @@ NumaprofSourceEditor.prototype.loadSourceFile = function(file,func,success,fail)
 	if (gblIsAsm)
 		select = "asm";
 	
+	//handle relative paths
+	file = this.fixRelativePath(file);
+
+	//build the URI
 	var uri;
 	if (file[0] == '/')
 		uri = "/api/"+select+"/file"+file+"?func="+func;
@@ -346,6 +350,20 @@ NumaprofSourceEditor.prototype.internalComputeTotal = function(value)
 }
 
 /********************************************************************/
+/**
+ * Fix the relative paths by adding a string which is not removed by the browser,
+ * opposite to './' which is removed on the http request.
+ * @param {*} path 
+ */
+NumaprofSourceEditor.prototype.fixRelativePath = function(file)
+{
+	if (file[0] != '/')
+		file = "./" + file;
+	file = file.replace('./','/{.}/');
+	return file;
+}
+
+/********************************************************************/
 //extract max
 NumaprofSourceEditor.prototype.extractMax = function(data)
 {
@@ -381,7 +399,11 @@ NumaprofSourceEditor.prototype.updateAnotations = function(move,func)
 	var select = "sources";
 	if (gblIsAsm)
 		select = "asm";
+
+	//handle relative paths
+	file = this.fixRelativePath(file);
 	
+	//build URI
 	var uri;
 	if (file[0] == '/')
 		uri ="/api/"+select+"/file-stats"+file+"?func="+func;

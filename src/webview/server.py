@@ -274,16 +274,25 @@ def apiSourcesFuncions(user):
 @htpasswd.required
 @nocache
 def apiSourcesFileStats(user,path):
-	path = "/"+path
-	data = profile.getFileStats(path)
+	path = fixPath(path)
+	data = profile.getFileStats(path.replace('./',''))
 	jsonData = json.dumps(data)
 	return Response(jsonData, mimetype='application/json')
+
+def fixPath(path):
+	if path.startswith('{.}'):
+		return path.replace('{.}','.')
+	elif path.startswith('/{.}/'):
+		return path.replace('/{.}/','./')
+	else:
+		return "/"+path
 
 @app.route('/api/sources/no-path-file-stats/<path:path>')
 @htpasswd.required
 @nocache
 def apiSourcesNoPathFileStats(user,path):
-	data = profile.getFileStats(path)
+	path = fixPath(path)
+	data = profile.getFileStats(path.replace('./',''))
 	jsonData = json.dumps(data)
 	return Response(jsonData, mimetype='application/json')
 
@@ -291,9 +300,8 @@ def apiSourcesNoPathFileStats(user,path):
 @htpasswd.required
 @nocache
 def sourceFiles(user,path):
-	path = "/"+path
-	print (path)
-	if profile.hasFile(path):
+	path = fixPath(path)
+	if profile.hasFile(path.replace('./','')):
 		path = replaceInPath(path)
 		print (path)
 		data=open(path).read()
@@ -305,6 +313,7 @@ def sourceFiles(user,path):
 @htpasswd.required
 @nocache
 def sourceNoPathFiles(user,path):
+	path = fixPath(path)
 	fname = path.split('/')[-1]
 	full = findSourceFile(fname)
 	print (full)
@@ -325,7 +334,7 @@ def apiAsmFuncions(user):
 @htpasswd.required
 @nocache
 def apiAsmFileStats(user,path):
-	path = "/"+path
+	path = fixPath(path)
 	func = request.args.get('func')
 	data = profile.getAsmFileStats(path,replaceInPath(path),func)
 	jsonData = json.dumps(data)
@@ -335,7 +344,7 @@ def apiAsmFileStats(user,path):
 @htpasswd.required
 @nocache
 def asmFiles(user,path):
-	path = "/"+path
+	path = fixPath(path)
 	func = request.args.get('func')
 	print (func)
 	if profile.hasBinary(path):
