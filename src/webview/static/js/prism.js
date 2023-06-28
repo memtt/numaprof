@@ -926,6 +926,8 @@ Prism.plugins.codeAnnotator = {
 			trigger: "hover",
 			title: function() {return data.onPopoverTitle(data);},
 			html : true,
+			container:'body',
+			sanitize: false,
 			content: function() {return data.onPopover(data);}
 		});
 

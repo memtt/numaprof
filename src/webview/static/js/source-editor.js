@@ -88,6 +88,14 @@ function NumaprofSourceEditor(containerId,selector)
 	this.data = null;
 	this.postMove = null;
 	this.selector = selector;
+
+	// To allow table elements
+	//https://getbootstrap.com/docs/3.4/javascript/#js-sanitizer
+	//var popOverWhiteList = $.fn.tooltip.Constructor.DEFAULTS.whiteList
+	//popOverWhiteList.table = []
+	//popOverWhiteList.tr = []
+	//popOverWhiteList.td = []
+
 }
 
 /********************************************************************/
@@ -510,7 +518,11 @@ NumaprofSourceEditor.prototype.redrawAnnotations = function()
 					out[i] = numaprofHelper.formatLongNumber(d[i]);
 				var table = Mustache.render(cur.popoverTemplate, out);
 				var charts = "<table class='annotation-details'><tr><th>Touch</th></tr><tr><td>"+cur.genD3Pie(cur.genPieDataTouch(data))+"</td></tr><tr><th>Access</th></tr><tr><td>"+cur.genD3Pie(cur.genPieDataAccess(data))+"</td></tr></table>";
-				return "<table><tr><td>"+table+"</td><td>"+charts+"</td></table>";
+				var full =  "<table><tr><td>"+table+"</td><td>"+charts+"</td></tr></table>";
+				console.log(full);
+
+				
+				return $(full).html();
 			},
 			// class: "line-annotate-small",
 			color: colorScale(this.selector.getValue(this.data[i])),

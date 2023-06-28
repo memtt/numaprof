@@ -6,6 +6,7 @@ x.y.z - dd/mm/yyyy
 
  * Support for naming profile files with MPI ranks intead of PID (#36).
  * Fix support of relative paths in webview (#46)
+ * Fix webview issue not displayer to popover of the annotations (not showing the table) (#48)
 
 1.1.4 - 02/12/2022
 ------------------
