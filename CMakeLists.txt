@@ -1,7 +1,7 @@
 ######################################################
 #            PROJECT  : numaprof                     #
-#            VERSION  : 1.1.4                        #
-#            DATE     : 12/2022                      #
+#            VERSION  : 1.1.5                        #
+#            DATE     : 06/2023                      #
 #            AUTHOR   : Valat Sébastien  - CERN      #
 #            LICENSE  : CeCILL-C                     #
 ######################################################
@@ -21,7 +21,7 @@ if (CMAKE_VERSION VERSION_LESS 3.0)
 	set(ENABLE_TESTS OFF)
 else (CMAKE_VERSION VERSION_LESS 3.0)
 	cmake_policy(SET CMP0048 NEW)
-	project(numaprof VERSION 1.1.4 LANGUAGES C CXX)
+	project(numaprof VERSION 1.1.5 LANGUAGES C CXX)
 endif (CMAKE_VERSION VERSION_LESS 3.0)
 
 ######################################################

@@ -1,7 +1,7 @@
 Change log
 ==========
 
-x.y.z - dd/mm/yyyy
+1.1.5 - 28/06/2023
 ------------------
 
  * Support for naming profile files with MPI ranks intead of PID (#36).

@@ -125,6 +125,15 @@ Define type of cache simulation to run. Default is 'dummy'. Available alternativ
 is 'L1' which offer a per thread L1 simulated cache with LRU replacement policy. 
 Look in the config file to see how to configure size and associativity of the cache.</li>
   <li>
+<code>--mpi</code>:
+Enable naming the profile files with the MPI rank instead of the PID. Notice
+you need to place the <code>numaprof</code> command after the <code>mpirun</code> one.
+The rank is obtained by using the mpirun environment variables.
+Currently support OpenMPI, mpich, IntelMPI and probably others it the use
+the same variable names.
+In case you encounter issue you can still look on using the option
+<code>mpi:rankVar</code> to give the variable name or directly the rank.</li>
+  <li>
 <code>-V</code>, <code>--verbose</code>
 Enable more printing for debugging.</li>
 </ul>
@@ -161,6 +170,10 @@ hidden=false
 [cache]
 type=dummy   size=32K   associativity=8
 </code></pre>
+
+<p>[mpi]
+  usrRank=false
+  rankVar=auto</p>
 
 <p>The <code>output</code> section support :</p>
 
@@ -235,6 +248,19 @@ by default 32KB. You can use K, M, G, T as unit (multiple of 1024, not 1000 !).<
 <code>associativity</code>: Define the L1 cache associativity to simulate, by default 8.</li>
 </ul>
 
+<p>The <code>mpi</code> section support:</p>
+
+<dl>
+<dt><code>useRank</code></dt>
+<dd>When dumping the profile, use the MPI rank instead of the PID. The rank is currently extracted from the
+environment variables which should in principle be setted by <code>mpirun</code> commands from the various flavor
+or MPI.</dd>
+<dt><code>rankVar</code></dt>
+<dd>Define the environment to be used to extract the actual MPI rank of the process. By default
+  it is set to <code>auto</code> which search for the known variables. You can also provide the desired
+  variable name or force the value with a numeric value.</dd>
+</dl>
+
 <h2 id="ENVIRONMENT">ENVIRONMENT</h2>
 
 <p>In that case you can setup some environment variables to configure NUMAPROF :</p>
@@ -248,7 +274,7 @@ by default 32KB. You can use K, M, G, T as unit (multiple of 1024, not 1000 !).<
 
 <h2 id="VERSION">VERSION</h2>
 
-<p>This is the manpage of NUMAPROF version 1.1.4.</p>
+<p>This is the manpage of NUMAPROF version 1.1.5.</p>
 
 <h2 id="SEE-ALSO">SEE ALSO</h2>
 
@@ -256,7 +282,7 @@ by default 32KB. You can use K, M, G, T as unit (multiple of 1024, not 1000 !).<
 
   <ol class='man-decor man-foot man foot'>
     <li class='tl'></li>
-    <li class='tc'>December 2022</li>
+    <li class='tc'>June 2023</li>
     <li class='tr'>numaprof(1)</li>
   </ol>
 
