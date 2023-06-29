@@ -83,12 +83,12 @@ The config file use INI format with sections and variables as in this example :
 
 	[cache]
 	type=dummy
-  size=32K
-  associativity=8
+	size=32K
+	associativity=8
 
-  [mpi]
-  usrRank=false
-  rankVar=auto
+	[mpi]
+	usrRank=false
+	rankVar=auto
 
 The `output` section support :
 
