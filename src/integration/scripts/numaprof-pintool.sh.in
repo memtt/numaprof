@@ -14,6 +14,16 @@ PINTOOL_APPDEBUG=""
 NUMAPROF_OPTIONS=""
 
 ######################################################
+# calc MALT root dir relative to this script
+NUMAPROF_PREFIX="$(cd $(dirname $0)/.. && pwd)"
+
+# Handle case where malt command is symlink (can arise is some tricks are applied).
+# check if support readlink -f (not on MacOSX & FreeBSD)
+if readlink -f / > /dev/null 2>/dev/null; then
+        NUMAPROF_PREFIX="$(readlink -f $(dirname $0)/..)"
+fi
+
+######################################################
 CALLGRIND=0
 while true
 do
