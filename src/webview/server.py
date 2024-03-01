@@ -280,10 +280,14 @@ def apiSourcesFileStats(user,path):
 	return Response(jsonData, mimetype='application/json')
 
 def fixPath(path):
-	if path.startswith('{.}'):
-		return path.replace('{.}','.')
-	elif path.startswith('/{.}/'):
-		return path.replace('/{.}/','./')
+	# replace all
+	path = path.replace('{.}','.').replace('{..}','..')
+
+	# handle start
+	if path.startswith('/../'):
+		return path.replace('/../','../')
+	elif path.startswith('/./'):
+		return path.replace('/./','./')
 	else:
 		return "/"+path
 

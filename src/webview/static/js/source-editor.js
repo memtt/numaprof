@@ -367,7 +367,7 @@ NumaprofSourceEditor.prototype.fixRelativePath = function(file)
 {
 	if (file[0] != '/')
 		file = "./" + file;
-	file = file.replace('./','/{.}/');
+	file = file.replace('../','/{..}/').replace('./','/{.}/');
 	return file;
 }
 
