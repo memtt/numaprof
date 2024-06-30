@@ -52,6 +52,8 @@ Options::Options(void)
 	//mpi
 	this->mpiUseRank              = false;
 	this->mpiRankVar              = "auto";
+	//emulaite
+	this->emulateNuma             = -1;
 }
 
 /*******************  FUNCTION  *********************/
@@ -83,6 +85,8 @@ bool Options::operator==(const Options& value) const
 	//mpi
 	if (this->mpiUseRank != value.mpiUseRank) return false;
 	if (this->mpiRankVar != value.mpiRankVar) return false;
+	//numa
+	if (this->emulateNuma != value.emulateNuma) return false;
 	
 	return true;
 }
@@ -195,6 +199,9 @@ void Options::loadFromIniDic ( dictionary* iniDic )
 	//mpi
 	this->mpiUseRank          = iniparser_getboolean(iniDic, "mpi:useRank", this->mpiUseRank);
 	this->mpiRankVar          = iniparser_getstring(iniDic, "mpi:rankVar", (char*)this->mpiRankVar.c_str());
+
+	//emulate
+	this->emulateNuma         = iniparser_getint(iniDic,"emulate:numa", this->emulateNuma);
 }
 
 /*******************  FUNCTION  *********************/
@@ -272,6 +279,10 @@ void convertToJson(htopml::JsonState & json,const Options & value)
 			json.printField("useRank", value.mpiUseRank);
 			json.printField("rankVar", value.mpiRankVar);
 		json.closeFieldStruct("mpi");
+
+		json.openFieldStruct("emulate");
+			json.printField("numa", value.emulateNuma);
+		json.closeFieldStruct("emulate");
 	json.closeStruct();
 }
 
@@ -312,6 +323,9 @@ void Options::dumpConfig(const char* fname) const
 	//mpi
 	IniParserHelper::setEntry(dic,"mpi:usrRank",this->mpiUseRank);
 	IniParserHelper::setEntry(dic,"mpi:rankVar",this->mpiRankVar.c_str());
+
+	//emulate
+	IniParserHelper::setEntry(dic,"emulate:numa",this->emulateNuma);
 
 	//write
 	FILE * fp = fopen(fname,"w");

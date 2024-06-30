@@ -17,6 +17,9 @@
 namespace numaprof
 {
 
+/*******************  DEFINE  ***********************/
+#define MALT_NUMA_UNBOUND -1
+
 /*******************  FUNCTION  *********************/
 struct OS
 {
@@ -27,8 +30,9 @@ struct OS
 	static std::string getDateTime(void);
 	static int getPID(void);
 	static int getTID(void);
-	static int getNumaOfPage(size_t addr);
-	static int getNumaOfHugePage(size_t addr,bool * isHugePage);
+	static int getNumaOfPage(size_t addr, int numaOfThread);
+	static int getNumaOfHugePage(size_t addr,bool * isHugePage, int numaOfThread);
+	static int emulateNumaNode(int numaOfThread);
 };
 
 }

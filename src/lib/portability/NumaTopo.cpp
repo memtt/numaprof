@@ -56,13 +56,24 @@ static const char * gblBindingNames[] = {
 /*******************  FUNCTION  *********************/
 NumaTopo::NumaTopo(void)
 {
+	//setup
 	this->cpus = 0;
 	this->numaNodes = 0;
 	this->numaMap = NULL;
 
+	//load
 	this->loadCpuNb();
-	this->loadNumaMap();
-	this->loadDistanceMap();
+
+	//emulates
+	if (gblOptions->emulateNuma > 0) {
+		this->loadNumaMapEmulated();
+		this->loadDistanceMapEmulated();
+	} else {
+		this->loadNumaMap();
+		this->loadDistanceMap();
+	}
+
+	//load
 	this->loadParendNode();
 }
 
@@ -109,6 +120,28 @@ int NumaTopo::getDistanceMax(void) const
 		if (distanceMap[i] > max)
 			max = distanceMap[i];
 	return max;
+}
+
+/*******************  FUNCTION  *********************/
+void NumaTopo::loadDistanceMapEmulated(void)
+{
+	//check
+	assert(gblOptions->emulateNuma > 0);
+
+	//check
+	numaprofAssume(this->cpus % gblOptions->emulateNuma == 0, "Number of CPU should be multiple of emulated NUMA number");
+
+	//allocate
+	distanceMap = new int[numaNodes * numaNodes];
+	memset(distanceMap,0,numaNodes*numaNodes*sizeof(int));
+
+	//set 1 for not self
+	for (int i = 0 ; i < numaNodes ; i++)
+		for (int j = 0 ; j < numaNodes ; j++)
+			if (i == j)
+				distanceMap[i + j * numaNodes] = 0;
+			else
+				distanceMap[i + j * numaNodes] = 1;
 }
 
 /*******************  FUNCTION  *********************/
@@ -167,6 +200,29 @@ void NumaTopo::loadDistanceMap(void)
 	//apply
 	for (int i = 0 ; i <numaNodes * numaNodes ; i++)
 		distanceMap[i] = values[distanceMap[i]];
+}
+
+/*******************  FUNCTION  *********************/
+void NumaTopo::loadNumaMapEmulated(void)
+{
+	//check
+	assert(gblOptions->emulateNuma > 0);
+
+	//check
+	numaprofAssume(this->cpus % gblOptions->emulateNuma == 0, "Number of CPU should be multiple of emulated NUMA number");
+
+	//allocate
+	numaMap = new int[cpus];
+	for (int i = 0 ; i < cpus ; i++)
+		numaMap[i] = i % gblOptions->emulateNuma;
+	
+	//allocate
+	isMcdram = new bool[cpus];
+	for (int i = 0 ; i < cpus ; i++)	
+		isMcdram[i] = false;
+
+	//set
+	numaNodes = gblOptions->emulateNuma;
 }
 
 /*******************  FUNCTION  *********************/
@@ -487,6 +543,7 @@ void convertToJson(htopml::JsonState& json, const NumaTopo& value)
 					for (int i = 0 ; i < value.numaNodes ; i++)
 						json.printValue(value.distanceMap[node*value.numaNodes+i]);
 				json.closeFieldArray("distance");
+				json.printField("emulated", (gblOptions->emulateNuma > 0));
 			json.closeFieldStruct(nodeName);
 		}
 	json.closeStruct();

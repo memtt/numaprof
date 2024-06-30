@@ -12,6 +12,7 @@
 #include <unistd.h>
 #include <ctime>
 #include "../common/Debug.hpp"
+#include "../common/Options.hpp"
 #include "OS.hpp"
 #include <sys/types.h>
 #ifdef __PIN__
@@ -140,9 +141,28 @@ int OS::getTID(void)
 }
 
 /*******************  FUNCTION  *********************/
-int OS::getNumaOfPage(size_t addr)
+int OS::emulateNumaNode(int numaOfThread)
+{
+	//emulate
+	assert (gblOptions->emulateNuma != -1);
+	assert(numaOfThread == -1 || numaOfThread < gblOptions->emulateNuma);
+
+	//apply
+	if (numaOfThread == -1)
+		return rand()%numaOfThread;
+	else
+		return numaOfThread;
+}
+
+/*******************  FUNCTION  *********************/
+int OS::getNumaOfPage(size_t addr, int numaOfThread)
 {
 	static bool hasMovePages = true;
+
+	//emulate
+	if (gblOptions->emulateNuma != -1 && hasMovePages == false)
+		assert(false);
+		//return OS::emulateNumaNode(numaOfThread);
 
 	//go fast
 	if (hasMovePages == false)
@@ -156,7 +176,10 @@ int OS::getNumaOfPage(size_t addr)
 	long ret = move_pages(0,1,pages,NULL,&status,0);
 	if (ret == 0)
 	{
-		return status;
+		if (gblOptions->emulateNuma != -1 && status >= 0)
+			return OS::emulateNumaNode(numaOfThread);
+		else
+			return status;
 	} else {
 		if (errno == ENOSYS)
 		{
@@ -168,17 +191,22 @@ int OS::getNumaOfPage(size_t addr)
 }
 
 /*******************  FUNCTION  *********************/
-int OS::getNumaOfHugePage(size_t addr,bool * isHugePage)
+int OS::getNumaOfHugePage(size_t addr,bool * isHugePage, int numaOfThread)
 {
 	//trivial
 	if (isHugePage == NULL)
-		return getNumaOfPage(addr);
+		return getNumaOfPage(addr, numaOfThread);
 	
 	//remember
 	static bool hasMovePages = true;
 	
 	//default
 	*isHugePage = true;
+
+	//emulate
+	if (gblOptions->emulateNuma != -1 &&  hasMovePages == false)
+		assert(false);
+		//return OS::emulateNumaNode(numaOfThread);
 
 	//go fast
 	if (hasMovePages == false)
@@ -197,6 +225,13 @@ int OS::getNumaOfHugePage(size_t addr,bool * isHugePage)
 	int status[HUGE_PAGE_SUB_PAGES];
 	long ret = move_pages(0,HUGE_PAGE_SUB_PAGES,pages,NULL,status,0);
 	
+	//emulate
+	if (gblOptions->emulateNuma != -1)
+		for (int i = 0 ; i < HUGE_PAGE_SUB_PAGES ; i++)
+			if (status[i] >= 0)
+				status[i] = OS::emulateNumaNode(numaOfThread);
+
+	//failed on move pages
 	if (ret != 0)
 	{
 		if (errno == ENOSYS)

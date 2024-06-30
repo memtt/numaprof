@@ -90,6 +90,9 @@ The config file use INI format with sections and variables as in this example :
 	usrRank=false
 	rankVar=auto
 
+	[emulate]
+	numa=-1
+
 The `output` section support :
 
  * `name`:
@@ -151,6 +154,10 @@ The `mpi` section support:
    Define the environment to be used to extract the actual MPI rank of the process. By default
   it is set to `auto` which search for the known variables. You can also provide the desired
   variable name or force the value with a numeric value.
+
+The `emulate` section support:
+ * `numa`: Emulate a numa server by considering X numa node over the available cores which will be
+  spreaded over the X numa domains.
 
 ## ENVIRONMENT
 

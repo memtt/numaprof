@@ -394,8 +394,9 @@ void PageTable::regAllocPointer(size_t baseAddr,size_t size,void * value)
  * @param addr Base address of the related segement.
  * @param size Size of the segemnt.
  * @param pinned Define if marked as pinned or not. It depend on the pinning mask provided to mbind.
+ * @param numaOfThread NUMA node of the thread to be used for NUMA emulation.
 **/
-void PageTable::onMbind(void * addr,size_t size,bool pinned)
+void PageTable::onMbind(void * addr,size_t size,bool pinned, int numaOfThread)
 {
 	//seutp
 	uint64_t end = (uint64_t)addr + size;
@@ -408,7 +409,7 @@ void PageTable::onMbind(void * addr,size_t size,bool pinned)
 		Page & page = getPage(cur);
 		
 		//update mapping
-		page.numaNode = OS::getNumaOfPage(cur);
+		page.numaNode = OS::getNumaOfPage(cur, numaOfThread);
 		
 		//update pinning
 		page.fromPinnedThread = pinned;

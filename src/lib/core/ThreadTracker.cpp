@@ -275,7 +275,7 @@ void ThreadTracker::onAccessHandling(size_t ip,size_t addr,bool write,bool skip)
 	//if not defined use move pages
 	if (pageNode <= NUMAPROF_DEFAULT_NUMA_NODE)
 	{
-		pageNode = OS::getNumaOfPage(addr);
+		pageNode = OS::getNumaOfPage(addr, this->numa);
 		//printf("Page on %d, write = %d\n",pageNode,write);
 		if (write && pageNode <= NUMAPROF_DEFAULT_NUMA_NODE)
 		{
@@ -293,7 +293,7 @@ void ThreadTracker::onAccessHandling(size_t ip,size_t addr,bool write,bool skip)
 				assert(false);
 			} else if (table->canBeHugePage(addr)) {
 				bool isHugePage;
-				pageNode = OS::getNumaOfHugePage(addr,&isHugePage);
+				pageNode = OS::getNumaOfHugePage(addr,&isHugePage,this->numa);
 				assert(pageNode >= 0);
 				if (isHugePage)
 				{
@@ -595,7 +595,7 @@ void ThreadTracker::onMBind(void * addr,size_t len,size_t mode,const unsigned lo
 	bool pinned = (policy.type != MEMBIND_NO_BIND);
 
 	//update page table
-	table->onMbind(addr,len,pinned);
+	table->onMbind(addr,len,pinned,this->numa);
 }
 
 /*******************  FUNCTION  *********************/

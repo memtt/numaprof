@@ -120,6 +120,8 @@ struct Options
 	bool mpiUseRank;
 	/** Rank is detected by env var, use 'auto' or give a variable name. */
 	std::string mpiRankVar;
+	/** Allows to emulate a NUMA node if you are on a UMA one. */
+	int emulateNuma;
 };
 
 /********************  GLOBALS  *********************/
