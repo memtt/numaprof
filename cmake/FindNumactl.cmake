@@ -14,8 +14,9 @@ find_path(NUMACTL_INCLUDE_DIR numa.h
 	HINTS ${NUMACTL_PREFIX}/include)
 
 ######################################################
+include(GNUInstallDirs)
 find_library(NUMACTL_LIBRARY NAMES numa
-	HINTS ${NUMACTL_PREFIX}/lib)
+	HINTS ${NUMACTL_PREFIX}/lib ${NUMACTL_PREFIX}/${CMAKE_INSTALL_LIBDIR})
 
 ######################################################
 set(NUMACTL_LIBRARIES ${NUMACTL_LIBRARY} )
