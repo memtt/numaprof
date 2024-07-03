@@ -195,7 +195,7 @@ function loadFunctions()
 	if (gblIsAsm)
 		select = "asm";
 	
-	$.getJSON( "/api/"+select+"/functions.json", function(data) {
+	$.getJSON( "../api/"+select+"/functions.json", function(data) {
 		console.log(data);
 		functions = data;
 		for (var i in data)

@@ -427,9 +427,9 @@ function setupInitial(data)
 /*******************  FUNCTION  *********************/
 function loadDetails()
 {
-	$.getJSON( "/api/index/infos.json", function(dataInfos) {
+	$.getJSON( "../api/index/infos.json", function(dataInfos) {
 		gblTotalTime = dataInfos.duration;
-		$.getJSON( "/api/details/threads.json", function(data) {
+		$.getJSON( "../api/details/threads.json", function(data) {
 			setupInitial(data);
 		})
 		.fail(function(data) {
