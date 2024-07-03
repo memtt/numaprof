@@ -190,9 +190,9 @@ NumaprofSourceEditor.prototype.loadSourceFile = function(file,func,success,fail)
 	//build the URI
 	var uri;
 	if (file[0] == '/')
-		uri = "../api/"+select+"/file"+file+"?func="+func;
+		uri = "./api/"+select+"/file"+file+"?func="+func;
 	else
-		uri = "../api/"+select+"/no-path-file/"+file+"?func="+func;
+		uri = "./api/"+select+"/no-path-file/"+file+"?func="+func;
 	
 	$.get( uri, function(data) {
 		success(data);

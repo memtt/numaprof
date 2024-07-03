@@ -150,7 +150,7 @@ function printThreadBinding(data)
 /*******************  FUNCTION  *********************/
 function loadThreadInfos()
 {
-	$.getJSON( "../api/threads/infos.json", function(data) {
+	$.getJSON( "./api/threads/infos.json", function(data) {
 		setupBarChart("threadsFirstTouch",genFirstTouchData(data));
 		setupBarChart("threadsAccess",genFirstAccess(data));
 		printThreadBinding(data);

@@ -279,7 +279,7 @@ function genPieDataAccess(data)
 /*******************  FUNCTION  *********************/
 function loadInfos()
 {
-	$.getJSON( "../api/index/infos.json", function(data) {
+	$.getJSON( "./api/index/infos.json", function(data) {
 		$("#summaryExe").text(data.exe);
 		$("#summaryCommand").text(data.command);
 		$("#summaryTool").text(data.tool);
@@ -294,7 +294,7 @@ function loadInfos()
 /*******************  FUNCTION  *********************/
 function loadNumaTopo()
 {
-	$.getJSON( "../api/index/numa-topo.json", function(data) {
+	$.getJSON( "./api/index/numa-topo.json", function(data) {
 		for(var node in data)
 		{
 			var entry;
@@ -313,7 +313,7 @@ function loadNumaTopo()
 /*******************  FUNCTION  *********************/
 function loadProcessSummary()
 {
-	$.getJSON( "../api/index/process-summary.json", function(data) {
+	$.getJSON( "./api/index/process-summary.json", function(data) {
 		setupPieChart("processFirstTouch",genPieDataFirstTouch(data));
 		setupPieChart("processAccess",genPieDataAccess(data));
 	})
@@ -325,7 +325,7 @@ function loadProcessSummary()
 /*******************  FUNCTION  *********************/
 function loadAccessMatrix()
 {
-	$.getJSON( "../api/index/process-access-matrix.json", function(data) {
+	$.getJSON( "./api/index/process-access-matrix.json", function(data) {
 		setupHeadMap("accessMatrix",data);
 	})
 	.fail(function(data) {
@@ -336,7 +336,7 @@ function loadAccessMatrix()
 /*******************  FUNCTION  *********************/
 function loadNumaPageStats()
 {
-	$.getJSON( "../api/index/numa-page-stats.json", function(data) {
+	$.getJSON( "./api/index/numa-page-stats.json", function(data) {
 		setupNumaPageStats(data);
 	})
 	.fail(function(data) {
@@ -347,7 +347,7 @@ function loadNumaPageStats()
 /*******************  FUNCTION  *********************/
 function loadDistanceCnt()
 {
-	$.getJSON( "../api/index/process-distance-cnt.json", function(data) {
+	$.getJSON( "./api/index/process-distance-cnt.json", function(data) {
 		setupDistanceCnt(data);
 	})
 	.fail(function(data) {
