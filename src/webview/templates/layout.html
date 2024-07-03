@@ -3,22 +3,22 @@
 	<head>
 		<title>Numaprof - {{file}} - {% block title %}{% endblock %}</title>
 		<!-- jquery -->
-		<script language="javascript" src="/static/bower/jquery/dist/jquery.min.js"></script>
+		<script language="javascript" src="static/bower/jquery/dist/jquery.min.js"></script>
 		<!-- bootstrap -->
-		<link rel="stylesheet" type="text/css" href="/static/bower/bootstrap/dist/css/bootstrap.min.css">
-		<link rel="stylesheet" type="text/css" href="/static/bower/bootstrap/dist/css/bootstrap-theme.min.css">
-		<script language="javascript" src="/static/bower/bootstrap/dist/js/bootstrap.min.js"></script>
+		<link rel="stylesheet" type="text/css" href="static/bower/bootstrap/dist/css/bootstrap.min.css">
+		<link rel="stylesheet" type="text/css" href="static/bower/bootstrap/dist/css/bootstrap-theme.min.css">
+		<script language="javascript" src="static/bower/bootstrap/dist/js/bootstrap.min.js"></script>
 		<!-- D3JS -->
-		<script language="javascript" src="/static/bower/d3/d3.min.js"></script>
+		<script language="javascript" src="xstatic/bower/d3/d3.min.js"></script>
 		<!-- NVD3 -->
-		<script language="javascript" src="/static/bower/nvd3/build/nv.d3.min.js"></script>
-		<link rel="stylesheet" type="text/css" href="/static/bower/nvd3/build/nv.d3.min.css">
+		<script language="javascript" src="static/bower/nvd3/build/nv.d3.min.js"></script>
+		<link rel="stylesheet" type="text/css" href="static/bower/nvd3/build/nv.d3.min.css">
 		<!-- Default style -->
-		<link rel="stylesheet" type="text/css" href="/static/css/style.css">
+		<link rel="stylesheet" type="text/css" href="static/css/style.css">
 		<!-- d3-tip -->
-		<script language="javascript" src="/static/bower/d3-tip/index.js"></script>
+		<script language="javascript" src="static/bower/d3-tip/index.js"></script>
 		<!-- common script -->
-		<script language="javascript" src="/static/js/helper.js"></script>
+		<script language="javascript" src="static/js/helper.js"></script>
 		{% block import %}
 		{% endblock %}
 	</head>
@@ -37,11 +37,11 @@
 				</div>
 				<div id="navbar" class="navbar-collapse collapse">
 				<ul class="nav navbar-nav">
-					<li {% if page == "home" %} class="active"{% endif %}><a href="/index.html">Home</a></li>
-					<li {% if page == "threads" %} class="active"{% endif %}><a href="/threads.html">Threads</a></li>
-					<li {% if page == "details" %} class="active"{% endif %}><a href="/details.html">Details</a></li>
-					<li {% if page == "sources" %} class="active"{% endif %}><a href="/sources.html">Sources</a></li>
-					<li {% if page == "asm" %} class="active"{% endif %}><a href="/asm.html">Assembler</a></li>
+					<li {% if page == "home" %} class="active"{% endif %}><a href="index.html">Home</a></li>
+					<li {% if page == "threads" %} class="active"{% endif %}><a href="threads.html">Threads</a></li>
+					<li {% if page == "details" %} class="active"{% endif %}><a href="details.html">Details</a></li>
+					<li {% if page == "sources" %} class="active"{% endif %}><a href="sources.html">Sources</a></li>
+					<li {% if page == "asm" %} class="active"{% endif %}><a href="asm.html">Assembler</a></li>
 					<!--<li {% if page == "help" %} class="active"{% endif %}><a href="/help.html">Help</a></li>-->
 				</ul>
 				</div><!--/.nav-collapse -->
