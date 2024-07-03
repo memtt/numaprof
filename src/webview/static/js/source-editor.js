@@ -414,9 +414,9 @@ NumaprofSourceEditor.prototype.updateAnotations = function(move,func)
 	//build URI
 	var uri;
 	if (file[0] == '/')
-		uri ="/api/"+select+"/file-stats"+file+"?func="+func;
+		uri ="./api/"+select+"/file-stats"+file+"?func="+func;
 	else
-		uri ="/api/"+select+"/no-path-file-stats/"+file+"?func="+func;
+		uri ="./api/"+select+"/no-path-file-stats/"+file+"?func="+func;
 		
 	
 	//fetch flat profile of current file
