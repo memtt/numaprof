@@ -15,6 +15,7 @@
 /*******************  HEADERS  **********************/
 #include <cstdlib>
 #include <map>
+#include <cstdint>
 #include "Stack.hpp"
 #include "../../../extern-deps/from-htopml/json/ConvertToJson.h"
 

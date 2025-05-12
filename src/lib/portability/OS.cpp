@@ -15,6 +15,8 @@
 #include "../common/Options.hpp"
 #include "OS.hpp"
 #include <sys/types.h>
+#include <fcntl.h>
+#include <unistd.h>
 #ifdef __PIN__
 	#include "../../extern-deps/from-numactl/MovePages.hpp"
 #else
@@ -155,14 +157,46 @@ int OS::emulateNumaNode(int numaOfThread)
 }
 
 /*******************  FUNCTION  *********************/
+bool OS::getPageMapPresent(size_t addr)
+{
+	//keep track
+	static int fd = -1;
+
+	//open if not yet
+	if (fd == -1) {
+		fd = open("/proc/self/pagemap", O_RDONLY, O_CLOEXEC);
+	}
+
+	//read
+	PageMapEntry entry;
+	
+	//read the rentry
+	size_t offset = (addr / 4096) * sizeof(entry);
+	off_t res1 = lseek(fd, offset, SEEK_SET);
+	assert(res1 == (off_t)offset);
+	ssize_t res2 = read(fd, &entry, sizeof(entry));
+
+	//check
+	if (res2 == sizeof(entry)) {
+		return (entry.present == 1);
+	} else {
+		assert(false);
+		return false;
+	}
+}
+
+/*******************  FUNCTION  *********************/
 int OS::getNumaOfPage(size_t addr, int numaOfThread)
 {
 	static bool hasMovePages = true;
 
 	//emulate
-	if (gblOptions->emulateNuma != -1 && hasMovePages == false)
-		assert(false);
-		//return OS::emulateNumaNode(numaOfThread);
+	if (gblOptions->emulateNuma != -1 && hasMovePages == false) {
+		if (OS::getPageMapPresent(addr))
+			return OS::emulateNumaNode(numaOfThread);
+		else
+			return -10;
+	}
 
 	//go fast
 	if (hasMovePages == false)
@@ -186,7 +220,14 @@ int OS::getNumaOfPage(size_t addr, int numaOfThread)
 			fprintf(stderr,"\033[31mNUMAPROF: CAUTION, move_pages not implemented, you might be running on a non NUMA system !\nAll accesses will be considered local !\033[0m\n");
 			hasMovePages = false;
 		}
-		return 0;
+		if (gblOptions->emulateNuma != -1) {
+			if (OS::getPageMapPresent(addr))
+				return OS::emulateNumaNode(numaOfThread);
+			else
+				return -10;
+		} else {
+			return 0;
+		}
 	}
 }
 
@@ -224,12 +265,22 @@ int OS::getNumaOfHugePage(size_t addr,bool * isHugePage, int numaOfThread)
 	//call
 	int status[HUGE_PAGE_SUB_PAGES];
 	long ret = move_pages(0,HUGE_PAGE_SUB_PAGES,pages,NULL,status,0);
-	
+
 	//emulate
-	if (gblOptions->emulateNuma != -1)
-		for (int i = 0 ; i < HUGE_PAGE_SUB_PAGES ; i++)
-			if (status[i] >= 0)
-				status[i] = OS::emulateNumaNode(numaOfThread);
+	if (gblOptions->emulateNuma != -1) {
+		if (ret >= 0) {
+			for (int i = 0 ; i < HUGE_PAGE_SUB_PAGES ; i++)
+				if (status[i] >= 0)
+					status[i] = OS::emulateNumaNode(numaOfThread);
+		} else {
+			for (int i = 0 ; i < HUGE_PAGE_SUB_PAGES ; i++)
+				if (OS::getPageMapPresent((size_t)pages[i]))
+					status[i] = OS::emulateNumaNode(numaOfThread);
+				else
+					status[i] = -10;
+			ret = 0;
+		}
+	}
 
 	//failed on move pages
 	if (ret != 0)
