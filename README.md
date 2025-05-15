@@ -265,7 +265,9 @@ To cite
 If you publish about NUMAPROF, you cite this research paper as reference :
 
 ```
-Valat, S., Bouizi, O. (2019). NUMAPROF, A NUMA Memory Profiler. In: Mencagli, G., et al. Euro-Par 2018: Parallel Processing Workshops. Euro-Par 2018. Lecture Notes in Computer Science(), vol 11339. Springer, Cham. https://doi.org/10.1007/978-3-030-10549-5_13
+Valat, S., Bouizi, O. (2019). NUMAPROF, A NUMA Memory Profiler. In: Mencagli, G., et al.
+Euro-Par 2018: Parallel Processing Workshops. Euro-Par 2018. Lecture Notes in Computer
+Science(), vol 11339. Springer, Cham. https://doi.org/10.1007/978-3-030-10549-5_13
 ```
 
 Discussion
