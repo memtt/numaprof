@@ -1,6 +1,14 @@
 Change log
 ==========
 
+1.1.6 - 20/06/2025
+------------------
+
+ * Fix /lib install dir using GNU convention from CMake.
+ * Add option to emulate NUMA (emulate:numa=X).
+ * Make webview such it working inside code_server redirect.
+ * Make installation dir relocalisable.
+
 1.1.5 - 28/06/2023
 ------------------
 
