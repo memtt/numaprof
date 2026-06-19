@@ -151,7 +151,7 @@ int OS::emulateNumaNode(int numaOfThread)
 
 	//apply
 	if (numaOfThread == -1)
-		return rand()%numaOfThread;
+		return rand()%gblOptions->emulateNuma;
 	else
 		return numaOfThread;
 }

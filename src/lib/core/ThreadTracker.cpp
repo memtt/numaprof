@@ -292,8 +292,10 @@ void ThreadTracker::onAccessHandling(size_t ip,size_t addr,bool write,bool skip)
 				//this sould not append
 				assert(false);
 			} else if (table->canBeHugePage(addr)) {
-				bool isHugePage;
+				bool isHugePage = false;
 				pageNode = OS::getNumaOfHugePage(addr,&isHugePage,this->numa);
+				if (pageNode < 0 && gblOptions->emulateNuma != -1)
+					pageNode = OS::emulateNumaNode(this->numa);
 				assert(pageNode >= 0);
 				if (isHugePage)
 				{
