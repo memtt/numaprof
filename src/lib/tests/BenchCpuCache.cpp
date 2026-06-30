@@ -1,8 +1,8 @@
 
 /*****************************************************
              PROJECT  : numaprof
-             VERSION  : 1.1.6
-             DATE     : 06/2025
+             VERSION  : 1.1.7
+             DATE     : 06/2026
              AUTHOR   : Valat Sébastien - CERN
              LICENSE  : CeCILL-C
 *****************************************************/
