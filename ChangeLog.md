@@ -1,6 +1,12 @@
 Change log
 ==========
 
+1.1.7 - 30/06/2025
+------------------
+
+ * Fix issue with -o emultate:numa=X in certain conditions.
+ * Fix issue due to a too strict assert in huge page management.
+
 1.1.6 - 20/06/2025
 ------------------
 
